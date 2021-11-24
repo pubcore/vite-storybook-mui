@@ -1,0 +1,78 @@
+{
+  "name": "@pubcore/vite-storybook-mui",
+  "version": "0.1.0",
+  "description": "Storybook for react components based on MUI",
+  "main": "./dist/index.es.js",
+  "module": "./dist/index.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.es.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "watch": "vite build --watch",
+    "serve": "vite preview",
+    "prepare": "husky install && npm run build",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook",
+    "postinstall": "patch-package"
+  },
+  "peerDependencies": {
+    "@emotion/react": "^11.5.0",
+    "@mui/icons-material": "^5.1.1",
+    "@mui/material": "^5.1.1",
+    "i18next": "^21.5.3",
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0",
+    "react-hook-form": "^7.17.4",
+    "react-i18next": "^11.14.3",
+    "react-router-dom": "^6.0.1"
+  },
+  "dependencies": {
+    "lodash-es": "^4.17.21",
+    "react-virtualized": "^9.22.3",
+    "throat": "^6.0.1"
+  },
+  "devDependencies": {
+    "@storybook/addon-actions": "^6.4.0-rc.6",
+    "@storybook/addon-essentials": "^6.4.0-rc.6",
+    "@storybook/addon-links": "^6.4.0-rc.6",
+    "@storybook/react": "^6.4.0-rc.6",
+    "@types/lodash-es": "^4.17.5",
+    "@types/node": "^16.11.1",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "@types/react-virtualized": "^9.21.14",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
+    "@vitejs/plugin-react": "^1.0.5",
+    "eslint": "^8.2.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-react": "^7.26.1",
+    "eslint-plugin-react-hooks": "^4.2.1-alpha-ee069065d-20211105",
+    "husky": "^7.0.2",
+    "lint-staged": "^12.1.2",
+    "patch-package": "^6.4.7",
+    "prettier": "^2.4.1",
+    "storybook-builder-vite": "^0.1.9",
+    "storybook-dark-mode": "^1.0.9-canary.166.3604.0",
+    "typescript": "^4.3.2",
+    "vite": "^2.6.4"
+  },
+  "keywords": [
+    "MUI",
+    "storybook"
+  ],
+  "author": "pubcore",
+  "license": "MIT",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "eslint --cache --fix",
+    "**/*": "prettier --write  \n--ignore-unknown"
+  },
+  "files": [
+    "dist"
+  ]
+}
