@@ -4,6 +4,7 @@
   "description": "Storybook for react components based on MUI",
   "main": "./dist/index.es.js",
   "module": "./dist/index.es.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.es.js"
@@ -36,6 +37,7 @@
     "throat": "^6.0.1"
   },
   "devDependencies": {
+    "@rollup/plugin-typescript": "^8.3.0",
     "@storybook/addon-actions": "^6.4.0-rc.6",
     "@storybook/addon-essentials": "^6.4.0-rc.6",
     "@storybook/addon-links": "^6.4.0-rc.6",
@@ -74,5 +76,9 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:pubcore/vite-storybook-mui.git"
+  }
 }
