@@ -1,6 +1,10 @@
 import { ReactNode, useMemo, StrictMode } from "react";
-import { ThemeProvider, ThemeOptions } from "@mui/material/styles";
-import { CssBaseline, useMediaQuery } from "@mui/material";
+import {
+  CssBaseline,
+  useMediaQuery,
+  ThemeProvider,
+  ThemeOptions,
+} from "@mui/material";
 import { BrowserRouter } from "react-router-dom";
 const useDarkModeDefault = () => null;
 

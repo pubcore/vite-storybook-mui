@@ -105,7 +105,7 @@ export default function Login({ login, registerUri }: LoginProps) {
                 </IconButton>
               </InputAdornment>
             ),
-            labelWidth: 70,
+            label: t("password"),
           }}
         />
         <FormHelperText {...{ error: Boolean(errors?.password) }}>
