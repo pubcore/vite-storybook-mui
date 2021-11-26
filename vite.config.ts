@@ -12,7 +12,7 @@ export default defineConfig({
       entry: "./src/components/index.ts",
       name: "@pubcore/vite-storybook-mui",
       fileName: (format) => `index.${format}.js`,
-      formats: ["es"],
+      formats: ["es", "umd"],
     },
     rollupOptions: {
       external: Object.keys(peerDependencies),
