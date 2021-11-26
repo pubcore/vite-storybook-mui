@@ -17,7 +17,7 @@ const TextField = styled(MuiTextField)(({ theme: { spacing } }) => ({
   //fix "blue background" issue with safari, if a "autofill value" is used
   "& .MuiInputBase-input": {
     "&:-webkit-autofill": {
-      "-webkit-box-shadow": "0 0 0 100px rgb(0, 0, 0, 0) inset",
+      WebkitBoxShadow: "0 0 0 100px rgb(0, 0, 0, 0) inset",
       transition: "background-color 5000s ease-in-out 0s",
     },
   },
