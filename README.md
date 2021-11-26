@@ -18,14 +18,23 @@
 
 #### Install
 
-Find a name for «your-project» in "Kebab case" (this-is-kebab-case). A directory
-with this name will be created. Change into your scope/group directory and
-execute commands below.
-(Npm 7 is required to auto install peer dependencies)
-
 Note (2021-10-17)
 Vulnarabilities shown after install are based on dependencies of storybook.
 One opinion about this: https://overreacted.io/npm-audit-broken-by-design/
+
+```
+git clone git@github.com:pubcore/vite-storybook-mui.git &&\
+cd ./vite-storybook-mui &&\
+npm i --legacy-peer-deps --ignore-scripts; npm i --force &&\
+npm run storybook
+```
+
+#### Install as starting point for new project
+
+Find a name for «your-project» in "Kebab case" (this-is-kebab-case). A directory
+with this name will be created. Change into your scope/group directory and
+execute commands below.
+(npm version >= 7 is required to auto install peer dependencies)
 
 ```
 # If `npx degit` does not work, just clone this repo and delete .git dir
