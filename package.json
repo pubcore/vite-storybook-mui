@@ -15,10 +15,9 @@
     "build": "tsc && vite build",
     "watch": "vite build --watch",
     "serve": "vite preview",
-    "prepare": "husky install && npm run build",
+    "prepare": "patch-package && husky install && npm run build",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
-    "postinstall": "patch-package"
+    "build-storybook": "build-storybook"
   },
   "peerDependencies": {
     "@emotion/react": "^11.5.0",
