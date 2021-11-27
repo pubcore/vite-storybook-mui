@@ -23,9 +23,9 @@ Vulnarabilities shown after install are based on dependencies of storybook.
 One opinion about this: https://overreacted.io/npm-audit-broken-by-design/
 
 ```
-git clone git@github.com:pubcore/vite-storybook-mui.git &&\
-cd ./vite-storybook-mui &&\
-npm i --legacy-peer-deps --ignore-scripts; npm i --force &&\
+git clone git@github.com:pubcore/vite-storybook-mui.git && \
+cd ./vite-storybook-mui && \
+npm i --legacy-peer-deps --ignore-scripts; npm i --force && \
 npm run storybook
 ```
 
@@ -40,9 +40,9 @@ execute commands below.
 # If `npx degit` does not work, just clone this repo and delete .git dir
 npx degit pubcore/vite-storybook-mui «your-project»
 cd «your-project»
-git init
-npm i --legacy-peer-deps --ignore-scripts; npm i --force
-git add . && git commit -m "init"
+git init && \
+npm i --legacy-peer-deps --ignore-scripts; npm i --force && \
+git add . && git commit -m "init" && \
 npm run storybook
 ```
 
