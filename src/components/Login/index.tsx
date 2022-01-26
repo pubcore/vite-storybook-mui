@@ -35,12 +35,12 @@ export interface LoginProps {
 export default function Login({ login, registerUri }: LoginProps) {
   const { t } = useTranslation();
   const [showPw, toggleShowPw] = useState(false);
-  const [errorText, setError] = useState(""),
-    {
-      register,
-      handleSubmit,
-      formState: { errors = {}, isSubmitting },
-    } = useForm();
+  const [errorText, setError] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors = {}, isSubmitting },
+  } = useForm<FormValues>();
   const submit = async (values: FormValues) => {
     const { textkey, severity } = await login(values);
     if (severity != "success") {
@@ -58,7 +58,7 @@ export default function Login({ login, registerUri }: LoginProps) {
         margin: 1,
       }}
       component="form"
-      onSubmit={handleSubmit((values: FormValues) => {
+      onSubmit={handleSubmit((values) => {
         submit(values);
       })}
       noValidate
