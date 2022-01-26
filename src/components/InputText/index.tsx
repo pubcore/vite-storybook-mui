@@ -6,7 +6,7 @@ import {
 import { UseFormReturn } from "react-hook-form";
 
 export type InputTextProps = {
-  register: UseFormReturn["register"];
+  register?: UseFormReturn["register"];
   errorText?: string;
   helperText?: string;
   name: string;
@@ -42,8 +42,8 @@ export default function InputText({
           typeof label === "string" ? label.replace(/\s/g, "_") : "text_field"
         }`,
         error: Boolean(errorText),
-        inputProps: register(name),
         helperText: errorText || helperText || " ",
+        ...((register && { inputProps: register(name) }) || {}),
         ...rest,
       }}
     />
