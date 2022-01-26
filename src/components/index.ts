@@ -47,6 +47,8 @@ export { default as TabPanel } from "./Tabs";
 export type { UserMenuProps } from "./UserMenu";
 export { default as UserMenu } from "./UserMenu";
 export { default as Datatable } from "./Datatable";
+export type { DatatableProps } from "./Datatable/Datatable";
+export type { HeaderRowFilterProps as DatatableHeaderRowFilterProps } from "./Datatable/Datatable";
 export { default as FileUpload } from "./FileUpload";
 export type { FileUploadProps } from "./FileUpload";
 export type { TooltipOnOverflowProps } from "./Tooltip/TooltipOnOverflow";

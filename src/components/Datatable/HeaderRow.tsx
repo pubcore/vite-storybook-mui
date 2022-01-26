@@ -1,25 +1,4 @@
-import { ReactNode } from "react";
-import type { TableHeaderRowProps } from "react-virtualized";
-import type { ColumnType, DatatableProps } from "./";
-
-type ChangeFilter = ({ name, value }: { name: string; value: unknown }) => void;
-
-export interface HeaderRowFilterProps {
-  name: string;
-  changeFilter: ChangeFilter;
-}
-
-export interface HeaderRowProps
-  extends Omit<TableHeaderRowProps, "width" | "height" | "scrollbarWidth"> {
-  visibleColumns: ColumnType[];
-  showFilter?: boolean;
-  selectedRows?: DatatableProps["selectedRows"];
-  rowFilter?: Record<
-    string,
-    ({ name, changeFilter }: HeaderRowFilterProps) => ReactNode
-  >;
-  changeFilter: ChangeFilter;
-}
+import { HeaderRowProps } from "./Datatable";
 
 export default function HeaderRow({
   className,

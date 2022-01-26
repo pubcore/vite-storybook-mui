@@ -5,14 +5,9 @@ import {
   AutoSizer,
   Column,
   TableHeaderRenderer,
-} from "react-virtualized";
-import type {
-  ColumnProps,
-  TableProps,
-  IndexRange,
   SortDirectionType,
-  defaultTableCellRenderer,
-  defaultTableHeaderRenderer,
+  IndexRange,
+  TableCellRenderer,
 } from "react-virtualized";
 import "react-virtualized/styles.css";
 import {
@@ -22,14 +17,12 @@ import {
   useTheme,
   Box,
 } from "@mui/material";
-import type { SortDirection } from "@mui/material";
 import { ActionBar } from "../";
 import ColumnSelector from "./ColumnsSelector";
 import ColumnHead from "./ColumnHead";
 import SelectAllCheckbox from "./SelectAllCheckbox";
 import type { SelectAllCheckboxProps } from "./SelectAllCheckbox";
 import SelectRowCheckbox from "./SelectRowCheckbox";
-import type { SelectRowProps } from "./SelectRowCheckbox";
 import HeaderRow from "./HeaderRow";
 import { useTranslation } from "react-i18next";
 import { debounce } from "lodash-es";
@@ -37,7 +30,14 @@ import initThroat from "throat";
 import { autoWidth } from "./autoWidth";
 import { useVisibleColumns } from "./useVisibleColumns";
 import { useColumnsStorage } from "./useColumnsStorage";
-import type { HeaderRowProps } from "./HeaderRow";
+import {
+  CellValDefault,
+  DatatableProps,
+  GetRowId,
+  LoadRows,
+  Row,
+  RowsState,
+} from "./Datatable";
 const throat = initThroat(10);
 
 export default function Datatable({
@@ -437,17 +437,17 @@ export default function Datatable({
         height: 1,
         display: "flex",
         flexDirection: "column",
-        "&.ReactVirtualized__Table__row": {
+        "& .ReactVirtualized__Table__row": {
           borderBottom: `1px solid ${palette.divider}`,
           ...(onRowClick ? { cursor: "pointer" } : {}),
         },
-        "&.ReactVirtualized__Table__row:hover": {
+        "& .ReactVirtualized__Table__row:hover": {
           backgroundColor: palette.action.hover,
         },
-        "&.ReactVirtualized__Table__headerRow": {
+        "& .ReactVirtualized__Table__headerRow": {
           textTransform: "none",
         },
-        "&.ReactVirtualized__Table__sortableHeaderIcon": {
+        "& .ReactVirtualized__Table__sortableHeaderIcon": {
           width: "none",
           height: "none",
         },
@@ -461,8 +461,13 @@ export default function Datatable({
         </ActionBar>
       ) : (
         <ActionBar elevation={1}>
-          <h3>{title}</h3>
-          &nbsp;
+          {typeof title == "string" ? (
+            <>
+              <h3>{title}</h3> &nbsp;
+            </>
+          ) : (
+            { title }
+          )}
           {manageColumns && count > 0 && (
             <ColumnSelector
               {...{
@@ -602,9 +607,8 @@ const noRowsRendererDefault = () => (
   </Box>
 );
 
-const cellValDefault = (row: Row, key: string): unknown => row[key];
-
-const selectRowCellRendererDefault: typeof defaultTableCellRenderer = ({
+const cellValDefault: CellValDefault = (row, key) => row[key];
+const selectRowCellRendererDefault: TableCellRenderer = ({
   columnData: { selectedRows, toggleRowSelection, getRowId },
   rowIndex,
   rowData,
@@ -626,74 +630,4 @@ const selectRowHeaderRendererDefault = (({
   )) as TableHeaderRenderer;
 
 //Trivial row identity is the row object itself as default ...
-const getRowIdDefault = ({ row }: { row: Row }): Row | string | number => row;
-
-export type GetRowId = typeof getRowIdDefault;
-
-interface RowsState {
-  rows: Rows;
-  filteredRows: Rows | null;
-  sorting: { sortBy?: string; sortDirection?: SortDirection };
-  filter: Record<string, unknown>;
-  serverMode: boolean;
-  pageSize: number | undefined;
-}
-
-type Row = Record<string, unknown>;
-type Rows = Row[] | null;
-
-type LoadRows = ({
-  startIndex,
-  stopIndex,
-  filter,
-  sorting,
-}: {
-  startIndex: number;
-  stopIndex: number;
-  filter?: Record<string, unknown>;
-  sorting?: Record<string, unknown>;
-}) => Promise<{ rows: Row[]; count: number }>;
-
-export type ColumnType = Omit<ColumnProps, "dataKey"> & {
-  name: string;
-  dataKey?: string;
-};
-
-export interface DatatableProps extends Omit<TableProps, "rowHeight"> {
-  title?: string;
-  columns?: ColumnType[];
-  rows?: Row[];
-  loadRows?: LoadRows;
-  pageSize?: number;
-  minPageSize?: number;
-  rowHeight?: number;
-  noRowsRenderer?: typeof noRowsRendererDefault;
-  loadAllUpTo?: number;
-  rowSort?: Record<string, (a: unknown, b: unknown) => number>;
-  rowSortServer?: string[];
-  rowFilter?: HeaderRowProps["rowFilter"];
-  rowFilterServer?: string[];
-  rowFilterMatch?: ({
-    row,
-    filter,
-    cellVal,
-  }: {
-    row: Row;
-    filter: Record<string, unknown>;
-    cellVal: unknown;
-  }) => boolean;
-  rowFilterHideUpTo?: number;
-  maxResourceLimit?: number;
-  manageColumns?: boolean;
-  cellVal?: typeof cellValDefault;
-  getRowId?: typeof getRowIdDefault;
-  selectedRows?: Set<ReturnType<GetRowId>>;
-  toggleRowSelection?: (arg: SelectRowProps["toggleRowSelection"]) => void;
-  toggleAllRowsSelection?: (
-    arg: SelectAllCheckboxProps["toggleAllRowsSelection"]
-  ) => void;
-  selectRowCellRenderer?: typeof selectRowCellRendererDefault;
-  selectRowHeaderRenderer?: typeof selectRowHeaderRendererDefault;
-  minimumBatchSize?: number;
-  storageId?: string;
-}
+const getRowIdDefault: GetRowId = ({ row }) => row;

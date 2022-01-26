@@ -1,4 +1,5 @@
-import type { ColumnType } from "./";
+import type { ColumnType } from "./Datatable";
+
 interface autoWidthArgs {
   minWidth: number;
   maxWidth: number;

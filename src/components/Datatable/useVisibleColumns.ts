@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { TableCellProps } from "react-virtualized";
-import type { ColumnType } from "./";
+import type { ColumnType } from "./Datatable";
 
 export function useVisibleColumns({
   columns = [],
