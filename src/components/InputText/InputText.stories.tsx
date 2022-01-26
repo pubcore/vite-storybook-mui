@@ -1,7 +1,7 @@
 import { InputText, InputTextProps } from "../";
 
 export default {
-  title: "Input text",
+  title: "Inputs/Input text",
   args: {
     name: "name",
     register: () => {

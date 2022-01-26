@@ -3,7 +3,7 @@ import { InputCheckbox as Checkbox, InputCheckboxProps } from "../";
 import FormDecorator from "../../FormDecorator";
 
 export default {
-  title: "Checkboxes",
+  title: "Inputs/Checkboxes",
   decorators: [FormDecorator],
   args: {}, //"form" is injected in FormDecorator
   parameters: {

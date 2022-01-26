@@ -1,7 +1,7 @@
 import { InputSelect, InputSelectProps } from "../";
 
 export default {
-  title: "InputSelect",
+  title: "Inputs/InputSelect",
   args: {
     register: () => {
       //dummy

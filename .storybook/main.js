@@ -3,7 +3,17 @@ const path = require("path");
 const toPath = (_path) => path.join(process.cwd(), _path);
 
 module.exports = {
-  stories: ["../src/**/*.stories.mdx", "../src/**/*.stories.@(js|jsx|ts|tsx)"],
+  framework: "@storybook/react",
+  core: {
+    builder: "webpack5",
+  },
+  stories: ["../src/components"],
+  features: {
+    //https://storybook.js.org/docs/react/configure/overview#on-demand-story-loading
+    storyStoreV7: true,
+    postcss: false,
+    emotionAlias: false,
+  },
   addons: [
     "@storybook/addon-links",
     {
@@ -15,19 +25,12 @@ module.exports = {
     },
     "storybook-dark-mode",
   ],
-
-  //https://github.com/mui-org/material-ui/issues/24282
+  staticDirs: ["../public"],
   webpackFinal: async (config) => {
     return {
       ...config,
-      resolve: {
-        ...config.resolve,
-        alias: {
-          ...config.resolve.alias,
-          "@emotion/core": toPath("node_modules/@emotion/react"),
-          "@emotion/styled": toPath("node_modules/@emotion/styled"),
-          "emotion-theming": toPath("node_modules/@emotion/react"),
-        },
+      experiments: {
+        topLevelAwait: true,
       },
     };
   },

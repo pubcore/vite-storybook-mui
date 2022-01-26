@@ -1,7 +1,7 @@
 import { ActionButton } from "./";
 
 export default {
-  title: "Buttons",
+  title: "Inputs/Buttons",
   argTypes: { refresh: { action: "refresh" } },
 };
 
