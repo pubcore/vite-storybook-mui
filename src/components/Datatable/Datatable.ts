@@ -4,8 +4,11 @@ import type {
   TableProps,
   TableCellRenderer,
   TableHeaderRenderer,
+  TableHeaderRowProps,
 } from "react-virtualized";
 import type { SortDirection } from "@mui/material";
+import { SelectRowProps } from "./SelectRowCheckbox";
+import { SelectAllCheckboxProps } from "./SelectAllCheckbox";
 
 export type Row = Record<string, unknown>;
 export type Rows = Row[] | null;
@@ -92,4 +95,4 @@ export interface HeaderRowFilterProps {
   name: string;
   changeFilter: ChangeFilter;
 }
-type CellValDefault = (row: Row, key: string) => unknown;
+export type CellValDefault = (row: Row, key: string) => unknown;

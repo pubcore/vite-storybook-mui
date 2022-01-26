@@ -17,7 +17,8 @@
     "serve": "vite preview",
     "prepare": "patch-package && husky install && npm run build",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "lint": "tsc --noEmit && eslint ."
   },
   "peerDependencies": {
     "@emotion/react": "^11.5.0",
@@ -79,9 +80,10 @@
   ],
   "author": "pubcore",
   "license": "MIT",
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "eslint --cache --fix",
-    "**/*": "prettier --write  \n--ignore-unknown"
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "files": [
     "dist"
