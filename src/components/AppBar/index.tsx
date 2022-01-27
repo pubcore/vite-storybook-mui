@@ -36,7 +36,7 @@ export default function AppBar({
 
   return (
     <Slide appear={false} direction="down" in={!scrollTrigger}>
-      <MuiAppBar color="secondary">
+      <MuiAppBar color="secondary" enableColorOnDark={true}>
         <Toolbar
           sx={{ paddingRight: 2 }}
           disableGutters
@@ -47,7 +47,7 @@ export default function AppBar({
             enterDelay={1000}
           >
             <IconButton
-              sx={{ marginLeft: 0.5, marginRight: 0.5 }}
+              sx={{ marginLeft: 1, marginRight: 1 }}
               color="inherit"
               {...{ onClick }}
             >
@@ -76,8 +76,8 @@ export default function AppBar({
           >
             {children}
           </Typography>
-          {loadingIndicator}
-          {userMenu}
+          <>{loadingIndicator}</>
+          <>{userMenu}</>
         </Toolbar>
       </MuiAppBar>
     </Slide>

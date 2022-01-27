@@ -75,6 +75,10 @@ export interface DatatableProps extends Omit<TableProps, "rowHeight"> {
   selectRowHeaderRenderer?: TableHeaderRenderer;
   minimumBatchSize?: number;
   storageId?: string;
+  availableWidth?: number;
+  setAvailableWidth?: ((availableWidth: number) => void) | null;
+  maxWidth?: number;
+  minWidth?: number;
 }
 
 export interface HeaderRowProps

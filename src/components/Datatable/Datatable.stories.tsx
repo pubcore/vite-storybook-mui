@@ -94,6 +94,15 @@ export default {
 };
 
 export const EmptyTable = () => <Datatable />,
+  IndividualTitleComponent = () => (
+    <Datatable
+      title={
+        <button type="button" onClick={() => alert("Hi, I'm a button")}>
+          test
+        </button>
+      }
+    />
+  ),
   AllRowsLoaded = (args: Args) => <Datatable {...{ ...args }} />,
   SomeRowsLoadedNoServerSideFilterAvailable = (args: Args) => (
     <Datatable {...{ ...args, loadRows: loadRows(1000000) }} />

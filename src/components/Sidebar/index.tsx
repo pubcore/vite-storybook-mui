@@ -63,21 +63,17 @@ export default function Sidebar({ items, isOpen, toggle, close }: SidbarProps) {
             easing: transitions.easing.sharp,
             duration: transitions.duration.leavingScreen,
           }),
-          backgroundColor: breakpoints.up("sm")
-            ? "transparent"
-            : "rgba(75,75,75,0.85)",
+          backgroundColor: { xs: "rgba(75,75,75,0.85)", sm: "transparent" },
           borderRight: "none",
           zIndex: "inherit",
           marginRight: 1,
-          ...(breakpoints.up("md") ? { border: "none" } : {}),
-          ...(breakpoints.down("sm")
-            ? {
-                marginTop: 0,
-                height: "100vh",
-                position: "inherit",
-                backgroundColor: "background.default",
-              }
-            : {}),
+          md: { border: "none" },
+          [breakpoints.down("sm")]: {
+            marginTop: 0,
+            height: "100vh",
+            position: "inherit",
+            backgroundColor: "background.default",
+          },
         },
       }}
       {...{ variant, onClose }}
@@ -88,11 +84,10 @@ export default function Sidebar({ items, isOpen, toggle, close }: SidbarProps) {
           display: "flex",
           flexDirection: "column",
           justifyContent: "flex-start",
-          marginTop: breakpoints.only("xs")
-            ? 0
-            : breakpoints.up("md")
-            ? "1.5em"
-            : "0.5em",
+          marginTop: {
+            xs: 0,
+            md: 1,
+          },
           width: isOpen ? DRAWER_WIDTH : CLOSED_DRAWER_WIDTH,
         }}
       >

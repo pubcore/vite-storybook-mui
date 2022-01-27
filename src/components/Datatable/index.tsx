@@ -38,6 +38,7 @@ import {
   Row,
   RowsState,
 } from "./Datatable";
+import React from "react";
 const throat = initThroat(10);
 
 export default function Datatable({
@@ -466,7 +467,7 @@ export default function Datatable({
               <h3>{title}</h3> &nbsp;
             </>
           ) : (
-            { title }
+            <>{React.isValidElement(title) ? title : null}</>
           )}
           {manageColumns && count > 0 && (
             <ColumnSelector
