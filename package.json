@@ -1,6 +1,6 @@
 {
   "name": "@pubcore/vite-storybook-mui",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Storybook for react components based on MUI",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.es.js",
