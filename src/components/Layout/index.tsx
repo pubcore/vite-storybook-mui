@@ -8,9 +8,15 @@ export interface PageProps {
   appBar: ReactNode;
   sidebar: ReactNode;
   notification: ReactNode;
+  contentMaxWidth?: number;
 }
 
-export default function Page({ appBar, sidebar, notification }: PageProps) {
+export default function Page({
+  appBar,
+  sidebar,
+  notification,
+  contentMaxWidth,
+}: PageProps) {
   const { pathname } = useLocation();
   const { t } = useTranslation();
 
@@ -38,7 +44,7 @@ export default function Page({ appBar, sidebar, notification }: PageProps) {
           marginTop: 6,
         }}
       >
-        {appBar}
+        <>{appBar}</>
         <Box
           component="main"
           sx={{
@@ -46,7 +52,7 @@ export default function Page({ appBar, sidebar, notification }: PageProps) {
             flexGrow: 1,
           }}
         >
-          {sidebar}
+          <>{sidebar}</>
           <Box
             component="div"
             sx={{
@@ -55,9 +61,10 @@ export default function Page({ appBar, sidebar, notification }: PageProps) {
               justifyContent: "space-between",
               flexGrow: 1,
               flexBasis: 0,
-              padding: { xs: 2, sm: 0 },
+              padding: { xs: 2, sm: 0, md: 1 },
               paddingLeft: { xs: 5, sm: 0 },
               paddingBottom: 1,
+              maxWidth: contentMaxWidth,
             }}
             id="main-content"
           >
@@ -68,12 +75,14 @@ export default function Page({ appBar, sidebar, notification }: PageProps) {
               <Outlet />
             </ErrorBoundary>
             <Typography variant="subtitle2" color="textSecondary">
-              {new Date().getFullYear()}
+              {t("footer_copyright", "{{date}}", {
+                date: new Date().getFullYear(),
+              })}
             </Typography>
           </Box>
         </Box>
       </Box>
-      {notification}
+      <>{notification}</>
     </Box>
   );
 }
