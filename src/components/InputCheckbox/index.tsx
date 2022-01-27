@@ -5,7 +5,7 @@ export interface InputCheckboxProps {
   form: UseFormReturn;
   name: string;
   label?: string;
-  defaultValue?: string | number;
+  defaultValue?: string | number | boolean;
 }
 
 export default function InputCheckbox({

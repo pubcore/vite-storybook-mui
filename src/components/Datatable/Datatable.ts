@@ -48,7 +48,7 @@ export interface DatatableProps extends Omit<TableProps, "rowHeight"> {
   rowHeight?: number;
   noRowsRenderer?: () => JSX.Element;
   loadAllUpTo?: number;
-  rowSort?: Record<string, (a: unknown, b: unknown) => number>;
+  rowSort?: Record<string, ((a: unknown, b: unknown) => number) | null>;
   rowSortServer?: string[];
   rowFilter?: HeaderRowProps["rowFilter"];
   rowFilterServer?: string[];
