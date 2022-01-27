@@ -25,7 +25,7 @@ module.exports = {
     },
     "storybook-dark-mode",
   ],
-  staticDirs: ["../public"],
+  staticDirs: ["../pub"], //do not name it public, rollopu copies it to dist
   webpackFinal: async (config) => {
     return {
       ...config,

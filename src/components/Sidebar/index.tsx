@@ -55,8 +55,8 @@ export default function Sidebar({ items, isOpen, toggle, close }: SidbarProps) {
     <Drawer
       sx={{
         ".MuiDrawer-paper": {
-          position: "relative",
-          height: 1,
+          position: { xs: "inherit", sm: "relative" },
+          height: { xs: "100vh", sm: 1 },
           overflowX: "hidden",
           width: isOpen ? DRAWER_WIDTH : CLOSED_DRAWER_WIDTH,
           transition: transitions.create("width", {
@@ -67,27 +67,17 @@ export default function Sidebar({ items, isOpen, toggle, close }: SidbarProps) {
           borderRight: "none",
           zIndex: "inherit",
           marginRight: 1,
-          md: { border: "none" },
-          [breakpoints.down("sm")]: {
-            marginTop: 0,
-            height: "100vh",
-            position: "inherit",
-            backgroundColor: "background.default",
-          },
+          border: { md: "none" },
         },
       }}
       {...{ variant, onClose }}
     >
       <Box
-        component="div"
         sx={{
           display: "flex",
           flexDirection: "column",
           justifyContent: "flex-start",
-          marginTop: {
-            xs: 0,
-            md: 1,
-          },
+          marginTop: { xs: 0, md: 1 },
           width: isOpen ? DRAWER_WIDTH : CLOSED_DRAWER_WIDTH,
         }}
       >
