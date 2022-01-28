@@ -25,7 +25,7 @@ export function useColumnsStorage({
       const locStor = window.localStorage.getItem(localStorageKey);
       const parsed = locStor ? JSON.parse(locStor) : null;
 
-      if (typeof parsed === "object") {
+      if (typeof parsed === "object" && parsed !== null) {
         const { selectedColumns: locSelected, columnsSequence: locSequence } =
           parsed;
 
