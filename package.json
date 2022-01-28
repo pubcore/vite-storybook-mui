@@ -71,7 +71,7 @@
     "prettier": "^2.4.1",
     "storybook-dark-mode": "^1.0.9-canary.166.3604.0",
     "typescript": "^4.3.2",
-    "vite": "^2.6.4",
+    "vite": "^2.7.13",
     "webpack": "^5.64.4"
   },
   "keywords": [

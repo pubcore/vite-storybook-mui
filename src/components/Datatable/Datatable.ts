@@ -88,7 +88,7 @@ export interface HeaderRowProps
   selectedRows?: DatatableProps["selectedRows"];
   rowFilter?: Record<
     string,
-    ({ name, changeFilter }: HeaderRowFilterProps) => ReactNode
+    (({ name, changeFilter }: HeaderRowFilterProps) => ReactNode) | null
   >;
   changeFilter: ChangeFilter;
 }
