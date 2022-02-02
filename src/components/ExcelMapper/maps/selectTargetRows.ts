@@ -1,7 +1,6 @@
 import { createSelector } from "reselect";
 import { S as State, selectMappingsByTargetId } from ".";
 import { IdTree } from "./selectIdMaps";
-import { Rows as IdRows } from "./selectIdMaps";
 import { selectIdMaps } from "./selectIdMaps";
 import {
   selectTargetCellsByIdOfMapping,
@@ -28,7 +27,9 @@ export const selectTargetRows: (s: S) => TargetRow[] = createSelector(
 
     const addRow = (tree: IdTree, rows: TargetRow[], ids?: string) => {
       tree.forEach((subTree, id) => {
-        if (ids && Array.isArray(subTree as IdRows)) {
+        if ((subTree as IdTree).__id) {
+          addRow(subTree as IdTree, rows, ids ? ids + "-" + id : id);
+        } else {
           rows.push(
             mappingsAndTargetIds.reduce<TargetRow>(
               (acc, [colName, mapping]) => {
@@ -39,14 +40,12 @@ export const selectTargetRows: (s: S) => TargetRow[] = createSelector(
                   },
                   mapping
                 );
-                acc[colName] = targetCellsById.get(ids);
+                acc[colName] = targetCellsById.get(ids ? ids + "-" + id : id);
                 return acc;
               },
               {}
             )
           );
-        } else {
-          addRow(subTree as IdTree, rows, ids ? ids + "-" + id : id);
         }
       });
     };

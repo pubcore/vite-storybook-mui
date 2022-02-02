@@ -29,4 +29,5 @@ export const targetColumns = [
   { id: "ORDER_TOTAL", name: "ORDER_TOTAL" },
   { id: "TAX", name: "Tax total" },
   { id: "DELIVERY_ADDRESS", name: "Delivery Address" },
+  { id: "PRIO_1_DETAIL" },
 ];

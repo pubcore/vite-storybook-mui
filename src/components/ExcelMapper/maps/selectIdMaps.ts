@@ -9,7 +9,7 @@ import { Findings, SourceIdColumns } from ".";
 type PageIndex = number;
 type RowIndex = number;
 export type Rows = Map<PageIndex, Array<RowIndex>>;
-export type IdTree = Map<string, IdTree | Rows>;
+export type IdTree = Map<string, IdTree | Rows> & { __id?: string };
 type IdMaps = {
   // pages: Map<
   //   number,
@@ -66,18 +66,24 @@ export function addRowToIdTree(
   sourceIdColumns: SourceIdColumns,
   depth = 0
 ) {
-  const idColumn = sourceIdColumns[depth]?.[0]; //TODO manny to one mapping
-  if (!idColumn) {
+  //TODO manny to one mapping for id-columns
+  const idColumn = sourceIdColumns[depth]?.[0];
+  const lastIdColumn = [...sourceIdColumns].pop()?.[0];
+  if (!idColumn && !lastIdColumn) {
     return;
   }
-  const id = row[idColumn.index];
+
+  const id = row[idColumn?.index];
   if (depth === 0 && !id) {
     return;
   }
-  const subTree = idTree.get(id);
+
+  const subTree = id ? idTree.get(id) : idTree;
+
   if (!subTree) {
     if (depth + 1 < sourceIdColumns.length) {
       const _tree: IdTree = new Map();
+      _tree.__id = id;
       idTree.set(id, _tree);
       addRowToIdTree(_tree, rowIndex, row, sourceIdColumns, depth + 1);
     } else {
@@ -86,13 +92,7 @@ export function addRowToIdTree(
     }
   } else {
     if (depth + 1 < sourceIdColumns.length) {
-      const rowIndexes = (subTree as Rows).get(idColumn.pageIndex);
-      if (Array.isArray(rowIndexes)) {
-        const _tree: IdTree = new Map();
-        _tree.set(id, subTree);
-        idTree.set(id, _tree);
-        addRowToIdTree(_tree, rowIndex, row, sourceIdColumns, depth + 1);
-      } else {
+      if ((subTree as IdTree).__id) {
         addRowToIdTree(
           subTree as IdTree,
           rowIndex,
@@ -100,24 +100,30 @@ export function addRowToIdTree(
           sourceIdColumns,
           depth + 1
         );
+      } else {
+        const _tree: IdTree = new Map();
+        _tree.__id = id;
+        _tree.set(id, subTree);
+        idTree.set(id, _tree);
+        addRowToIdTree(_tree, rowIndex, row, sourceIdColumns, depth + 1);
       }
     } else {
-      const rowIndexes = subTree.entries().next().value[1];
-      if (Array.isArray(rowIndexes)) {
-        (subTree as Rows).set(
-          idColumn.pageIndex,
-          ((subTree as Rows).get(idColumn.pageIndex) ?? []).concat(rowIndex)
-        );
-      } else {
+      if ((subTree as IdTree).__id) {
         subTree.forEach((subSubTree) => {
           addRowToIdTree(
             subSubTree as IdTree,
             rowIndex,
             row,
             sourceIdColumns,
-            depth
+            depth + 1
           );
         });
+      } else {
+        const pageIndex = idColumn?.pageIndex ?? lastIdColumn?.pageIndex;
+        (subTree as Rows).set(
+          pageIndex,
+          ((subTree as Rows).get(pageIndex) ?? []).concat(rowIndex)
+        );
       }
     }
   }

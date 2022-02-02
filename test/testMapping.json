@@ -25,6 +25,14 @@
       ],
       "targetId": "DATE",
       "pipe": "$1.replace(/\\/([0-9]{2})$/, \"/20$1\")"
+    },
+    {
+      "sourceColumns": [
+        {
+          "name": "Details⏎Prio1"
+        }
+      ],
+      "targetId": "PRIO_1_DETAIL"
     }
   ]
 }

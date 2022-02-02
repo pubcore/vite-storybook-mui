@@ -37,7 +37,6 @@ export const selectTargetRows: (s: S) => TargetRow[] = createSelector(
       sourceIdColumns,
       targetColumns,
     });
-
     return rows;
   }
 );
