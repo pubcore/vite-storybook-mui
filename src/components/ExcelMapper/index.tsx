@@ -57,13 +57,16 @@ export default function ExcelMapper({
       const file = formData.get("file") as File;
       const data = await file?.arrayBuffer();
       const workbook = XLSX.read(data);
+      mappingsDefault &&
+        mappingsDefault !== mappings &&
+        setMappings(mappingsDefault);
       setWorkbook(({ ...rest }) => ({
         ...rest,
         workbook,
         workbookFileName: file.name,
       }));
     },
-    []
+    [mappings, mappingsDefault]
   );
 
   const countOfMappedIds = targetIds.reduce((acc, targetId) => {
