@@ -24,7 +24,13 @@ export interface ExcelMapperProps {
   mappings?: MappingsJson;
   workbook?: WorkBook;
   save?: ({ mappings }: { mappings: MappingsJson }) => void;
-  saveTargetTable?: ({ rows }: { rows: TargetRow[] }) => void;
+  saveTargetTable?: ({
+    rows,
+    workbookFileName,
+  }: {
+    rows: TargetRow[];
+    workbookFileName?: string;
+  }) => void;
 }
 
 export default function ExcelMapper({
@@ -121,6 +127,7 @@ export default function ExcelMapper({
       //TODO selectTargetRows could be expensive => async
       saveTargetTable({
         rows: selectTargetRows({ workbook, mappings: mappingsDefault }),
+        workbookFileName,
       });
       setWorkbook({});
     }
