@@ -52,23 +52,6 @@ export default function ExcelMapper({
     mappingsDefault ?? { targetIds, mappings: [] }
   );
 
-  const handleFile: FileUploadProps["handleFile"] = useCallback(
-    async ({ formData }) => {
-      const file = formData.get("file") as File;
-      const data = await file?.arrayBuffer();
-      const workbook = XLSX.read(data);
-      mappingsDefault &&
-        mappingsDefault !== mappings &&
-        setMappings(mappingsDefault);
-      setWorkbook(({ ...rest }) => ({
-        ...rest,
-        workbook,
-        workbookFileName: file.name,
-      }));
-    },
-    [mappings, mappingsDefault]
-  );
-
   const countOfMappedIds = targetIds.reduce((acc, targetId) => {
     if (mappings.mappings.find((mapping) => mapping.targetId === targetId)) {
       return ++acc;
@@ -78,6 +61,32 @@ export default function ExcelMapper({
 
   const [step, setStep] = useState<string>(
     countOfMappedIds === targetIds.length ? "map" : "idColumns"
+  );
+
+  const handleFile: FileUploadProps["handleFile"] = useCallback(
+    async ({ formData }) => {
+      const file = formData.get("file") as File;
+      const data = await file?.arrayBuffer();
+      const workbook = XLSX.read(data);
+
+      if (saveTargetTable && mappingsDefault && step == "map") {
+        //TODO selectTargetRows could be expensive => async
+        saveTargetTable({
+          rows: selectTargetRows({ workbook, mappings: mappingsDefault }),
+          workbookFileName: file.name,
+        });
+      } else {
+        mappingsDefault &&
+          mappingsDefault !== mappings &&
+          setMappings(mappingsDefault);
+        setWorkbook(({ ...rest }) => ({
+          ...rest,
+          workbook,
+          workbookFileName: file.name,
+        }));
+      }
+    },
+    [mappings, mappingsDefault, saveTargetTable, step]
   );
 
   const handleSaveIdColumns = useCallback<IdColumnsProps["save"]>(
@@ -126,15 +135,6 @@ export default function ExcelMapper({
   );
 
   if (workbookFileName && workbook) {
-    if (saveTargetTable && mappingsDefault && step == "map") {
-      //TODO selectTargetRows could be expensive => async
-      saveTargetTable({
-        rows: selectTargetRows({ workbook, mappings: mappingsDefault }),
-        workbookFileName,
-      });
-      setWorkbook({});
-    }
-
     switch (step) {
       case "idColumns":
         return (
