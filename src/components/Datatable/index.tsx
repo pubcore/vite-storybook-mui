@@ -48,7 +48,7 @@ export default function Datatable({
   rows: propRows, //ignored, if loadRows is defined
   loadRows,
   pageSize: propPageSize,
-  minPageSize = 5,
+  minPageSize = 3,
   headerHeight = 40,
   rowHeight = 30,
   noRowsRenderer = noRowsRendererDefault,
