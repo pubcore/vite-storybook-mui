@@ -26,6 +26,7 @@ export interface MapperProps {
   targetIds: string[];
   mappings?: MappingsJson["mappings"];
   save?: (_: { mappings: MappingsJson["mappings"] }) => void;
+  options?: { datatable?: DatatableProps };
 }
 
 export default function Mapper({
@@ -35,6 +36,7 @@ export default function Mapper({
   targetIds,
   mappings,
   save,
+  options,
 }: MapperProps) {
   const { t } = useTranslation();
   const [pivot, setPivot] = useState<{
@@ -143,8 +145,8 @@ export default function Mapper({
           title,
           rows,
           columns,
-          manageColumns: false,
           rowHeight: 55,
+          ...(options?.datatable ?? {}),
         }}
       />
       <Divider sx={{ marginTop: 1, marginBottom: 2 }} />

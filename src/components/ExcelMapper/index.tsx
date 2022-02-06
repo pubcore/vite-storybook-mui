@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { ActionButton, FileUpload, FileUploadProps } from "../";
+import { ActionButton, DatatableProps, FileUpload, FileUploadProps } from "../";
 import XLSX, { WorkBook } from "xlsx";
 import WorkbookTeaser from "./WorkbookTeaser";
 import { Divider } from "@mui/material";
@@ -31,6 +31,7 @@ export interface ExcelMapperProps {
     rows: TargetRow[];
     workbookFileName?: string;
   }) => void;
+  options?: { mapper?: { datatable?: DatatableProps } };
 }
 
 export default function ExcelMapper({
@@ -40,6 +41,7 @@ export default function ExcelMapper({
   workbook: workbookDefault,
   save,
   saveTargetTable,
+  options,
 }: ExcelMapperProps) {
   const { t } = useTranslation();
   const [{ workbook, workbookFileName }, setWorkbook] = useState<State>({
@@ -161,6 +163,7 @@ export default function ExcelMapper({
                 targetIds,
                 mappings: mappings.mappings,
                 save: handleSaveMappings,
+                options: options?.mapper ?? {},
               }}
             />
           </>
