@@ -18,6 +18,7 @@ import { MappingsJson } from "./MappingsJson";
 import { selectStateMappingsOfMappingsJson } from "./maps/selectStateMappingsOfMappingsJson";
 import { selectMappingsJson } from "./maps/selectMappingsJson";
 import { useTranslation } from "react-i18next";
+import { selectPagesByIndex } from "./source/selectPageByIndex";
 
 export interface MapperProps {
   source: Source;
@@ -87,11 +88,20 @@ export default function Mapper({
         name: "sourceColumns",
         width: 300,
         cellRenderer: ({ cellData }: { cellData?: Columns }) =>
-          cellData?.map((col, index) => (
-            <TooltipOnOverflow key={col.name + index}>
-              {col.name}
-            </TooltipOnOverflow>
-          )),
+          cellData?.map((col, index) => {
+            const pagesByIndex = selectPagesByIndex(source.workbook);
+            const pageName = pagesByIndex.size ? (
+              <b>{pagesByIndex.get(col.pageIndex)?.name}&nbsp;</b>
+            ) : (
+              ""
+            );
+            return (
+              <TooltipOnOverflow key={col.name + index}>
+                {pageName}
+                {col.name}
+              </TooltipOnOverflow>
+            );
+          }),
       },
       {
         name: "pipe",
@@ -122,7 +132,7 @@ export default function Mapper({
         ),
       },
     ],
-    [handleChangePipe]
+    [handleChangePipe, source.workbook]
   );
 
   const toggleColumn = useCallback<SelectColumnsProps["toggleColumn"]>(
