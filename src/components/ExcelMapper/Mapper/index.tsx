@@ -1,24 +1,23 @@
 import { ReactNode, useCallback, useMemo, useReducer, useState } from "react";
-import { ActionButton, Datatable, DatatableProps, TooltipOnOverflow } from "..";
-import { selectColumns, Source } from "./source";
+import { ActionButton, Datatable, TooltipOnOverflow } from "../../";
+import type { DatatableProps } from "../../";
+import { Source } from "../source";
 import AddLinkIcon from "@mui/icons-material/AddLink";
 import LinkIcon from "@mui/icons-material/Link";
 import { Divider, IconButton, Popover } from "@mui/material";
-import { SelectColumns, SelectColumnsProps } from "./SelectColumns";
-import { Targets } from "./target";
-import { Columns } from "./source/Column";
-import { InputCode } from "./InputCode";
-import { selectIsSourceColumnFlagsOfTargetId } from "./maps/selectIsSourceColumnFlagsOfTargetId";
-import update from "immutability-helper";
-import { selectMappingIndexesByTargetId } from "./maps/selectMappingIndexesByTargetId";
+import { SelectColumns, SelectColumnsProps } from "../SelectColumns";
+import { Targets } from "../target";
+import { Columns } from "../source/Column";
+import { InputCode } from "../InputCode";
+import { selectIsSourceColumnFlagsOfTargetId } from "../maps/selectIsSourceColumnFlagsOfTargetId";
 import { debounce } from "lodash-es";
-import { Row, selectRows } from "./maps/selectRows";
-import { S, SourceIdColumns } from "./maps";
-import { MappingsJson } from "./MappingsJson";
-import { selectStateMappingsOfMappingsJson } from "./maps/selectStateMappingsOfMappingsJson";
-import { selectMappingsJson } from "./maps/selectMappingsJson";
+import { Row, selectRows } from "../maps/selectRows";
+import { MappingsJson } from "../MappingsJson";
+import { selectMappingsJson } from "../maps/selectMappingsJson";
 import { useTranslation } from "react-i18next";
-import { selectPagesByIndex } from "./source/selectPageByIndex";
+import { selectPagesByIndex } from "../source/selectPageByIndex";
+import { reducer } from "./reducer";
+import { init } from "./init";
 
 export interface MapperProps {
   source: Source;
@@ -197,99 +196,4 @@ export default function Mapper({
       </Popover>
     </>
   );
-}
-
-function init({
-  source,
-  targetColumns,
-  targetIds,
-  mappings,
-}: Pick<MapperProps, "source" | "targetColumns" | "targetIds" | "mappings">) {
-  const [stateMappings, findings] =
-    (mappings &&
-      selectStateMappingsOfMappingsJson(
-        {
-          workbook: source.workbook,
-          targetColumns,
-        },
-        mappings
-      )) ??
-    [];
-  if (findings) {
-    console.warn(findings);
-  }
-  const mappingsByTargetId = stateMappings?.reduce(
-    (acc, mapping) => acc.set(mapping.target.id, mapping),
-    new Map()
-  );
-
-  //this must depend on initial mapping property
-  const sourceIdColumns = targetIds.reduce<SourceIdColumns>((acc, targetId) => {
-    const sourceColumns =
-      stateMappings &&
-      stateMappings.find((mapping) => mapping.target.id === targetId)
-        ?.sourceColumns;
-
-    if (sourceColumns) {
-      return acc.concat([sourceColumns]);
-    } else {
-      return acc;
-    }
-  }, []);
-
-  return {
-    workbook: source.workbook,
-    targetColumns,
-    targetIds,
-    sourceIdColumns,
-    mappings: targetColumns.map(
-      (target) =>
-        mappingsByTargetId?.get(target.id) ?? {
-          sourceColumns: [],
-          pipe: "",
-          target,
-        }
-    ),
-  };
-}
-
-export type Action =
-  | {
-      type: "toggleSourceColumn";
-      payload: { page: number; column: number; targetId: string };
-    }
-  | { type: "changePipe"; payload: { targetId: string; pipe: string } };
-
-function reducer(state: S, action: Action): S {
-  switch (action.type) {
-    case "toggleSourceColumn": {
-      const { page, column, targetId } = action.payload;
-      const col = selectColumns(state.workbook).columnsByPageindex[page][
-        column
-      ];
-      const mappingIndex = selectMappingIndexesByTargetId(state).get(targetId);
-      if (mappingIndex === undefined) return state;
-      const columnIndex = state.mappings[mappingIndex].sourceColumns.findIndex(
-        (column) => column === col
-      );
-      return update(state, {
-        mappings: {
-          [mappingIndex]: {
-            sourceColumns:
-              columnIndex >= 0
-                ? { $splice: [[columnIndex, 1]] }
-                : { $push: [col] },
-          },
-        },
-      });
-    }
-    case "changePipe": {
-      const { pipe, targetId } = action.payload;
-      const index = selectMappingIndexesByTargetId(state).get(targetId);
-      if (index === undefined) return state;
-      return update(state, { mappings: { [index]: { pipe: { $set: pipe } } } });
-    }
-    default:
-      return state;
-  }
 }

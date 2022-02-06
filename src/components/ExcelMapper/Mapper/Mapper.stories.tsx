@@ -1,10 +1,10 @@
-import Map, { MapperProps } from "./Mapper";
-import { selectSource } from "./source";
-import { fileName, workbook2 } from "../../../test/testWorkbook";
-import { targetColumns } from "../../../test/testWorkbook";
+import Map, { MapperProps } from ".";
+import { selectSource } from "../source";
+import { fileName, workbook2 } from "../../../../test/testWorkbook";
+import { targetColumns } from "../../../../test/testWorkbook";
 type Args = MapperProps;
 import { t } from "i18next";
-import mappingJson from "../../../test/testMapping.json";
+import mappingJson from "../../../../test/testMapping.json";
 
 export default {
   title: "ExcelMapper/Map",
