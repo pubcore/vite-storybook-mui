@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 
 export interface LoadingIndicatorProps {
   isLoading: boolean;
-  refresh: MouseEventHandler<HTMLButtonElement>;
+  refresh?: MouseEventHandler<HTMLButtonElement>;
 }
 
 export default function LoadingIndicator({
@@ -21,11 +21,11 @@ export default function LoadingIndicator({
       size={theme.spacing(2)}
       thickness={6}
     />
-  ) : (
+  ) : refresh ? (
     <Tooltip title={t("refresh")}>
       <IconButton aria-label={t("refresh")} color="inherit" onClick={refresh}>
         <Refresh />
       </IconButton>
     </Tooltip>
-  );
+  ) : null;
 }
