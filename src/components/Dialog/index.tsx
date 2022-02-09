@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 
 export interface FormDialogProps {
   cancel: () => void;
-  execute: () => void;
+  execute: (e: React.FormEvent) => void;
   name: string;
   isSubmitting?: boolean;
   children: ReactNode;
@@ -27,9 +27,6 @@ export default function FormDialog({
   const handleCancel = useCallback(() => {
     cancel();
   }, [cancel]);
-  const handleExecute = useCallback(() => {
-    execute();
-  }, [execute]);
   const handleClose = useCallback(() => {
     cancel();
   }, [cancel]);
@@ -44,7 +41,7 @@ export default function FormDialog({
       <DialogTitle id="form-dialog-title">
         {t((name + "_title") as "_")}
       </DialogTitle>
-      <form onSubmit={handleExecute}>
+      <form onSubmit={execute}>
         <DialogContent
           style={{
             display: "flex",

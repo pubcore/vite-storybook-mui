@@ -1,4 +1,5 @@
 import { FormDialog, FormDialogProps } from "../";
+import { action } from "@storybook/addon-actions";
 
 export default {
   title: "Dialogs",
@@ -6,10 +7,14 @@ export default {
     open: true,
     name: "submit message",
     title: "Messages",
+    execute: (e: React.FormEvent) => {
+      console.log("test");
+      e.preventDefault();
+      action("execute")(e);
+    },
   },
   argTypes: {
     cancel: { action: "cancel" },
-    execute: { action: "execute" },
   },
 };
 
