@@ -130,10 +130,18 @@ export default function ExcelMapper({
 
   const handleSaveMappings = useCallback<NonNullable<MapperProps["save"]>>(
     ({ mappings }) => {
-      setMappings((s) => update(s, { mappings: { $set: mappings } }));
-      setStep("preview");
+      if (save) {
+        setMappings((s) => {
+          const newState = update(s, { mappings: { $set: mappings } });
+          save({ mappings: newState });
+          return newState;
+        });
+      } else {
+        setMappings((s) => update(s, { mappings: { $set: mappings } }));
+        setStep("preview");
+      }
     },
-    []
+    [save]
   );
 
   if (workbookFileName && workbook) {
@@ -173,8 +181,15 @@ export default function ExcelMapper({
           <>
             <TargetTable {...{ workbook, mappings }} />
             <Divider sx={{ marginTop: 1, marginBottom: 2 }} />
-            {save && (
-              <ActionButton onClick={() => save({ mappings })}>
+            {saveTargetTable && (
+              <ActionButton
+                onClick={() =>
+                  saveTargetTable({
+                    rows: selectTargetRows({ workbook, mappings }),
+                    workbookFileName,
+                  })
+                }
+              >
                 {t("save_target_table")}
               </ActionButton>
             )}

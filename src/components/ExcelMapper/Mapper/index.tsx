@@ -70,17 +70,18 @@ export default function Mapper({
       {
         name: "selectSource",
         width: 100,
-        cellRenderer: ({ rowData }) => (
-          <IconButton
-            color="primary"
-            size="small"
-            onClick={({ currentTarget }) =>
-              setPivot({ anchorEl: currentTarget, row: rowData })
-            }
-          >
-            {rowData.sourceColumns?.length ? <LinkIcon /> : <AddLinkIcon />}
-          </IconButton>
-        ),
+        cellRenderer: ({ rowData }: { rowData: Row }) =>
+          !targetIds.includes(rowData.targetColumnId) ? (
+            <IconButton
+              color="primary"
+              size="small"
+              onClick={({ currentTarget }) =>
+                setPivot({ anchorEl: currentTarget, row: rowData })
+              }
+            >
+              {rowData.sourceColumns?.length ? <LinkIcon /> : <AddLinkIcon />}
+            </IconButton>
+          ) : null,
         style: { textAlign: "center" },
       },
       {
@@ -131,7 +132,7 @@ export default function Mapper({
         ),
       },
     ],
-    [handleChangePipe, source.workbook]
+    [handleChangePipe, source.workbook, targetIds]
   );
 
   const toggleColumn = useCallback<SelectColumnsProps["toggleColumn"]>(
@@ -170,7 +171,9 @@ export default function Mapper({
             })
           }
         >
-          {t("save_mappings", "ok")}
+          {targetColumns.length === targetIds.length
+            ? t("save_id_columns")
+            : t("save_mappings")}
         </ActionButton>
       )}
       <Popover

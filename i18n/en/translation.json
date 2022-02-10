@@ -32,8 +32,8 @@
   "pages_one": "Page: {{name}}",
   "pages_other": "{{count}} pages:",
   "select_id_columns": "Check Identity columns on each page",
-  "save_id_columns": "Ok",
-  "save_mappings": "Ok",
-  "save_target_table": "Ok",
+  "save_id_columns": "Save ID columns",
+  "save_mappings": "Save mappings",
+  "save_target_table": "Save target table",
   "footer_copyright": "| {{date}}"
 }
