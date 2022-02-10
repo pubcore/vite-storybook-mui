@@ -1,7 +1,7 @@
 import { LoadingIndicator, LoadingIndicatorProps } from "../";
 
 export default {
-  title: "Loading indicator",
+  title: "Action Feedback/Loading indicator",
   argTypes: { refresh: { action: "refresh" } },
 };
 type Args = LoadingIndicatorProps;

@@ -55,3 +55,5 @@ export type { TooltipOnOverflowProps } from "./Tooltip/TooltipOnOverflow";
 export { default as TooltipOnOverflow } from "./Tooltip/TooltipOnOverflow";
 export type { ExcelMapperProps } from "./ExcelMapper";
 export { default as ExcelMapper } from "./ExcelMapper";
+export type { StatusProps } from "./Status";
+export { default as Status } from "./Status";

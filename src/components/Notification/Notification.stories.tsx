@@ -1,7 +1,7 @@
 import { Notification, NotificationProps } from "../";
 
 export default {
-  title: "Notification",
+  title: "Action Feedback/Notification",
   argTypes: { notified: { action: "notified" } },
 };
 type Args = NotificationProps;
