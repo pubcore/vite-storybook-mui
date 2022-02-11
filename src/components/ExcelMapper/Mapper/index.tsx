@@ -64,6 +64,7 @@ export default function Mapper({
       ),
     []
   );
+  const modeIsChangeIdColumns = targetColumns.length === targetIds.length;
 
   const columns = useMemo<DatatableProps["columns"]>(
     () => [
@@ -71,7 +72,8 @@ export default function Mapper({
         name: "selectSource",
         width: 100,
         cellRenderer: ({ rowData }: { rowData: Row }) =>
-          !targetIds.includes(rowData.targetColumnId) ? (
+          !targetIds.includes(rowData.targetColumnId) ||
+          modeIsChangeIdColumns ? (
             <IconButton
               color="primary"
               size="small"
@@ -132,7 +134,7 @@ export default function Mapper({
         ),
       },
     ],
-    [handleChangePipe, source.workbook, targetIds]
+    [handleChangePipe, modeIsChangeIdColumns, source.workbook, targetIds]
   );
 
   const toggleColumn = useCallback<SelectColumnsProps["toggleColumn"]>(
@@ -171,9 +173,7 @@ export default function Mapper({
             })
           }
         >
-          {targetColumns.length === targetIds.length
-            ? t("save_id_columns")
-            : t("save_mappings")}
+          {modeIsChangeIdColumns ? t("save_id_columns") : t("save_mappings")}
         </ActionButton>
       )}
       <Popover
