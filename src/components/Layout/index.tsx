@@ -50,6 +50,7 @@ export default function Page({
           sx={{
             display: "flex",
             flexGrow: 1,
+            position: "relative",
           }}
         >
           <>{sidebar}</>
@@ -61,8 +62,7 @@ export default function Page({
               justifyContent: "space-between",
               flexGrow: 1,
               flexBasis: 0,
-              padding: { xs: 2, sm: 0, md: 1 },
-              paddingLeft: { xs: 5, sm: 0 },
+              padding: { xs: 0, md: 1 },
               paddingBottom: 1,
               maxWidth: contentMaxWidth,
             }}

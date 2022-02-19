@@ -55,17 +55,21 @@ export default function Sidebar({ items, isOpen, toggle, close }: SidbarProps) {
     <Drawer
       sx={{
         ".MuiDrawer-paper": {
-          position: { xs: "inherit", sm: "relative" },
+          position: { xs: "absolute", sm: "relative" },
           height: { xs: "100vh", sm: 1 },
           overflowX: "hidden",
-          width: isOpen ? DRAWER_WIDTH : CLOSED_DRAWER_WIDTH,
+          width: isOpen
+            ? DRAWER_WIDTH
+            : isSmall || isXSmall
+            ? 0
+            : CLOSED_DRAWER_WIDTH,
           transition: transitions.create("width", {
             easing: transitions.easing.sharp,
             duration: transitions.duration.leavingScreen,
           }),
-          backgroundColor: { xs: "rgba(75,75,75,0.85)", sm: "transparent" },
+          backgroundColor: { xs: palette.background.paper, sm: "transparent" },
           borderRight: "none",
-          zIndex: "inherit",
+          zIndex: 1,
           marginRight: 1,
           border: { md: "none" },
         },
