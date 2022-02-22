@@ -167,9 +167,7 @@ export default function ColumnSelector({
           </FormGroup>
         </DialogContent>
         <DialogActions>
-          <ActionButton onClick={closeColSelector}>
-            {t("close_dialog")}
-          </ActionButton>
+          <ActionButton onClick={closeColSelector}>{t("close")}</ActionButton>
         </DialogActions>
       </Dialog>
     </>
