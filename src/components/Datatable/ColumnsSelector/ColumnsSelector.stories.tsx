@@ -12,6 +12,10 @@ export default {
   },
 };
 
+function randomSelected(columns: string[]) {
+  return columns.filter(() => Math.floor(Math.random() * 2) === 1);
+}
+
 type Args = ColumnsSelectorProps;
 
 const rows = [
@@ -29,13 +33,22 @@ const rows = [
 ];
 
 export const Default = (args: Args) => (
-    <ColumnsSelector {...{ ...args, rows }} />
+    <ColumnsSelector
+      {...{ ...args, rows, selected: randomSelected(defaultColumns) }}
+    />
   ),
   WithFilter = (args: Args) => (
     <ColumnsSelector
       {...{
         ...args,
         columnsSequence: [...defaultColumns, "eight", "nine", "ten", "eleven"],
+        selected: randomSelected([
+          ...defaultColumns,
+          "eight",
+          "nine",
+          "ten",
+          "eleven",
+        ]),
       }}
     />
   );
