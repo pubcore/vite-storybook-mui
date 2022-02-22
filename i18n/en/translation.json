@@ -35,5 +35,12 @@
   "save_id_columns": "Save ID columns",
   "save_mappings": "Save mappings",
   "save_target_table": "Save target table",
-  "footer_copyright": "| {{date}}"
+  "footer_copyright": "| {{date}}",
+  "close": "Close",
+  "one": "Eins",
+  "two": "Zwei",
+  "three": "Drei",
+  "four": "Vier",
+  "five": "Fünf",
+  "six": "Sechs"
 }
