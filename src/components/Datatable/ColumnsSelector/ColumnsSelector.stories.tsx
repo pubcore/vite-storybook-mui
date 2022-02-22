@@ -1,14 +1,14 @@
 import ColumnsSelector, { ColumnsSelectorProps } from "./";
-const columns = ["one", "two", "three", "for", "five", "six", "seven"];
+const defaultColumns = ["one", "two", "three", "four", "five", "six", "seven"];
 export default {
-  title: "columns selector",
+  title: "Datatable/columns selector",
   argTypes: {
     setSelected: { action: { name: "setSelected" } },
     setSequence: { action: { name: "setSequence" } },
   },
   args: {
     selected: ["one", "two"],
-    columns,
+    columnsSequence: defaultColumns,
   },
 };
 
@@ -33,6 +33,9 @@ export const Default = (args: Args) => (
   ),
   WithFilter = (args: Args) => (
     <ColumnsSelector
-      {...{ ...args, columns: [...columns, "eight", "nine", "ten", "eleven"] }}
+      {...{
+        ...args,
+        columnsSequence: [...defaultColumns, "eight", "nine", "ten", "eleven"],
+      }}
     />
   );
