@@ -29,14 +29,11 @@ export default function ColumnSelector({
   selected = [],
   setSelected,
 }: ColumnsSelectorProps) {
-  // const [anchorEl, setAnchorEl] = useState(null);
   const [open, setIsOpen] = useState(false);
-  const closeColMgr = useCallback(() => setIsOpen(false), [setIsOpen]);
-  const showColMgr = useCallback(() => {
-    // setAnchorEl(currentTarget);
-    setIsOpen(true);
-  }, []);
+  const closeColSelector = useCallback(() => setIsOpen(false), [setIsOpen]);
+  const showColSelector = useCallback(() => setIsOpen(true), [setIsOpen]);
   const { t } = useTranslation();
+
   const switchColumn = useCallback(
     ({ currentTarget: { name } }, checked) =>
       setSelected(
@@ -87,15 +84,15 @@ export default function ColumnSelector({
     <>
       <div>
         <Tooltip title={t("manage_columns")}>
-          <IconButton id="kzzdjq" onClick={showColMgr}>
+          <IconButton id="kzzdjq" onClick={showColSelector}>
             <ViewColumnIcon />
           </IconButton>
         </Tooltip>
       </div>
       <Dialog
         {...{
-          open,
-          onClose: closeColMgr,
+          open, // No 'if' needed because of this property
+          onClose: closeColSelector,
           title: t("manage_columns"),
         }}
       >
@@ -170,7 +167,9 @@ export default function ColumnSelector({
           </FormGroup>
         </DialogContent>
         <DialogActions>
-          <ActionButton onClick={closeColMgr}>{t("close_dialog")}</ActionButton>
+          <ActionButton onClick={closeColSelector}>
+            {t("close_dialog")}
+          </ActionButton>
         </DialogActions>
       </Dialog>
     </>
