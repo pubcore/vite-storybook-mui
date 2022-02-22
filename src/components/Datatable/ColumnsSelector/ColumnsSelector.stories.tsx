@@ -1,16 +1,20 @@
 import ColumnsSelector, { ColumnsSelectorProps } from "./";
-const columns = ["one", "two", "three", "for", "five", "six", "seven"];
+const defaultColumns = ["one", "two", "three", "four", "five", "six", "seven"];
 export default {
-  title: "columns selector",
+  title: "Datatable/columns selector",
   argTypes: {
     setSelected: { action: { name: "setSelected" } },
     setSequence: { action: { name: "setSequence" } },
   },
   args: {
     selected: ["one", "two"],
-    columns,
+    columnsSequence: defaultColumns,
   },
 };
+
+function randomSelected(columns: string[]) {
+  return columns.filter(() => Math.floor(Math.random() * 2) === 1);
+}
 
 type Args = ColumnsSelectorProps;
 
@@ -29,10 +33,22 @@ const rows = [
 ];
 
 export const Default = (args: Args) => (
-    <ColumnsSelector {...{ ...args, rows }} />
+    <ColumnsSelector
+      {...{ ...args, rows, selected: randomSelected(defaultColumns) }}
+    />
   ),
   WithFilter = (args: Args) => (
     <ColumnsSelector
-      {...{ ...args, columns: [...columns, "eight", "nine", "ten", "eleven"] }}
+      {...{
+        ...args,
+        columnsSequence: [...defaultColumns, "eight", "nine", "ten", "eleven"],
+        selected: randomSelected([
+          ...defaultColumns,
+          "eight",
+          "nine",
+          "ten",
+          "eleven",
+        ]),
+      }}
     />
   );

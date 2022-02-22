@@ -49,7 +49,7 @@ const FilterText = ({ name, changeFilter }: DatatableHeaderRowFilterProps) => (
 );
 
 export default {
-  title: "Datatable",
+  title: "Datatable/Table",
   args: {
     title: "List of fake addresses",
     loadRows: loadRows(5000),
