@@ -1,6 +1,5 @@
 import { useCallback, useState } from "react";
 import {
-  Popover,
   IconButton,
   Tooltip,
   Switch,
@@ -8,32 +7,35 @@ import {
   FormControlLabel,
   TextField,
   ButtonGroup,
-  Box,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import { useTranslation } from "react-i18next";
+import { ActionButton, Dialog } from "../..";
 
 export interface ColumnsSelectorProps {
-  columns: string[];
+  columnsSequence: string[];
   setSequence: (cols: string[]) => void;
   selected: string[];
   setSelected: (cols: string[]) => void;
 }
 
 export default function ColumnSelector({
-  columns = [],
+  columnsSequence = [],
   setSequence,
   selected = [],
   setSelected,
 }: ColumnsSelectorProps) {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const onClose = useCallback(() => setAnchorEl(null), [setAnchorEl]);
-  const showPopover = useCallback(({ currentTarget }) => {
-    setAnchorEl(currentTarget);
+  // const [anchorEl, setAnchorEl] = useState(null);
+  const [open, setIsOpen] = useState(false);
+  const closeColMgr = useCallback(() => setIsOpen(false), [setIsOpen]);
+  const showColMgr = useCallback(() => {
+    // setAnchorEl(currentTarget);
+    setIsOpen(true);
   }, []);
-  const open = Boolean(anchorEl);
   const { t } = useTranslation();
   const switchColumn = useCallback(
     ({ currentTarget: { name } }, checked) =>
@@ -53,49 +55,52 @@ export default function ColumnSelector({
   );
   const stepRight = useCallback(
     ({ currentTarget: { name } }) => {
-      const current = columns.indexOf(name);
-      if (current >= columns.length - 1) {
-        return columns;
+      const current = columnsSequence.indexOf(name);
+      if (current >= columnsSequence.length - 1) {
+        return columnsSequence;
       }
-      const a = columns.slice();
+      const a = columnsSequence.slice();
       [a[current], a[current + 1]] = [a[current + 1], a[current]];
       setSequence(a);
     },
-    [columns, setSequence]
+    [columnsSequence, setSequence]
   );
   const stepLeft = useCallback(
     ({ currentTarget: { name } }) => {
-      const current = columns.indexOf(name);
+      const current = columnsSequence.indexOf(name);
       if (current <= 0) {
-        return columns;
+        return columnsSequence;
       }
-      const a = columns.slice();
+      const a = columnsSequence.slice();
       [a[current], a[current - 1]] = [a[current - 1], a[current]];
       setSequence(a);
     },
-    [columns, setSequence]
+    [columnsSequence, setSequence]
   );
+
+  const columns = columnsSequence.sort().map((cs) => ({
+    name: cs,
+    label: t(cs.replaceAll(".", "_") as "_"),
+  }));
+
   return (
-    <div>
-      <Tooltip title={t("manage_columns")}>
-        <IconButton id="kzzdjq" onClick={showPopover}>
-          <ViewColumnIcon />
-        </IconButton>
-      </Tooltip>
-      <Popover
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
+    <>
+      <div>
+        <Tooltip title={t("manage_columns")}>
+          <IconButton id="kzzdjq" onClick={showColMgr}>
+            <ViewColumnIcon />
+          </IconButton>
+        </Tooltip>
+      </div>
+      <Dialog
+        {...{
+          open,
+          onClose: closeColMgr,
+          title: t("manage_columns"),
         }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        {...{ open, onClose, anchorEl }}
       >
-        <Box component="div" sx={{ margin: 2 }}>
-          <h4>{t("manage_columns")}</h4>
-          {columns.length > 10 && (
+        {columnsSequence.length > 10 && (
+          <DialogActions sx={{ justifyContent: "flex-start" }}>
             <TextField
               {...{
                 id: "lslzqj",
@@ -104,41 +109,58 @@ export default function ColumnSelector({
                 placeholder: t("input_placeholder_filter", "filter ..."),
               }}
             />
-          )}
+          </DialogActions>
+        )}
+        <DialogContent
+          sx={{
+            width: { xs: 250, sm: 400 },
+            height: 400,
+            paddingTop: 0,
+          }}
+        >
           <FormGroup>
             {columns
-              .filter((col) => !filter || col.includes(filter))
-              .sort()
-              .map((column) => (
+              .filter(
+                (col) =>
+                  !filter ||
+                  col.label.toLowerCase().includes(filter.toLowerCase())
+              )
+              .map(({ name, label }) => (
                 <FormGroup
                   row
-                  key={column}
-                  style={{ justifyContent: "space-between" }}
+                  key={name}
+                  style={{
+                    justifyContent: "space-between",
+                    flexWrap: "nowrap",
+                  }}
                 >
                   <FormControlLabel
-                    key={column}
                     control={
                       <Switch
                         {...{
-                          name: column,
+                          name,
                           onChange: switchColumn,
-                          checked: selected.includes(column),
+                          checked: selected.includes(name),
                         }}
                       />
                     }
-                    label={t(column.replaceAll(".", "_") as "_")}
-                    id={
-                      "columns_selector_switch_" + column.replaceAll(".", "_")
-                    }
+                    {...{
+                      id: `columns_selector_switch_${label.replaceAll(
+                        ".",
+                        "_"
+                      )}`,
+                      key: name,
+                      label,
+                    }}
                   />
                   <ButtonGroup size="small">
                     <Tooltip title={t("move_column_one_step_left")}>
-                      <IconButton id="ozkis" name={column} onClick={stepLeft}>
+                      <IconButton id="ozkis" name={name} onClick={stepLeft}>
                         <ArrowLeftIcon />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title={t("move_column_one_step_right")}>
-                      <IconButton id="ptejd" name={column} onClick={stepRight}>
+                      <IconButton id="ptejd" name={name} onClick={stepRight}>
                         <ArrowRightIcon />
                       </IconButton>
                     </Tooltip>
@@ -146,8 +168,11 @@ export default function ColumnSelector({
                 </FormGroup>
               ))}
           </FormGroup>
-        </Box>
-      </Popover>
-    </div>
+        </DialogContent>
+        <DialogActions>
+          <ActionButton onClick={closeColMgr}>{t("close")}</ActionButton>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }
