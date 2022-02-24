@@ -32,6 +32,8 @@ const rows = [
   },
 ];
 
+const _200_cols = new Array(200).fill(null).map((_, i) => i.toString());
+
 export const Default = (args: Args) => (
     <ColumnsSelector
       {...{ ...args, rows, selected: randomSelected(defaultColumns) }}
@@ -49,6 +51,15 @@ export const Default = (args: Args) => (
           "ten",
           "eleven",
         ]),
+      }}
+    />
+  ),
+  HundredsOfColumns = (args: Args) => (
+    <ColumnsSelector
+      {...{
+        ...args,
+        columnsSequence: _200_cols,
+        selected: _200_cols,
       }}
     />
   );

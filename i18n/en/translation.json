@@ -24,8 +24,7 @@
   "cancel": "Cancel",
   "manage_columns": "Manage Columns",
   "input_placeholder_filter": "filter ...",
-  "move_column_one_step_left": "Move column one step left",
-  "move_column_one_step_right": "Move column one step right",
+  "move_column": "Click to move this column",
   "total_count_of_rows": "Total count of rows: {{count}}",
   "file_upload_dropzone": "Drag 'n' drop an Excel file here, or click to select it",
   "map_table_title": "Map source: {{name}}",
@@ -42,5 +41,8 @@
   "three": "Drei",
   "four": "Vier",
   "five": "Fünf",
-  "six": "Sechs"
+  "six": "Sechs",
+  "reset": "Reset",
+  "datatable_reset_columns_title": "Reset columns",
+  "datatable_reset_columns_body": "Are you sure you want to reset the columns to their default state?"
 }

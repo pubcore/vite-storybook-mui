@@ -118,6 +118,15 @@ export default function Datatable({
       minPageSize
     );
 
+  const [selectedColumns, setSelectedColumns] = useState<string[]>(
+    columns?.map(({ name }) => name) ?? []
+  );
+
+  const [columnsSequence, setColumnsSequence] =
+    useState<string[]>(selectedColumns);
+
+  const [initialSequence, setInitialSequence] = useState<string[] | null>(null);
+
   //initial load first rows ...
   useEffect(() => {
     let mounted = true;
@@ -176,19 +185,23 @@ export default function Datatable({
           rows: [...rows, ...new Array(count - rows.length).fill(null)],
         }));
         rows?.[0] &&
-          setColumnsSequence((sequence) => [
-            //use a Set to have distinct column-names
-            ...new Set([
-              ...sequence,
-              //add all columns of first n rows (n == minimumBatchSize)
-              ...Array(minimumBatchSize - 1)
-                .fill(null)
-                .reduce(
-                  (acc, _, i) => acc.concat(Object.keys(rows[i] ?? {})),
-                  []
-                ),
-            ]),
-          ]);
+          setColumnsSequence((sequence) => {
+            const newSequence = [
+              //use a Set to have distinct column-names
+              ...new Set([
+                ...sequence,
+                //add all columns of first n rows (n == minimumBatchSize)
+                ...Array(minimumBatchSize - 1)
+                  .fill(null)
+                  .reduce(
+                    (acc, _, i) => acc.concat(Object.keys(rows[i] ?? {})),
+                    []
+                  ),
+              ]),
+            ];
+            setInitialSequence(newSequence);
+            return newSequence;
+          });
       }
     }
 
@@ -321,13 +334,6 @@ export default function Datatable({
     [rowSort, serverMode, rowSortServer, request, cellVal]
   );
 
-  const [selectedColumns, setSelectedColumns] = useState<string[]>(
-    columns?.map(({ name }) => name) ?? []
-  );
-
-  const [columnsSequence, setColumnsSequence] =
-    useState<string[]>(selectedColumns);
-
   useColumnsStorage({
     storageId,
     selectedColumns,
@@ -432,6 +438,15 @@ export default function Datatable({
 
   const { palette } = useTheme();
 
+  const defaultSelected = columns?.map((c) => c.name);
+
+  const resetSequence = useCallback(() => {
+    if (defaultSelected && initialSequence) {
+      setSelectedColumns(defaultSelected);
+      setColumnsSequence([...new Set(defaultSelected.concat(initialSequence))]);
+    }
+  }, [defaultSelected, initialSequence]);
+
   return (
     <Paper
       sx={{
@@ -476,6 +491,7 @@ export default function Datatable({
                 setSequence: setColumnsSequence,
                 selected: selectedColumns,
                 setSelected: setSelectedColumns,
+                resetSequence,
               }}
             />
           )}

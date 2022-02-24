@@ -15,12 +15,14 @@ import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import { useTranslation } from "react-i18next";
 import { ActionButton, Dialog } from "../..";
+import ColumnsOverview from "./ColumnsOverview";
 
 export interface ColumnsSelectorProps {
   columnsSequence: string[];
   setSequence: (cols: string[]) => void;
   selected: string[];
   setSelected: (cols: string[]) => void;
+  resetSequence?: () => void;
 }
 
 export default function ColumnSelector({
@@ -28,6 +30,7 @@ export default function ColumnSelector({
   setSequence,
   selected = [],
   setSelected,
+  resetSequence,
 }: ColumnsSelectorProps) {
   const [open, setIsOpen] = useState(false);
   const closeColSelector = useCallback(() => setIsOpen(false), [setIsOpen]);
@@ -75,15 +78,22 @@ export default function ColumnSelector({
     [columnsSequence, setSequence]
   );
 
-  const columns = columnsSequence.sort().map((cs) => ({
+  const beforeClose = useCallback(() => {
+    setTimeout(() => setFilter(""), 200);
+    closeColSelector();
+  }, [setFilter, closeColSelector]);
+
+  const columns = [...columnsSequence].sort().map((cs) => ({
     name: cs,
     label: t(cs.replaceAll(".", "_") as "_"),
   }));
 
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
+
   return (
     <>
       <div>
-        <Tooltip title={t("manage_columns")}>
+        <Tooltip title={t("manage_columns")} disableInteractive>
           <IconButton id="kzzdjq" onClick={showColSelector}>
             <ViewColumnIcon />
           </IconButton>
@@ -92,10 +102,37 @@ export default function ColumnSelector({
       <Dialog
         {...{
           open, // No 'if' needed because of this property
-          onClose: closeColSelector,
+          onClose: beforeClose,
           title: t("manage_columns"),
         }}
       >
+        <Dialog
+          {...{
+            open: resetDialogOpen,
+            title: t("datatable_reset_columns_title"),
+          }}
+        >
+          <DialogContent>{t("datatable_reset_columns_body")}</DialogContent>
+          <DialogActions>
+            <ActionButton
+              variant="outlined"
+              onClick={() => setResetDialogOpen(false)}
+            >
+              {t("cancel")}
+            </ActionButton>
+            <ActionButton
+              onClick={() => {
+                if (resetSequence) {
+                  resetSequence();
+                  setResetDialogOpen(false);
+                  setFilter("");
+                }
+              }}
+            >
+              {t("reset")}
+            </ActionButton>
+          </DialogActions>
+        </Dialog>
         {columnsSequence.length > 10 && (
           <DialogActions sx={{ justifyContent: "flex-start" }}>
             <TextField
@@ -104,6 +141,9 @@ export default function ColumnSelector({
                 size: "small",
                 onChange: onFilterChange,
                 placeholder: t("input_placeholder_filter", "filter ..."),
+                sx: {
+                  width: "100%",
+                },
               }}
             />
           </DialogActions>
@@ -122,52 +162,86 @@ export default function ColumnSelector({
                   !filter ||
                   col.label.toLowerCase().includes(filter.toLowerCase())
               )
-              .map(({ name, label }) => (
-                <FormGroup
-                  row
-                  key={name}
-                  style={{
-                    justifyContent: "space-between",
-                    flexWrap: "nowrap",
-                  }}
-                >
-                  <FormControlLabel
-                    control={
-                      <Switch
+              .map(({ name, label }) => {
+                const title = (
+                  <>
+                    {t("move_column")}
+                    {
+                      <ColumnsOverview
                         {...{
-                          name,
-                          onChange: switchColumn,
-                          checked: selected.includes(name),
+                          columnsSequence,
+                          highlightedCol: name,
                         }}
-                      />
+                      ></ColumnsOverview>
                     }
-                    {...{
-                      id: `columns_selector_switch_${label.replaceAll(
-                        ".",
-                        "_"
-                      )}`,
-                      key: name,
-                      label,
+                  </>
+                );
+                return (
+                  <FormGroup
+                    row
+                    key={name}
+                    style={{
+                      justifyContent: "space-between",
+                      flexWrap: "nowrap",
                     }}
-                  />
-                  <ButtonGroup size="small">
-                    <Tooltip title={t("move_column_one_step_left")}>
-                      <IconButton id="ozkis" name={name} onClick={stepLeft}>
-                        <ArrowLeftIcon />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("move_column_one_step_right")}>
-                      <IconButton id="ptejd" name={name} onClick={stepRight}>
-                        <ArrowRightIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </ButtonGroup>
-                </FormGroup>
-              ))}
+                  >
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          {...{
+                            name,
+                            onChange: switchColumn,
+                            checked: selected.includes(name),
+                          }}
+                        />
+                      }
+                      {...{
+                        id: `columns_selector_switch_${label.replaceAll(
+                          ".",
+                          "_"
+                        )}`,
+                        key: name,
+                        label,
+                      }}
+                    />
+
+                    <ButtonGroup size="small">
+                      <Tooltip
+                        enterTouchDelay={10}
+                        leaveTouchDelay={2500}
+                        title={title}
+                        placement={"top-end"}
+                        disableInteractive
+                      >
+                        <IconButton id="ozkis" name={name} onClick={stepLeft}>
+                          <ArrowLeftIcon />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip
+                        enterTouchDelay={10}
+                        leaveTouchDelay={2500}
+                        title={title}
+                        placement={"top-end"}
+                        disableInteractive
+                      >
+                        <IconButton id="ptejd" name={name} onClick={stepRight}>
+                          <ArrowRightIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </ButtonGroup>
+                  </FormGroup>
+                );
+              })}
           </FormGroup>
         </DialogContent>
         <DialogActions>
-          <ActionButton onClick={closeColSelector}>{t("close")}</ActionButton>
+          <ActionButton
+            variant="outlined"
+            onClick={() => setResetDialogOpen(true)}
+          >
+            {t("reset")}
+          </ActionButton>
+          <ActionButton onClick={beforeClose}>{t("close")}</ActionButton>
         </DialogActions>
       </Dialog>
     </>
