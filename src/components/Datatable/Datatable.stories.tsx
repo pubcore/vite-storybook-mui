@@ -148,4 +148,14 @@ export const EmptyTable = () => <Datatable />,
         toggleAllRowsSelection: action("toggleAllRowsSelection"),
       }}
     />
+  ),
+  RowSelectionWithLocalStorage = (args: Args) => (
+    <Datatable
+      {...{
+        ...args,
+        selectedRows: new Set([0, 1]),
+        toggleRowSelection: action("toggleRowSelection"),
+        storageId: "sb-datatable-1",
+      }}
+    />
   );
