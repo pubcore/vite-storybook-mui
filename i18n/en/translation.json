@@ -44,5 +44,6 @@
   "six": "Sechs",
   "reset": "Reset",
   "datatable_reset_columns_title": "Reset columns",
-  "datatable_reset_columns_body": "Are you sure you want to reset the columns to their default state?"
+  "datatable_reset_columns_body": "Are you sure you want to reset the columns to their default state?",
+  "datatable_columns_slider_title": "Drag to move the column"
 }

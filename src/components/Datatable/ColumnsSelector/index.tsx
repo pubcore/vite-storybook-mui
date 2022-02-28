@@ -9,6 +9,7 @@ import {
   ButtonGroup,
   DialogContent,
   DialogActions,
+  TooltipProps,
 } from "@mui/material";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
@@ -53,6 +54,7 @@ export default function ColumnSelector({
     ({ currentTarget: { value } }) => setFilter(value),
     []
   );
+
   const stepRight = useCallback(
     ({ currentTarget: { name } }) => {
       const current = columnsSequence.indexOf(name);
@@ -110,6 +112,7 @@ export default function ColumnSelector({
           {...{
             open: resetDialogOpen,
             title: t("datatable_reset_columns_title"),
+            onBackdropClick: () => setResetDialogOpen(false),
           }}
         >
           <DialogContent>{t("datatable_reset_columns_body")}</DialogContent>
@@ -125,7 +128,7 @@ export default function ColumnSelector({
                 if (resetSequence) {
                   resetSequence();
                   setResetDialogOpen(false);
-                  setFilter("");
+                  beforeClose();
                 }
               }}
             >
@@ -170,12 +173,20 @@ export default function ColumnSelector({
                       <ColumnsOverview
                         {...{
                           columnsSequence,
-                          highlightedCol: name,
+                          currentCol: name,
+                          setSequence,
                         }}
                       ></ColumnsOverview>
                     }
                   </>
                 );
+                const tooltipProps: Omit<TooltipProps, "children"> = {
+                  placement: "top",
+                  title: title,
+                  enterTouchDelay: 5,
+                  leaveTouchDelay: columnsSequence.length < 50 ? 3500 : 5000,
+                  arrow: true,
+                };
                 return (
                   <FormGroup
                     row
@@ -206,24 +217,12 @@ export default function ColumnSelector({
                     />
 
                     <ButtonGroup size="small">
-                      <Tooltip
-                        enterTouchDelay={10}
-                        leaveTouchDelay={2500}
-                        title={title}
-                        placement={"top-end"}
-                        disableInteractive
-                      >
+                      <Tooltip {...tooltipProps}>
                         <IconButton id="ozkis" name={name} onClick={stepLeft}>
                           <ArrowLeftIcon />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip
-                        enterTouchDelay={10}
-                        leaveTouchDelay={2500}
-                        title={title}
-                        placement={"top-end"}
-                        disableInteractive
-                      >
+                      <Tooltip {...tooltipProps}>
                         <IconButton id="ptejd" name={name} onClick={stepRight}>
                           <ArrowRightIcon />
                         </IconButton>
