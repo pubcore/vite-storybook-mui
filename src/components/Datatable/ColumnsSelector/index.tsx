@@ -17,10 +17,11 @@ import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import { useTranslation } from "react-i18next";
 import { ActionButton, Dialog } from "../..";
 import ColumnsOverview from "./ColumnsOverview";
+import RenderIfVisible from "react-render-if-visible";
 
 export interface ColumnsSelectorProps {
   columnsSequence: string[];
-  setSequence: (cols: string[]) => void;
+  setSequence: React.Dispatch<React.SetStateAction<string[]>>;
   selected: string[];
   setSelected: (cols: string[]) => void;
   resetSequence?: () => void;
@@ -187,10 +188,10 @@ export default function ColumnSelector({
                   leaveTouchDelay: columnsSequence.length < 50 ? 3500 : 5000,
                   arrow: true,
                 };
-                return (
+
+                const cols = (
                   <FormGroup
                     row
-                    key={name}
                     style={{
                       justifyContent: "space-between",
                       flexWrap: "nowrap",
@@ -229,6 +230,14 @@ export default function ColumnSelector({
                       </Tooltip>
                     </ButtonGroup>
                   </FormGroup>
+                );
+
+                return columnsSequence.length > 50 ? (
+                  <RenderIfVisible key={name} defaultHeight={40}>
+                    {cols}
+                  </RenderIfVisible>
+                ) : (
+                  <div key={name}>{cols}</div>
                 );
               })}
           </FormGroup>
