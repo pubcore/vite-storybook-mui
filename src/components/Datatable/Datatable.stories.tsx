@@ -93,6 +93,8 @@ export default {
   } as Args,
 };
 
+const _200_cols = new Array(200).fill(null).map((_, i) => i.toString());
+
 export const EmptyTable = () => <Datatable />,
   IndividualTitleComponent = () => (
     <Datatable
@@ -148,4 +150,27 @@ export const EmptyTable = () => <Datatable />,
         toggleAllRowsSelection: action("toggleAllRowsSelection"),
       }}
     />
+  ),
+  RowSelectionWithLocalStorage = (args: Args) => (
+    <Datatable
+      {...{
+        ...args,
+        selectedRows: new Set([0, 1]),
+        toggleRowSelection: action("toggleRowSelection"),
+        storageId: "sb-datatable-1",
+      }}
+    />
+  ),
+  _200_Columns = (args: Args) => (
+    <Datatable
+      {...{
+        ...args,
+        columns: _200_cols.map((v) => ({ name: `c${v}`, width: 50 })),
+        rows: _200_cols.map((v) => ({
+          [`c${v}`]: String(Math.floor(Math.random() * 10) + 1),
+        })),
+        selectedRows: new Set(["c0", "c1"]),
+        toggleRowSelection: action("toggleRowSelection"),
+      }}
+    ></Datatable>
   );

@@ -1,14 +1,44 @@
 import ColumnsSelector, { ColumnsSelectorProps } from "./";
-const defaultColumns = ["one", "two", "three", "four", "five", "six", "seven"];
+import ColumnsOverview from "./ColumnsOverview";
+import { action } from "@storybook/addon-actions";
+
+const defaultColSequence = [
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+];
+
 export default {
   title: "Datatable/columns selector",
   argTypes: {
     setSelected: { action: { name: "setSelected" } },
     setSequence: { action: { name: "setSequence" } },
+    resetSequence: { action: { name: "resetSequence" } },
   },
   args: {
     selected: ["one", "two"],
-    columnsSequence: defaultColumns,
+    columnsSequence: defaultColSequence,
+    setSequence: action("setSequence"),
+    columns: [
+      {
+        name: "one",
+        width: 60,
+        label: "lb_one",
+      },
+      {
+        name: "two",
+        width: 60,
+        label: "lb_two",
+      },
+      {
+        name: "three",
+        width: 60,
+      },
+    ],
   },
 };
 
@@ -32,18 +62,21 @@ const rows = [
   },
 ];
 
+const _200_cols = new Array(200).fill(null).map((_, i) => i.toString());
+const _11_cols = [...defaultColSequence, "eight", "nine", "ten", "eleven"];
+
 export const Default = (args: Args) => (
     <ColumnsSelector
-      {...{ ...args, rows, selected: randomSelected(defaultColumns) }}
+      {...{ ...args, rows, selected: randomSelected(defaultColSequence) }}
     />
   ),
   WithFilter = (args: Args) => (
     <ColumnsSelector
       {...{
         ...args,
-        columnsSequence: [...defaultColumns, "eight", "nine", "ten", "eleven"],
+        columnsSequence: _11_cols,
         selected: randomSelected([
-          ...defaultColumns,
+          ...defaultColSequence,
           "eight",
           "nine",
           "ten",
@@ -51,4 +84,22 @@ export const Default = (args: Args) => (
         ]),
       }}
     />
+  ),
+  HundredsOfColumns = (args: Args) => (
+    <ColumnsSelector
+      {...{
+        ...args,
+        columnsSequence: _200_cols,
+        selected: _200_cols,
+      }}
+    />
+  ),
+  ColumnsOverviewAlone = (args: Args) => (
+    <ColumnsOverview
+      {...{
+        ...args,
+        columnsSequence: _11_cols,
+        currentCol: "six",
+      }}
+    ></ColumnsOverview>
   );
