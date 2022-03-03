@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 interface ColumnsOverviewProps {
   columnsSequence: string[];
   currentCol: string;
-  setSequence?: React.Dispatch<React.SetStateAction<string[]>>;
+  setSequence: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 /** Moves an item in `array`, `from` one index `to` another (returns the array, doesn't mutate) */
@@ -27,7 +27,7 @@ export default function ColumnsOverview({
 }: ColumnsOverviewProps) {
   const { t } = useTranslation();
 
-  const value = columnsSequence.indexOf(currentCol);
+  const currentColIdx = columnsSequence.indexOf(currentCol);
 
   const handleSliderMoved = useMemo(
     () =>
@@ -36,7 +36,7 @@ export default function ColumnsOverview({
           setSequence((oldSequence: string[]) =>
             moveInArray(oldSequence, oldSequence.indexOf(currentCol), val)
           );
-      }, 250),
+      }, 150),
     [setSequence, currentCol]
   );
 
@@ -54,16 +54,18 @@ export default function ColumnsOverview({
     >
       <Slider
         {...{
+          key: currentColIdx,
           min: 0,
           max: columnsSequence.length - 1,
-          defaultValue: value,
+          defaultValue: currentColIdx,
+          onChange: handleSliderMoved,
           size: "medium",
           marks: columnsSequence.length < 30,
           track: false,
-          onChange: handleSliderMoved,
           title: t("datatable_columns_slider_title"),
-          style: {
-            width: columnsSequence.length < 30 ? 150 : 600,
+          sx: {
+            width:
+              columnsSequence.length < 30 ? 150 : { sm: 250, md: 300, xl: 400 },
           },
           componentsProps: {
             thumb: {

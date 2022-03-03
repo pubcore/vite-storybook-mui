@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   IconButton,
   Tooltip,
@@ -9,7 +9,7 @@ import {
   ButtonGroup,
   DialogContent,
   DialogActions,
-  TooltipProps,
+  Popover,
 } from "@mui/material";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
@@ -18,8 +18,12 @@ import { useTranslation } from "react-i18next";
 import { ActionButton, Dialog } from "../..";
 import ColumnsOverview from "./ColumnsOverview";
 import RenderIfVisible from "react-render-if-visible";
+import { DatatableProps } from "../Datatable";
+import { Commit } from "@mui/icons-material";
+import { Box } from "@mui/system";
 
 export interface ColumnsSelectorProps {
+  columns: DatatableProps["columns"];
   columnsSequence: string[];
   setSequence: React.Dispatch<React.SetStateAction<string[]>>;
   selected: string[];
@@ -28,9 +32,10 @@ export interface ColumnsSelectorProps {
 }
 
 export default function ColumnSelector({
-  columnsSequence = [],
+  columns,
+  columnsSequence,
   setSequence,
-  selected = [],
+  selected,
   setSelected,
   resetSequence,
 }: ColumnsSelectorProps) {
@@ -86,12 +91,29 @@ export default function ColumnSelector({
     closeColSelector();
   }, [setFilter, closeColSelector]);
 
-  const columns = [...columnsSequence].sort().map((cs) => ({
-    name: cs,
-    label: t(cs.replaceAll(".", "_") as "_"),
-  }));
-
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
+
+  const labels: Map<string, string> = useMemo(
+    () =>
+      [...columnsSequence]
+        .sort()
+        .reduce(
+          (acc, col) =>
+            acc.set(
+              col,
+              String(
+                columns?.find((c) => c.name === col)?.label ??
+                  t(col.replaceAll(".", "_") as "_")
+              )
+            ),
+          new Map<string, string>()
+        ) ?? new Map<string, string>(),
+    [columns, columnsSequence, t]
+  );
+
+  const [activePopover, setActivePopover] = useState("");
+
+  const [popoverAnchor, setPopoverAnchor] = useState<HTMLElement | null>(null);
 
   return (
     <>
@@ -154,43 +176,31 @@ export default function ColumnSelector({
         )}
         <DialogContent
           sx={{
-            width: { xs: 250, sm: 400 },
+            width: { xs: 250, sm: 400, md: 500 },
             height: 400,
             paddingTop: 0,
           }}
         >
           <FormGroup>
-            {columns
+            {columnsSequence
               .filter(
-                (col) =>
+                (name) =>
                   !filter ||
-                  col.label.toLowerCase().includes(filter.toLowerCase())
+                  labels.get(name)?.toLowerCase().includes(filter.toLowerCase())
               )
-              .map(({ name, label }) => {
-                const title = (
-                  <>
-                    {t("move_column")}
-                    {
-                      <ColumnsOverview
-                        {...{
-                          columnsSequence,
-                          currentCol: name,
-                          setSequence,
-                        }}
-                      ></ColumnsOverview>
-                    }
-                  </>
-                );
-                const tooltipProps: Omit<TooltipProps, "children"> = {
-                  placement: "top",
-                  title: title,
-                  enterTouchDelay: 5,
-                  leaveTouchDelay: columnsSequence.length < 50 ? 3500 : 5000,
-                  arrow: true,
-                };
+              .sort((a, b) =>
+                String(labels.get(a)).localeCompare(
+                  String(labels.get(b)),
+                  undefined,
+                  { numeric: true }
+                )
+              )
+              .map((name) => {
+                const label = labels.get(name) as string;
 
                 const cols = (
                   <FormGroup
+                    data-col-name={name}
                     row
                     style={{
                       justifyContent: "space-between",
@@ -217,22 +227,57 @@ export default function ColumnSelector({
                       }}
                     />
 
-                    <ButtonGroup size="small">
-                      <Tooltip {...tooltipProps}>
-                        <IconButton id="ozkis" name={name} onClick={stepLeft}>
-                          <ArrowLeftIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip {...tooltipProps}>
-                        <IconButton id="ptejd" name={name} onClick={stepRight}>
-                          <ArrowRightIcon />
-                        </IconButton>
-                      </Tooltip>
+                    <Popover
+                      {...{
+                        open: name === activePopover,
+                        anchorEl: popoverAnchor,
+                        anchorOrigin: {
+                          vertical: "top",
+                          horizontal: "center",
+                        },
+                        transformOrigin: {
+                          vertical: "bottom",
+                          horizontal: "center",
+                        },
+                        onClose: () => {
+                          setActivePopover("");
+                          setPopoverAnchor(null);
+                        },
+                      }}
+                    >
+                      <Box sx={{ padding: 1 }}>
+                        {t("datatable_move_column")}
+                        <ColumnsOverview
+                          {...{
+                            columnsSequence,
+                            currentCol: name,
+                            setSequence,
+                          }}
+                        ></ColumnsOverview>
+                      </Box>
+                    </Popover>
+                    <ButtonGroup size="medium">
+                      <IconButton id="ozkis" name={name} onClick={stepLeft}>
+                        <ArrowLeftIcon />
+                      </IconButton>
+                      <IconButton
+                        id="algne"
+                        name={name}
+                        onClick={({ currentTarget }) => {
+                          setActivePopover(name);
+                          setPopoverAnchor(currentTarget.parentElement);
+                        }}
+                      >
+                        <Commit />
+                      </IconButton>
+                      <IconButton id="ptejd" name={name} onClick={stepRight}>
+                        <ArrowRightIcon />
+                      </IconButton>
                     </ButtonGroup>
                   </FormGroup>
                 );
 
-                return columnsSequence.length > 50 ? (
+                return columnsSequence.length > 25 ? (
                   <RenderIfVisible key={name} defaultHeight={40}>
                     {cols}
                   </RenderIfVisible>

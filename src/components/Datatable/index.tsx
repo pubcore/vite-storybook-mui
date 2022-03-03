@@ -487,11 +487,12 @@ export default function Datatable({
           {manageColumns && count > 0 && (
             <ColumnSelector
               {...{
+                columns,
                 columnsSequence,
                 setSequence: setColumnsSequence,
+                resetSequence,
                 selected: selectedColumns,
                 setSelected: setSelectedColumns,
-                resetSequence,
               }}
             />
           )}

@@ -1,6 +1,17 @@
 import ColumnsSelector, { ColumnsSelectorProps } from "./";
 import ColumnsOverview from "./ColumnsOverview";
-const defaultColumns = ["one", "two", "three", "four", "five", "six", "seven"];
+import { action } from "@storybook/addon-actions";
+
+const defaultColSequence = [
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+];
+
 export default {
   title: "Datatable/columns selector",
   argTypes: {
@@ -10,7 +21,24 @@ export default {
   },
   args: {
     selected: ["one", "two"],
-    columnsSequence: defaultColumns,
+    columnsSequence: defaultColSequence,
+    setSequence: action("setSequence"),
+    columns: [
+      {
+        name: "one",
+        width: 60,
+        label: "lb_one",
+      },
+      {
+        name: "two",
+        width: 60,
+        label: "lb_two",
+      },
+      {
+        name: "three",
+        width: 60,
+      },
+    ],
   },
 };
 
@@ -35,11 +63,11 @@ const rows = [
 ];
 
 const _200_cols = new Array(200).fill(null).map((_, i) => i.toString());
-const _11_cols = [...defaultColumns, "eight", "nine", "ten", "eleven"];
+const _11_cols = [...defaultColSequence, "eight", "nine", "ten", "eleven"];
 
 export const Default = (args: Args) => (
     <ColumnsSelector
-      {...{ ...args, rows, selected: randomSelected(defaultColumns) }}
+      {...{ ...args, rows, selected: randomSelected(defaultColSequence) }}
     />
   ),
   WithFilter = (args: Args) => (
@@ -48,7 +76,7 @@ export const Default = (args: Args) => (
         ...args,
         columnsSequence: _11_cols,
         selected: randomSelected([
-          ...defaultColumns,
+          ...defaultColSequence,
           "eight",
           "nine",
           "ten",
@@ -72,9 +100,6 @@ export const Default = (args: Args) => (
         ...args,
         columnsSequence: _11_cols,
         currentCol: "six",
-        // onSequenceChanged: (newSeq) => {
-        //   colOverviewSequence = newSeq;
-        // },
       }}
     ></ColumnsOverview>
   );
