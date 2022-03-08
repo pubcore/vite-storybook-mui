@@ -1,5 +1,5 @@
 {
-  "targetIds": ["ORDER_ID", "PRODUCT_ID"],
+  "targetIds": ["OID", "PID"],
   "mappings": [
     {
       "sourceColumns": [
@@ -7,7 +7,7 @@
           "name": "ORDER ID⏎OID"
         }
       ],
-      "targetId": "ORDER_ID"
+      "targetId": "OID"
     },
     {
       "sourceColumns": [
@@ -15,7 +15,7 @@
           "name": "Product ID⏎PID"
         }
       ],
-      "targetId": "PRODUCT_ID"
+      "targetId": "PID"
     },
     {
       "sourceColumns": [
@@ -23,13 +23,13 @@
           "name": "Order Date⏎OD"
         }
       ],
-      "targetId": "DATE",
+      "targetId": "OD",
       "pipe": "$1.replace(/\\/([0-9]{2})$/, \"/20$1\")"
     },
     {
       "sourceColumns": [
         {
-          "name": "Details⏎Prio1"
+          "name": "Details⏎PRIO_1_DETAIL"
         }
       ],
       "targetId": "PRIO_1_DETAIL"

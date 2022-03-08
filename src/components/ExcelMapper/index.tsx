@@ -1,22 +1,19 @@
-import { useCallback, useState } from "react";
+import { useCallback, useReducer } from "react";
 import { ActionButton, DatatableProps, FileUpload, FileUploadProps } from "../";
 import XLSX, { WorkBook } from "xlsx";
 import WorkbookTeaser from "./WorkbookTeaser";
 import { Divider } from "@mui/material";
-import Map, { MapperProps } from "./Mapper";
+import Mapper, { MapperProps } from "./Mapper";
 import { selectSource } from "./source";
 import { IdColumns, IdColumnsProps } from "./IdColumns";
 import { MappingsJson } from "./MappingsJson";
 import { useTranslation } from "react-i18next";
-import update from "immutability-helper";
 import { TargetTable } from "./TargetTable";
 import { TargetRow } from "./maps/selectTargetRows";
 import { selectTargetRows } from "./target/selectTargetRows";
-
-interface State {
-  workbook?: WorkBook;
-  workbookFileName?: string;
-}
+import { init } from "./init";
+import { reducer } from "./reducer";
+import { selectMappings } from "./maps/selectMappings";
 
 export interface ExcelMapperProps {
   targetColumns: MapperProps["targetColumns"];
@@ -31,120 +28,104 @@ export interface ExcelMapperProps {
     rows: TargetRow[];
     workbookFileName?: string;
   }) => void;
-  options?: { mapper?: { datatable?: DatatableProps } };
+  options?: {
+    mapper?: { datatable?: DatatableProps };
+    previewTargetTable?: boolean;
+  };
 }
 
-export default function ExcelMapper({
-  targetColumns,
-  targetIds,
-  mappings: mappingsDefault,
-  workbook: workbookDefault,
-  save,
-  saveTargetTable,
-  options,
-}: ExcelMapperProps) {
+export default function ExcelMapper(props: ExcelMapperProps) {
+  const {
+    targetColumns,
+    targetIds,
+    mappings: mappingsDefault,
+    save,
+    saveTargetTable,
+    options,
+  } = props;
   const { t } = useTranslation();
-  const [{ workbook, workbookFileName }, setWorkbook] = useState<State>({
-    ...(workbookDefault
-      ? { workbook: workbookDefault, workbookFileName: "-" }
-      : {}),
-  });
-
-  const [mappings, setMappings] = useState<MappingsJson>(
-    mappingsDefault ?? { targetIds, mappings: [] }
-  );
-
-  const countOfMappedIds = targetIds.reduce((acc, targetId) => {
-    if (mappings.mappings.find((mapping) => mapping.targetId === targetId)) {
-      return ++acc;
-    }
-    return acc;
-  }, 0);
-
-  const [step, setStep] = useState<string>(
-    countOfMappedIds === targetIds.length ? "map" : "idColumns"
-  );
+  const [state, dispatch] = useReducer(reducer, props, init);
+  const { workbook, workbookFileName, mappings: mappingsDraft, step } = state;
 
   const handleFile: FileUploadProps["handleFile"] = useCallback(
     async ({ formData }) => {
       const file = formData.get("file") as File;
       const data = await file?.arrayBuffer();
       const workbook = XLSX.read(data);
+      const mappings = selectMappings({
+        workbook,
+        targetColumns,
+        targetIds,
+        mappings: mappingsDefault,
+      });
+      const countOfMappedIds = targetIds.reduce((acc, targetId) => {
+        if (
+          mappings.mappings.find((mapping) => mapping.targetId === targetId)
+        ) {
+          return ++acc;
+        }
+        return acc;
+      }, 0);
 
-      if (saveTargetTable && mappingsDefault && step == "map") {
-        //TODO selectTargetRows could be expensive => async
+      if (
+        saveTargetTable &&
+        !options?.previewTargetTable &&
+        countOfMappedIds === targetIds.length
+      ) {
         saveTargetTable({
-          rows: selectTargetRows({ workbook, mappings: mappingsDefault }),
+          rows: selectTargetRows({ workbook, mappings }),
           workbookFileName: file.name,
         });
       } else {
-        mappingsDefault &&
-          mappingsDefault !== mappings &&
-          setMappings(mappingsDefault);
-        setWorkbook(({ ...rest }) => ({
-          ...rest,
-          workbook,
-          workbookFileName: file.name,
-        }));
+        dispatch({
+          type: "loadWorkbook",
+          payload: { workbook, fileName: file.name },
+        });
       }
     },
-    [mappings, mappingsDefault, saveTargetTable, step]
+    [
+      mappingsDefault,
+      options?.previewTargetTable,
+      saveTargetTable,
+      targetColumns,
+      targetIds,
+    ]
   );
 
   const handleSaveIdColumns = useCallback<IdColumnsProps["save"]>(
-    ({ mappings: newMappings }) => {
-      for (const targetId of targetIds) {
-        const mappingIndex = mappings.mappings.findIndex(
-          (mapping) => mapping.targetId === targetId
-        );
-        const newMappingIndex = newMappings.findIndex(
-          (mapping) => mapping.targetId === targetId
-        );
-
-        if (newMappingIndex >= 0 && mappingIndex < 0) {
-          setMappings((s) =>
-            update(s, {
-              mappings: { $unshift: [newMappings[newMappingIndex]] },
-            })
-          );
-        } else if (newMappingIndex >= 0 && mappingIndex >= 0) {
-          setMappings((s) =>
-            update(s, {
-              mappings: {
-                [mappingIndex]: { $set: newMappings[newMappingIndex] },
-              },
-            })
-          );
-        } else if (newMappingIndex < 0 && mappingIndex >= 0) {
-          setMappings((s) =>
-            update(s, {
-              mappings: { $splice: [[mappingIndex, 1]] },
-            })
-          );
-        }
-      }
-      setStep("map");
+    ({ mappings }) => {
+      dispatch({ type: "setIdColumns", payload: { mappings } });
     },
-    [mappings, targetIds]
+    []
   );
 
   const handleSaveMappings = useCallback<NonNullable<MapperProps["save"]>>(
     ({ mappings }) => {
       if (save) {
-        setMappings((s) => {
-          const newState = update(s, { mappings: { $set: mappings } });
-          save({ mappings: newState });
-          return newState;
+        save({
+          mappings: selectMappings({
+            workbook,
+            targetColumns,
+            targetIds,
+            mappings: mappingsDefault,
+            mappingsDraft: { targetIds, mappings },
+          }),
         });
-      } else {
-        setMappings((s) => update(s, { mappings: { $set: mappings } }));
-        setStep("preview");
       }
+      dispatch({ type: "setMappings", payload: { mappings } });
     },
-    [save]
+    [mappingsDefault, save, targetColumns, targetIds, workbook]
   );
 
-  if (workbookFileName && workbook) {
+  const mappings = selectMappings({
+    workbook,
+    targetColumns,
+    targetIds,
+    mappings: mappingsDefault,
+    mappingsDraft,
+  });
+
+  if (workbook && workbookFileName) {
     switch (step) {
       case "idColumns":
         return (
@@ -162,7 +143,7 @@ export default function ExcelMapper({
           <>
             <WorkbookTeaser {...{ workbook, fileName: workbookFileName }} />
             <Divider />
-            <Map
+            <Mapper
               {...{
                 title: t("map_table_title", { name: workbookFileName }),
                 source: selectSource(workbook),

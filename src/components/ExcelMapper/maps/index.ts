@@ -47,3 +47,4 @@ export type SourceIdColumns = Array<Columns>;
 
 export { selectMappingsByTargetId } from "./selectMappingsByTargetId";
 export { selectMappingOfTargetId } from "./selectMappingOfTargetId";
+export { selectSourceColumnsByTargetId } from "./selectSourceColumnsByTargetId";

@@ -1,6 +1,10 @@
 import { ExcelMapper } from "../";
-import { targetColumns } from "../../../test/testWorkbook";
-import mappingJson from "../../../test/testMapping.json";
+import {
+  targetColumns,
+  targetColumnsBasic,
+  workbook2,
+} from "../../../test/testWorkbook";
+import mappingJson, { targetIds } from "../../../test/testMapping.json";
 import { workbook2 as workbook } from "../../../test/testWorkbook";
 import { ExcelMapperProps } from ".";
 import { action } from "@storybook/addon-actions";
@@ -10,23 +14,28 @@ export default {
   argTypes: {
     save: { action: "save" },
   },
-  args: { targetColumns, targetIds: ["ORDER_ID", "PRODUCT_ID"] } as Args,
+  args: { targetColumns, targetIds } as Args,
 };
 
 type Args = ExcelMapperProps;
 
 export const Default = (args: Args) => <ExcelMapper {...args} />,
+  CreateMappingBySearchOfTargetCols = (args: Args) => (
+    <ExcelMapper
+      {...{ ...args, workbook, targetColumns: targetColumnsBasic }}
+    />
+  ),
   LoadedMappingJson = (args: Args) => (
     <ExcelMapper
       {...{
         ...args,
         targetIds: mappingJson.targetIds,
         mappings: mappingJson,
-        workbook,
+        workbook: workbook2,
       }}
     />
   ),
-  SaveAfterUploadIfMappingIsGiven = (args: Args) => (
+  SaveAfterUploadIfSaveTargetHanlder = (args: Args) => (
     <ExcelMapper
       {...{
         ...args,

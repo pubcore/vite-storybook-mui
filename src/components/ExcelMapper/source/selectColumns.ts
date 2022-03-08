@@ -5,6 +5,8 @@ import { selectCountOfHeaderRowsByPage } from "./selectCountOfHeaderRowsByPage";
 import { selectRowsByPage } from "./selectRowsByPage";
 import { S } from "./State";
 
+export const ROW_SEPERATOR = "⏎";
+
 export const selectColumns: (s: S) => {
   columns: Columns;
   columnsByName: Map<string, Columns>;
@@ -25,7 +27,7 @@ export const selectColumns: (s: S) => {
             row.forEach(
               (cellVal, index) =>
                 (acc2[index] = acc2[index]
-                  ? acc2[index] + "⏎" + String(cellVal).trim()
+                  ? acc2[index] + ROW_SEPERATOR + String(cellVal).trim()
                   : String(cellVal).trim())
             );
             return acc2;
