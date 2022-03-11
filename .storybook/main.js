@@ -1,16 +1,16 @@
 //const viteProjectConfig = require("../vite.config.ts");
-const path = require("path");
-const toPath = (_path) => path.join(process.cwd(), _path);
-
 module.exports = {
   framework: "@storybook/react",
   core: {
-    builder: "webpack5",
+    builder: "storybook-builder-vite",
   },
-  stories: ["../src/components"],
+  stories: ["../src/components/**/*.stories.tsx"],
+  typescript: {
+    reactDocgen: false,
+  },
   features: {
     //https://storybook.js.org/docs/react/configure/overview#on-demand-story-loading
-    storyStoreV7: true,
+    storyStoreV7: false,
     postcss: false,
     emotionAlias: false,
   },
@@ -21,17 +21,10 @@ module.exports = {
       options: {
         backgrounds: false,
         docs: false,
+        controls: false,
       },
     },
     "storybook-dark-mode",
   ],
   staticDirs: ["../pub"], //do not name it public, rollopu copies it to dist
-  webpackFinal: async (config) => {
-    return {
-      ...config,
-      experiments: {
-        topLevelAwait: true,
-      },
-    };
-  },
 };
