@@ -6,11 +6,12 @@ module.exports = {
   },
   stories: ["../src/components/**/*.stories.tsx"],
   typescript: {
+    check: false,
     reactDocgen: false,
   },
   features: {
     //https://storybook.js.org/docs/react/configure/overview#on-demand-story-loading
-    storyStoreV7: false,
+    storyStoreV7: true,
     postcss: false,
     emotionAlias: false,
   },
