@@ -28,6 +28,9 @@ export const createTheme = ({ darkMode }: { darkMode: boolean }) =>
         MuiButton: {
           defaultProps: { variant: "contained" },
         },
+        MuiTextField: {
+          defaultProps: { variant: "outlined" },
+        },
       },
     })
   );

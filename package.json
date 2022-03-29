@@ -19,7 +19,7 @@
     "watch": "vite build --watch",
     "serve": "vite preview",
     "prepare": "patch-package && husky install && npm run build",
-    "storybook": "start-storybook -p 6006",
+    "storybook": "start-storybook -p 6006 -c .storybook",
     "build-storybook": "build-storybook",
     "lint": "tsc --noEmit && eslint .",
     "test": "jest"
@@ -37,6 +37,8 @@
     "react-router-dom": "^6.2.2"
   },
   "dependencies": {
+    "@rjsf/core": "^4.0.1",
+    "@rjsf/material-ui": "^4.0.1",
     "immutability-helper": "^3.1.1",
     "lodash-es": "^4.17.21",
     "react-dropzone": "^11.4.2",
