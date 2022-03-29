@@ -1,16 +1,20 @@
 import { MuiForm5 as Form } from "@rjsf/material-ui";
 import type { FormProps } from "@rjsf/core";
 import { Theme, ThemeProvider, useTheme } from "@mui/material";
-import { FieldTemplate } from "./FieldTemplate";
-import { MultiSelectField, RadioField, FooterField } from "./fields";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function JsonSchemaForm<T = any>(props: FormProps<T>) {
+export default function JsonSchemaForm<T = any>(props: FormProps<T>) {
   const theme: Theme = {
     ...useTheme(),
     components: {
+      // MuiFormControl: {
+      //   styleOverrides: {
+      //     root: {
+      //       flexDirection: "row",
+      //     },
+      //   },
+      // },
       MuiFormLabel: {
-        // replaced with custom labels in FieldTemplate.tsx
         styleOverrides: {
           root: {
             display: "none",
@@ -24,22 +28,11 @@ export function JsonSchemaForm<T = any>(props: FormProps<T>) {
     <ThemeProvider {...{ theme }}>
       <Form
         {...{
-          idPrefix: "rjsf",
-          FieldTemplate,
-          fields: {
-            CustomMultiSelect: MultiSelectField,
-            CustomRadio: RadioField,
-            CustomFooter: FooterField,
-          },
           ...props,
+          idPrefix: "rjsf",
+          onSubmit: (e) => console.log("Submit", e.formData),
         }}
-      >
-        {/* <Box sx={{ display: "flex", justifyContent: "space-around" }}>
-          <ActionButton type="submit" variant="contained" size="large">
-            {t("next_step")}
-          </ActionButton>
-        </Box> */}
-      </Form>
+      ></Form>
     </ThemeProvider>
   );
 }
