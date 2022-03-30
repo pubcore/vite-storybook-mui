@@ -6,3 +6,4 @@ dist-ssr
 .husky
 .env
 .eslintcache
+coverage
