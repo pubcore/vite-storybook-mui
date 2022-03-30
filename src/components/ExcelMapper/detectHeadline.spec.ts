@@ -4,6 +4,7 @@ test("Detect headlines", () => {
   expect(detectHeadlines({ rows: [] })).toBe(0);
   expect(detectHeadlines({ rows: rows1 })).toBe(2);
   expect(detectHeadlines({ rows: rows2 })).toBe(2);
+  expect(detectHeadlines({ rows: rows3 })).toBe(2);
 });
 
 const rows1 = [
@@ -82,4 +83,16 @@ const rows2 = [
   [],
   [],
   [],
+];
+
+const rows3 = [
+  ["Product ID", "Issue Description", "QA team affected"],
+  ["PID", "IDESC"],
+  ["FUR-BO-10001798", "Wrong color", "A"],
+  ["FUR-CH-10000454", "Demaged", "A"],
+  ["OFF-LA-10000240", "Demaged", "A"],
+  ["FUR-TA-10000577", "Demaged", "A"],
+  ["OFF-ST-10000760", "Demaged", "A"],
+  ["FUR-FU-10001487", "Demaged", "A"],
+  ["OFF-AR-10002833", "Demaged", "A"],
 ];

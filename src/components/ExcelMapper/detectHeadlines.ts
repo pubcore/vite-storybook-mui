@@ -1,4 +1,5 @@
 import { compareTwoStrings } from "string-similarity";
+import { stringSimilarity } from "string-similarity-js";
 
 export const detectHeadlines = ({
   rows,
@@ -12,7 +13,7 @@ export const detectHeadlines = ({
   if (rows.length == 0) {
     return 0;
   }
-
+  console.log(rows);
   //a column with m rows is a numberColumn, if it consists of
   //1...n[none empty none number row value] + n+1...m[number row value]
   const numberColumns: number[] = [];
@@ -26,7 +27,7 @@ export const detectHeadlines = ({
   for (let j = 0; j < rows[0].length; j++) {
     for (let i = 0; i < Math.min(rows.length, detectionRangeSize); i++) {
       const currentVal = rows[i][j];
-      const nextVal = rows[i + 1][j];
+      const nextVal = rows[i + 1]?.[j];
       const currentValIsNumber = isRelevantNumber(currentVal);
 
       //number columns ...
@@ -54,12 +55,21 @@ export const detectHeadlines = ({
         similarities[j].push(1);
       } else {
         similarities[j].push(
-          Math.round(compareTwoStrings(String(rows[i][j]), String(nextVal)))
+          Math.round(
+            Math.max(
+              compareTwoStrings(String(currentVal), String(nextVal)),
+              stringSimilarity(
+                String(currentVal),
+                String(nextVal),
+                String(currentVal).includes(" ") ? undefined : 1
+              )
+            )
+          )
         );
       }
     }
   }
-
+  console.log(similarities);
   let headlinesCount =
     numberColumns.reduce(
       (acc, headCount) => (headCount > 0 ? headCount : acc),

@@ -44,6 +44,7 @@
     "react-virtualized": "^9.22.3",
     "reselect": "^4.1.5",
     "string-similarity": "^4.0.4",
+    "string-similarity-js": "^2.1.4",
     "throat": "^6.0.1",
     "xlsx": "^0.17.4"
   },
