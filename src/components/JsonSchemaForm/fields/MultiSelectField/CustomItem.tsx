@@ -1,4 +1,4 @@
-import { Cancel, DeleteForever, Edit, Save } from "@mui/icons-material";
+import { Cancel, Delete, Edit, Save } from "@mui/icons-material";
 import {
   Box,
   Checkbox,
@@ -8,13 +8,16 @@ import {
 } from "@mui/material";
 import { useCallback, useState } from "react";
 
+const maxLength = 64;
+
 interface CustomItemProps {
   value: string;
+  title: string;
   items: string[];
   setItems: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-export function CustomItem({ value, items, setItems }: CustomItemProps) {
+export function CustomItem({ value, title, items, setItems }: CustomItemProps) {
   const [isEditing, setIsEditing] = useState(false);
 
   const deleteItem = useCallback(() => {
@@ -45,6 +48,7 @@ export function CustomItem({ value, items, setItems }: CustomItemProps) {
 
   return (
     <Box
+      {...{ title }}
       sx={{
         display: "flex",
         justifyContent: "space-between",
@@ -58,6 +62,7 @@ export function CustomItem({ value, items, setItems }: CustomItemProps) {
           <ListItemText primary={value} />
           <Box sx={{ paddingLeft: 2 }}>
             <IconButton
+              sx={{ marginRight: 1 }}
               onClick={(e) => {
                 e.stopPropagation();
                 setIsEditing(true);
@@ -71,7 +76,7 @@ export function CustomItem({ value, items, setItems }: CustomItemProps) {
                 deleteItem();
               }}
             >
-              <DeleteForever />
+              <Delete />
             </IconButton>
           </Box>
         </>
@@ -85,6 +90,9 @@ export function CustomItem({ value, items, setItems }: CustomItemProps) {
               defaultValue: value,
               fullWidth: true,
               style: { margin: 10 },
+              inputProps: {
+                maxLength,
+              },
               onChange: ({ currentTarget }) => setEditVal(currentTarget.value),
               onKeyDown: (e) => {
                 e.stopPropagation();
@@ -100,7 +108,7 @@ export function CustomItem({ value, items, setItems }: CustomItemProps) {
             }}
           ></TextField>
           <Box sx={{ whiteSpace: "nowrap" }}>
-            <IconButton onClick={() => editItem()}>
+            <IconButton sx={{ marginRight: 1 }} onClick={editItem}>
               <Save />
             </IconButton>
             <IconButton

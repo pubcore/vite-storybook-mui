@@ -9,13 +9,9 @@ import {
 } from "@mui/material";
 import { FieldProps } from "@rjsf/core";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { CustomItemsSection } from "./CustomItemsSection";
+import { CustomItemsSection, maxItemDisplayLength } from "./CustomItemsSection";
 
-export default function MultiSelectWidget({
-  onChange,
-  idSchema,
-  ...rest
-}: FieldProps) {
+export function MultiSelectField({ onChange, idSchema, ...rest }: FieldProps) {
   console.log("CustomMultiSelect props:", rest);
 
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
@@ -31,9 +27,7 @@ export default function MultiSelectWidget({
       "ISO-XY03",
       "ISO-XY04",
       "ISO-XY05",
-      "foo",
-      "bar",
-      "baz",
+      "ISO-ABCDEFGHIJKLMNOPQRSTUVWXYZ-01",
     ],
     []
   );
@@ -52,15 +46,18 @@ export default function MultiSelectWidget({
   );
 
   const renderItems = useCallback(() => {
-    let res = selectedValues.join(", ");
-    if (res.length > 32) {
-      res = res.substring(0, 32).trim();
-      if (res.endsWith(",")) res = res.substring(0, res.length - 1);
-      return `${res}...`;
-    }
-    return res;
+    // let res = selectedValues.join(", ");
+    // if (res.length > 32) {
+    //   res = res.substring(0, 32).trim();
+    //   if (res.endsWith(",")) res = res.substring(0, res.length - 1);
+    //   return `${res}...`;
+    // }
+    // return res;
 
     // return t("items_selected", { count: selectedValues.length });
+    return `${selectedValues.length} item${
+      selectedValues.length !== 1 ? "s" : ""
+    } selected`;
   }, [selectedValues]);
 
   // const [addCustomOpen, setAddCustomOpen] = useState(false);
@@ -143,15 +140,26 @@ export default function MultiSelectWidget({
         input={<OutlinedInput />}
         renderValue={renderItems}
         title={selectedValues.join(", ")}
-        style={{ minWidth: 200 }}
+        // style={{ minWidth: 200 }}
         displayEmpty
       >
-        {items.map((itm) => (
-          <MenuItem key={itm} value={itm} sx={{ paddingRight: 10 }}>
-            <Checkbox checked={selectedValues.indexOf(itm) > -1} />
-            <ListItemText primary={itm} />
-          </MenuItem>
-        ))}
+        {items.map((itm) => {
+          const itmTrimmed =
+            itm.length > maxItemDisplayLength
+              ? itm.substring(0, maxItemDisplayLength - 3) + "..."
+              : itm;
+          return (
+            <MenuItem
+              key={itm}
+              title={itm}
+              value={itm}
+              sx={{ paddingRight: 5 }}
+            >
+              <Checkbox checked={selectedValues.indexOf(itm) > -1} />
+              <ListItemText>{itmTrimmed}</ListItemText>
+            </MenuItem>
+          );
+        })}
         <CustomItemsSection
           {...{ items: customValues, inputRef: hiddenInput }}
         ></CustomItemsSection>

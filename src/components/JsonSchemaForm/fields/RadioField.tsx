@@ -1,7 +1,9 @@
 import { Box, FormControlLabel, Radio, RadioGroup } from "@mui/material";
-import { WidgetProps } from "@rjsf/core";
+import { FieldProps } from "@rjsf/core";
 
-export default function RadioWidget(props: WidgetProps) {
+export function RadioField(props: FieldProps) {
+  // const { onChange } = props;
+
   console.log("CustomRadio props:", props);
 
   return (
