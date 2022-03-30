@@ -8,33 +8,80 @@ export const detectHeadlines = ({
   detectionRangeSize?: number;
 }) => {
   const similarities: number[][] = [];
+
+  if (rows.length == 0) {
+    return 0;
+  }
+
+  //a column with m rows is a numberColumn, if it consists of
+  //1...n[none empty none number row value] + n+1...m[number row value]
+  const numberColumns: number[] = [];
+  const REGEX = /[,.+\s-]/g;
+  function isRelevantNumber(v: unknown) {
+    return (
+      String(v).length > 4 /* ignore short integers e.g. year */ &&
+      !!Number(String(v).replaceAll(REGEX, ""))
+    );
+  }
   for (let j = 0; j < rows[0].length; j++) {
-    for (let i = 0; i < detectionRangeSize; i++) {
-      if (rows[i + 1]) {
-        if (similarities[j] === undefined) similarities[j] = [];
-        const nextString = String(rows[i + 1][j]);
-        similarities[j].push(
-          Math.round(compareTwoStrings(String(rows[i][j]), nextString))
-        );
+    for (let i = 0; i < Math.min(rows.length, detectionRangeSize); i++) {
+      const currentVal = rows[i][j];
+      const nextVal = rows[i + 1][j];
+      const currentValIsNumber = isRelevantNumber(currentVal);
+
+      //number columns ...
+      if (
+        !currentValIsNumber &&
+        currentVal != "" &&
+        currentVal !== undefined &&
+        numberColumns[j] === undefined
+      ) {
+        //do nothing
+      } else if (currentValIsNumber && numberColumns[j] === undefined) {
+        numberColumns[j] = i + 1;
+      } else if (
+        (currentValIsNumber || currentVal == "" || currentVal == undefined) &&
+        numberColumns[j] >= 1
+      ) {
+        //do nothing
       } else {
-        break;
+        numberColumns[j] = 0;
+      }
+
+      //similarities ...
+      if (similarities[j] === undefined) similarities[j] = [];
+      if (currentValIsNumber || isRelevantNumber(nextVal)) {
+        similarities[j].push(1);
+      } else {
+        similarities[j].push(
+          Math.round(compareTwoStrings(String(rows[i][j]), String(nextVal)))
+        );
       }
     }
   }
 
-  let headlinesCount = Math.round(
-    similarities
-      //collect first jumps from 0 to 1
-      .reduce<number[]>(
-        (agg, similary) => agg.concat(similary.findIndex((s) => s == 1)),
-        []
-      )
-      //arithmetic mean of jump positions of all columns
-      .reduce<number>(
-        (sum, jumpAt, _, cols) => (sum += jumpAt / cols.length),
-        0
-      )
-  );
+  let headlinesCount =
+    numberColumns.reduce(
+      (acc, headCount) => (headCount > 0 ? headCount : acc),
+      0
+    ) || // fallback logic, if there is no number column ...
+    Math.round(
+      similarities
+        //only use similarity fields with more than 4 ones
+        .filter(
+          (similary) => similary.reduce((acc, sim) => (acc += sim), 0) > 4
+        )
+        //collect first jumps from 0 to 1
+        .reduce<number[]>(
+          (agg, similary) => agg.concat(similary.findIndex((s) => s == 1)),
+          []
+        )
+        //arithmetic mean of jump positions of all columns
+        .reduce<number>(
+          (sum, jumpAt, _, cols) => (sum += jumpAt / cols.length),
+          0
+        )
+    );
 
   if (headlinesCount <= 1) {
     headlinesCount = 2;
