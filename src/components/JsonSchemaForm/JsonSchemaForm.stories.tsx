@@ -1,8 +1,9 @@
 import JsonSchemaForm from "./";
 import type { JSONSchema7 } from "json-schema";
-import { Box, Typography } from "@mui/material";
-import { FieldTemplateProps, UiSchema, Widget } from "@rjsf/core";
-import { MultiSelectWidget, RadioWidget } from "./widgets";
+import { Box } from "@mui/material";
+import { UiSchema } from "@rjsf/core";
+import { MultiSelectField, RadioField } from "./fields";
+import { FieldTemplate } from "./FieldTemplate";
 
 export default {
   title: "JSON Schema Form/Full Form",
@@ -62,42 +63,26 @@ const uiSchema: UiSchema = {
 // see https://react-jsonschema-form.readthedocs.io/en/latest/advanced-customization/custom-widgets-fields/
 // const fields1: { [k: string]: Field } = {};
 
-// see https://react-jsonschema-form.readthedocs.io/en/v1.8.1/advanced-customization/#field-template
-function CustomFieldTemplate(props: FieldTemplateProps) {
-  const { id, label, description, children, errors, help } = props;
-
-  console.log("DBG props", props);
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
-      }}
-    >
-      {label && id !== "rjsf" ? <Typography>{label}</Typography> : null}
-      <Box>
-        {description}
-        {children}
-        {errors}
-        {help}
-      </Box>
-    </Box>
-  );
-}
-
 export const Default = () => (
-  <Box sx={{ width: 500, padding: 2 }}>
+  <Box sx={{ width: 600, padding: 2 }}>
     <JsonSchemaForm
       {...{
         schema,
         uiSchema,
         // widgets,
+<<<<<<< HEAD
         // fields: {
         //   CustomMultiSelect: MultiSelectWidget,
         //   CustomRadio: RadioWidget,
         // },
         // FieldTemplate: CustomFieldTemplate,
+=======
+        fields: {
+          CustomMultiSelect: MultiSelectField,
+          CustomRadio: RadioField,
+        },
+        FieldTemplate,
+>>>>>>> 1090a2f (refactor: rename widgets & extract field template)
       }}
     ></JsonSchemaForm>
   </Box>
