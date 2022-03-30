@@ -56,7 +56,9 @@
   "mapping_totalCountOfMappedColumns": "Total count of target columns with mapping",
   "mapping_totalCountOfRows": "Total count of rows by ID",
   "mapping_no_column_found": "No column found in selected file.",
-  "enter_value": "Enter value...",
+  "enter_value": "Enter new value...",
   "custom_values_header": "Custom values",
-  "add_custom_value": "Add custom value"
+  "add_custom_value": "Add value",
+  "delete_all_custom_values": "Delete all",
+  "confirm_delete_all_custom": "Delete"
 }
