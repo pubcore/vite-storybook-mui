@@ -22,6 +22,7 @@ export function CustomItem({ value, title, items, setItems }: CustomItemProps) {
 
   const deleteItem = useCallback(() => {
     if (!items.includes(value)) return;
+    console.log("Deleting custom value", value);
 
     const newItems = [...items];
     newItems.splice(items.indexOf(value), 1);
@@ -52,15 +53,14 @@ export function CustomItem({ value, title, items, setItems }: CustomItemProps) {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        flexWrap: "nowrap",
         height: 50,
       }}
     >
       {!isEditing ? (
         <>
-          <Checkbox checked={true} sx={{ pointerEvents: "none" }} disabled />
+          <Checkbox checked={true} />
           <ListItemText primary={value} />
-          <Box sx={{ paddingLeft: 2, whiteSpace: "nowrap" }}>
+          <Box sx={{ paddingLeft: 2 }}>
             <IconButton
               sx={{ marginRight: 1 }}
               onClick={(e) => {

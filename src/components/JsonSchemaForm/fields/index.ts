@@ -1,3 +1,4 @@
-export { MultiSelectField } from "./MultiSelectField";
-export { RadioField } from "./RadioField";
-export { FooterField } from "./FooterField";
+import { MultiSelectField } from "./MultiSelectField";
+import { RadioField } from "./RadioField";
+
+export { MultiSelectField, RadioField };

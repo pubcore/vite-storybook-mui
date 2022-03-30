@@ -1,91 +1,18 @@
 import { HelpOutline } from "@mui/icons-material";
-import {
-  Box,
-  DialogActions,
-  DialogContent,
-  IconButton,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
 import { FieldTemplateProps } from "@rjsf/core";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { ActionButton } from "../Button";
-import { Dialog } from "../Dialog/Dialog";
-import { A } from "../Link";
+import Dialog from "../Dialog/Dialog";
 
 // see https://react-jsonschema-form.readthedocs.io/en/v1.8.1/advanced-customization/#field-template
 export function FieldTemplate(props: FieldTemplateProps) {
-  const { t } = useTranslation();
+  const { id, label, description, children, errors, help } = props;
 
-  const { label, children, errors, uiSchema } = props;
+  const isRootField = id === "rjsf";
 
-  const uiField = uiSchema?.["ui:field"];
-  const pdfUri = uiSchema?.["ui:options"]?.helpUri;
-
-  console.log(`Props for field template '${uiField}':`, props);
+  console.log("Field template props:", props);
 
   const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
-
-  const { breakpoints } = useTheme();
-
-  const isMobile = !useMediaQuery(breakpoints.up("sm"));
-
-  const labelEnabled = uiField && !["CustomFooter"].includes(uiField as string);
-
-  const fieldLabel =
-    label && uiField && labelEnabled ? (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-around",
-            marginRight: 2,
-          }}
-        >
-          <Box>
-            {/* <Box sx={{ maxWidth: 500 }}> */}
-            <Typography className="form-label">{label}</Typography>
-          </Box>
-        </Box>
-        {typeof pdfUri === "string" ? (
-          !isMobile ? (
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-around",
-                marginRight: 2,
-              }}
-            >
-              <IconButton onClick={() => setIsHelpDialogOpen(true)}>
-                <HelpOutline />
-              </IconButton>
-            </Box>
-          ) : (
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-around",
-                marginRight: 2,
-              }}
-            >
-              <A href={pdfUri}>
-                <HelpOutline />
-              </A>
-            </Box>
-          )
-        ) : null}
-      </Box>
-    ) : null;
 
   return (
     <Box
@@ -95,62 +22,53 @@ export function FieldTemplate(props: FieldTemplateProps) {
         justifyContent: "space-between",
       }}
     >
-      {typeof pdfUri === "string" && isHelpDialogOpen ? (
+      {isHelpDialogOpen ? (
         <Dialog
           {...{
             open: isHelpDialogOpen,
+            title: "PDF Dialog",
             onClose: () => setIsHelpDialogOpen(false),
-            fullWidth: true,
-            PaperProps: {
-              sx: {
-                maxWidth: 900,
-              },
-            },
           }}
         >
-          <DialogContent
-            sx={{
-              height: {
-                sm: 450,
-                md: 600,
-              },
-              overflow: "hidden",
-            }}
-          >
-            <object
-              data={pdfUri}
-              type="application/pdf"
-              style={{
-                width: "100%",
-                height: "100%",
-              }}
-            >
-              <p>
-                <A href={pdfUri} target="_blank">
-                  {t("open_help_document")}
-                </A>
-              </p>
-            </object>
-          </DialogContent>
-          <DialogActions>
-            <ActionButton
-              variant="contained"
-              onClick={() => setIsHelpDialogOpen(false)}
-            >
-              {t("close")}
-            </ActionButton>
-          </DialogActions>
+          <div>Test</div>
         </Dialog>
       ) : null}
-      {fieldLabel}
-      <Box
-        {...(uiField === "CustomFooter"
-          ? { sx: { width: "100%", margin: 4, marginTop: 1 } }
-          : {})}
-      >
-        {/* {description} */}
+      {label && !isRootField ? (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-around",
+              marginRight: 2,
+            }}
+          >
+            <Typography>{label}</Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-around",
+              marginRight: 2,
+            }}
+          >
+            <IconButton onClick={() => setIsHelpDialogOpen(true)}>
+              <HelpOutline />
+            </IconButton>
+          </Box>
+        </Box>
+      ) : null}
+      <Box>
+        {description}
         {children}
-        <Box sx={{ color: "palette.error" }}>{errors}</Box> {/* TODO: */}
+        {errors}
+        {help}
       </Box>
     </Box>
   );
