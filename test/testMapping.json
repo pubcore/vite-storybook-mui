@@ -1,5 +1,5 @@
 {
-  "targetIds": ["OID", "PID"],
+  "keyIds": ["OID", "PID"],
   "mappings": [
     {
       "sourceColumns": [

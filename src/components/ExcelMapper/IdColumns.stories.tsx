@@ -1,25 +1,25 @@
-import { IdColumns, IdColumnsProps } from "./IdColumns";
+import { KeyColumns, KeyColumnsProps } from "./KeyColumns";
 import { selectSource } from "./source";
 import { workbook2 } from "../../../test/testWorkbook";
 
 const mappings: Args["mappings"] = [];
 
 export default {
-  title: "ExcelMapper/IdColumns",
+  title: "ExcelMapper/KeyColumns",
   argTypes: {
     save: { action: "save" },
   },
   args: {
     mappings,
-    targetIds: ["ORDER_ID", "PRODUCT_ID"],
+    keyIds: ["ORDER_ID", "PRODUCT_ID"],
     source: selectSource(workbook2),
   } as Args,
 };
-type Args = IdColumnsProps;
+type Args = KeyColumnsProps;
 
-export const Default = (args: Args) => <IdColumns {...{ ...args }} />,
+export const Default = (args: Args) => <KeyColumns {...{ ...args }} />,
   LoadedMapping = (args: Args) => (
-    <IdColumns
+    <KeyColumns
       {...{
         ...args,
         mappings: [

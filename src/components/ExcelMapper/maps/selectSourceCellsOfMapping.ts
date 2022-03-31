@@ -1,6 +1,6 @@
 import { createSelector } from "reselect";
 import { WorkBook } from "xlsx";
-import { Mapping, SourceIdColumns } from ".";
+import { Mapping, SourceKeyColumns } from ".";
 import { selectRowsByPage } from "../source";
 import { Column } from "../source/Column";
 import { selectPagesByIndex } from "../source/selectPageByIndex";
@@ -13,7 +13,7 @@ export type SourceCells = {
 
 type S = {
   workbook: WorkBook;
-  sourceIdColumns: SourceIdColumns;
+  sourceKeyColumns: SourceKeyColumns;
   [_: string]: unknown;
 };
 export const selectSourceCellsOfMapping: (

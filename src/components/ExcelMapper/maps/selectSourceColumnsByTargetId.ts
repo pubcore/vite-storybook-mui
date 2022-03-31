@@ -3,7 +3,7 @@ import { S as State } from ".";
 import { ROW_SEPERATOR, selectColumns } from "../source";
 import { Columns } from "../source/Column";
 
-type S = Pick<State, "workbook" | "targetColumns" | "targetIds"> & {
+type S = Pick<State, "workbook" | "targetColumns" | "keyIds"> & {
   [_: string]: unknown;
 };
 

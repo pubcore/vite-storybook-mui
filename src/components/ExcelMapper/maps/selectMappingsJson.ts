@@ -2,13 +2,13 @@ import { createSelector } from "reselect";
 import { S as State } from ".";
 import { MappingsJson } from "../MappingsJson";
 
-type S = Pick<State, "mappings" | "targetIds"> & {
+type S = Pick<State, "mappings" | "keyIds"> & {
   [_: string]: unknown;
 };
 export const selectMappingsJson: (s: S) => MappingsJson = createSelector(
   (s: S) => s.mappings,
-  (s: S) => s.targetIds,
-  (mappings, targetIds) => ({
+  (s: S) => s.keyIds,
+  (mappings, keyIds) => ({
     mappings: mappings.reduce<MappingsJson["mappings"]>(
       (acc, { sourceColumns, pipe, target }) => {
         const nameLookup = new Map<string, boolean>();
@@ -28,6 +28,6 @@ export const selectMappingsJson: (s: S) => MappingsJson = createSelector(
       },
       []
     ),
-    targetIds,
+    keyIds,
   })
 );

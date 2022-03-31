@@ -2,7 +2,7 @@ import { Mapping, S as State, selectMappingOfTargetId } from ".";
 
 type S = Pick<
   State,
-  "targetColumns" | "mappings" | "workbook" | "sourceIdColumns"
+  "targetColumns" | "mappings" | "workbook" | "sourceKeyColumns"
 > & {
   [_: string]: unknown;
 };

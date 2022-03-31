@@ -17,8 +17,8 @@ export const selectRows: (s: S) => Row[] = createSelector(
   selectMappingsByTargetId,
   (s: S) => s.targetColumns,
   (s: S) => s.workbook,
-  (s: S) => s.sourceIdColumns,
-  (mappingsByTargetId, targetColumns, workbook, sourceIdColumns) => {
+  (s: S) => s.sourceKeyColumns,
+  (mappingsByTargetId, targetColumns, workbook, sourceKeyColumns) => {
     return targetColumns.flatMap((target) => {
       const mapping = mappingsByTargetId.get(target.id);
       return [
@@ -29,7 +29,7 @@ export const selectRows: (s: S) => Row[] = createSelector(
           targetColumnName: target.name ?? target.id,
           targetCellsById: mapping
             ? selectTargetCellsByIdOfMapping(
-                { workbook, sourceIdColumns },
+                { workbook, sourceKeyColumns },
                 mapping
               )
             : new Map(),

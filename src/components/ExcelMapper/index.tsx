@@ -5,7 +5,7 @@ import WorkbookTeaser from "./WorkbookTeaser";
 import { Divider } from "@mui/material";
 import Mapper, { MapperProps } from "./Mapper";
 import { selectSource } from "./source";
-import { IdColumns, IdColumnsProps } from "./IdColumns";
+import { KeyColumns, KeyColumnsProps } from "./KeyColumns";
 import { MappingsJson } from "./MappingsJson";
 import { useTranslation } from "react-i18next";
 import { TargetTable } from "./TargetTable";
@@ -17,7 +17,7 @@ import { selectMappings } from "./maps/selectMappings";
 
 export interface ExcelMapperProps {
   targetColumns: MapperProps["targetColumns"];
-  targetIds: string[];
+  keyIds: string[];
   mappings?: MappingsJson;
   workbook?: WorkBook;
   save?: ({ mappings }: { mappings: MappingsJson }) => void;
@@ -37,7 +37,7 @@ export interface ExcelMapperProps {
 export default function ExcelMapper(props: ExcelMapperProps) {
   const {
     targetColumns,
-    targetIds,
+    keyIds,
     mappings: mappingsDefault,
     save,
     saveTargetTable,
@@ -55,13 +55,11 @@ export default function ExcelMapper(props: ExcelMapperProps) {
       const mappings = selectMappings({
         workbook,
         targetColumns,
-        targetIds,
+        keyIds,
         mappings: mappingsDefault,
       });
-      const countOfMappedIds = targetIds.reduce((acc, targetId) => {
-        if (
-          mappings.mappings.find((mapping) => mapping.targetId === targetId)
-        ) {
+      const countOfMappedIds = keyIds.reduce((acc, keyId) => {
+        if (mappings.mappings.find((mapping) => mapping.targetId === keyId)) {
           return ++acc;
         }
         return acc;
@@ -70,7 +68,7 @@ export default function ExcelMapper(props: ExcelMapperProps) {
       if (
         saveTargetTable &&
         !options?.previewTargetTable &&
-        countOfMappedIds === targetIds.length
+        countOfMappedIds === keyIds.length
       ) {
         saveTargetTable({
           rows: selectTargetRows({ workbook, mappings }),
@@ -88,13 +86,13 @@ export default function ExcelMapper(props: ExcelMapperProps) {
       options?.previewTargetTable,
       saveTargetTable,
       targetColumns,
-      targetIds,
+      keyIds,
     ]
   );
 
-  const handleSaveIdColumns = useCallback<IdColumnsProps["save"]>(
+  const handleSaveKeyColumns = useCallback<KeyColumnsProps["save"]>(
     ({ mappings }) => {
-      dispatch({ type: "setIdColumns", payload: { mappings } });
+      dispatch({ type: "setKeyColumns", payload: { mappings } });
     },
     []
   );
@@ -106,35 +104,35 @@ export default function ExcelMapper(props: ExcelMapperProps) {
           mappings: selectMappings({
             workbook,
             targetColumns,
-            targetIds,
+            keyIds,
             mappings: mappingsDefault,
-            mappingsDraft: { targetIds, mappings },
+            mappingsDraft: { keyIds, mappings },
           }),
         });
       }
       dispatch({ type: "setMappings", payload: { mappings } });
     },
-    [mappingsDefault, save, targetColumns, targetIds, workbook]
+    [mappingsDefault, save, targetColumns, keyIds, workbook]
   );
 
   const mappings = selectMappings({
     workbook,
     targetColumns,
-    targetIds,
+    keyIds,
     mappings: mappingsDefault,
     mappingsDraft,
   });
 
   if (workbook && workbookFileName) {
     switch (step) {
-      case "idColumns":
+      case "keyColumns":
         return (
-          <IdColumns
+          <KeyColumns
             {...{
               source: selectSource(workbook),
-              targetIds,
+              keyIds,
               mappings: mappings.mappings,
-              save: handleSaveIdColumns,
+              save: handleSaveKeyColumns,
             }}
           />
         );
@@ -149,7 +147,7 @@ export default function ExcelMapper(props: ExcelMapperProps) {
                 source: selectSource(workbook),
                 sourceFileName: workbookFileName,
                 targetColumns,
-                targetIds,
+                keyIds,
                 mappings: mappings.mappings,
                 save: handleSaveMappings,
                 options: options?.mapper ?? {},

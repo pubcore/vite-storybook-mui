@@ -1,10 +1,10 @@
 import { selectRowsByPage } from "../source";
 import { selectCountOfHeaderRowsByPage } from "../source";
 import { createSelector } from "reselect";
-import { selectSourceIdColumnsByPageIndex } from "./selectSourceIdColumnsByPageIndex";
+import { selectSourceKeyColumnsByPageIndex } from "./selectSourceKeyColumnsByPageIndex";
 import { selectPages } from "../source/selectPages";
 import { WorkBook } from "xlsx";
-import { Findings, SourceIdColumns } from ".";
+import { Findings, SourceKeyColumns } from ".";
 
 type PageIndex = number;
 type RowIndex = number;
@@ -23,15 +23,15 @@ type IdMaps = {
 
 interface S {
   workbook: WorkBook;
-  sourceIdColumns: SourceIdColumns;
+  sourceKeyColumns: SourceKeyColumns;
   [_: string]: unknown;
 }
 
 export const selectIdMaps: (s: S) => [idm: IdMaps, f: Findings] =
   createSelector(
     (s: S) => s.workbook,
-    selectSourceIdColumnsByPageIndex,
-    (wb, sourceIdColumnsByPageIndex) => {
+    selectSourceKeyColumnsByPageIndex,
+    (wb, SourceKeyColumnsByPageIndex) => {
       const idTree: IdTree = new Map();
       const findings: NonNullable<Findings> = [];
 
@@ -41,8 +41,10 @@ export const selectIdMaps: (s: S) => [idm: IdMaps, f: Findings] =
         const countOfHeaderRows =
           selectCountOfHeaderRowsByPage(wb).get(page) ?? -1;
         const rows = rowsByPage.get(page) ?? [];
-        const pageSourceIdColumns = sourceIdColumnsByPageIndex.get(page.index);
-        if (!pageSourceIdColumns) {
+        const pageSourceKeyColumns = SourceKeyColumnsByPageIndex.get(
+          page.index
+        );
+        if (!pageSourceKeyColumns) {
           findings.push({ id: "NO_ID_COLUMNS_DEFINED_ON_PAGE", payload: page });
           continue;
         }
@@ -51,7 +53,7 @@ export const selectIdMaps: (s: S) => [idm: IdMaps, f: Findings] =
           if (rowIndex < countOfHeaderRows) {
             continue;
           }
-          addRowToIdTree(idTree, rowIndex, row, pageSourceIdColumns);
+          addRowToIdTree(idTree, rowIndex, row, pageSourceKeyColumns);
         }
       }
 
@@ -63,12 +65,12 @@ export function addRowToIdTree(
   idTree: IdTree,
   rowIndex: number,
   row: string[],
-  sourceIdColumns: SourceIdColumns,
+  sourceKeyColumns: SourceKeyColumns,
   depth = 0
 ) {
   //TODO manny to one mapping for id-columns
-  const idColumn = sourceIdColumns[depth]?.[0];
-  const lastIdColumn = [...sourceIdColumns].pop()?.[0];
+  const idColumn = sourceKeyColumns[depth]?.[0];
+  const lastIdColumn = [...sourceKeyColumns].pop()?.[0];
   if (!idColumn && !lastIdColumn) {
     return;
   }
@@ -81,23 +83,23 @@ export function addRowToIdTree(
   const subTree = id ? idTree.get(id) : idTree;
 
   if (!subTree) {
-    if (depth + 1 < sourceIdColumns.length) {
+    if (depth + 1 < sourceKeyColumns.length) {
       const _tree: IdTree = new Map();
       _tree.__id = id;
       idTree.set(id, _tree);
-      addRowToIdTree(_tree, rowIndex, row, sourceIdColumns, depth + 1);
+      addRowToIdTree(_tree, rowIndex, row, sourceKeyColumns, depth + 1);
     } else {
       const rows: Rows = new Map([[idColumn.pageIndex, [rowIndex]]]);
       idTree.set(id, rows);
     }
   } else {
-    if (depth + 1 < sourceIdColumns.length) {
+    if (depth + 1 < sourceKeyColumns.length) {
       if ((subTree as IdTree).__id) {
         addRowToIdTree(
           subTree as IdTree,
           rowIndex,
           row,
-          sourceIdColumns,
+          sourceKeyColumns,
           depth + 1
         );
       } else {
@@ -105,7 +107,7 @@ export function addRowToIdTree(
         _tree.__id = id;
         _tree.set(id, subTree);
         idTree.set(id, _tree);
-        addRowToIdTree(_tree, rowIndex, row, sourceIdColumns, depth + 1);
+        addRowToIdTree(_tree, rowIndex, row, sourceKeyColumns, depth + 1);
       }
     } else {
       if ((subTree as IdTree).__id) {
@@ -114,7 +116,7 @@ export function addRowToIdTree(
             subSubTree as IdTree,
             rowIndex,
             row,
-            sourceIdColumns,
+            sourceKeyColumns,
             depth + 1
           );
         });

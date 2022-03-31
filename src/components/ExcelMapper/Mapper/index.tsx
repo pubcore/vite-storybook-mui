@@ -23,7 +23,7 @@ export interface MapperProps {
   source: Source;
   title: ReactNode;
   targetColumns: Targets;
-  targetIds: string[];
+  keyIds: string[];
   mappings?: MappingsJson["mappings"];
   save?: (_: { mappings: MappingsJson["mappings"] }) => void;
   options?: { datatable?: DatatableProps };
@@ -33,7 +33,7 @@ export default function Mapper({
   source,
   title,
   targetColumns,
-  targetIds,
+  keyIds,
   mappings,
   save,
   options,
@@ -48,7 +48,7 @@ export default function Mapper({
 
   const [state, dispatch] = useReducer(
     reducer,
-    { source, targetColumns, targetIds, mappings },
+    { source, targetColumns, keyIds, mappings },
     init
   );
 
@@ -64,7 +64,7 @@ export default function Mapper({
       ),
     []
   );
-  const modeIsChangeIdColumns = targetColumns.length === targetIds.length;
+  const modeIsChangeIdColumns = targetColumns.length === keyIds.length;
 
   const columns = useMemo<DatatableProps["columns"]>(
     () => [
@@ -72,8 +72,7 @@ export default function Mapper({
         name: "selectSource",
         width: 100,
         cellRenderer: ({ rowData }: { rowData: Row }) =>
-          !targetIds.includes(rowData.targetColumnId) ||
-          modeIsChangeIdColumns ? (
+          !keyIds.includes(rowData.targetColumnId) || modeIsChangeIdColumns ? (
             <IconButton
               color="primary"
               size="small"
@@ -134,7 +133,7 @@ export default function Mapper({
         ),
       },
     ],
-    [handleChangePipe, modeIsChangeIdColumns, source.workbook, targetIds]
+    [handleChangePipe, modeIsChangeIdColumns, source.workbook, keyIds]
   );
 
   const toggleColumn = useCallback<SelectColumnsProps["toggleColumn"]>(
@@ -168,7 +167,7 @@ export default function Mapper({
             save({
               mappings: selectMappingsJson({
                 mappings: state.mappings,
-                targetIds,
+                keyIds,
               }).mappings,
             })
           }

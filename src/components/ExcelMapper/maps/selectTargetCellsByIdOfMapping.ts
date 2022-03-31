@@ -1,5 +1,5 @@
 import { createSelector } from "reselect";
-import { Mapping, SourceIdColumns } from "./";
+import { Mapping, SourceKeyColumns } from "./";
 import { stringPipe } from "../stringPipe";
 import { WorkBook } from "xlsx";
 import {
@@ -15,7 +15,7 @@ export type TargetCell = Readonly<{
 
 interface S {
   workbook: WorkBook;
-  sourceIdColumns: SourceIdColumns;
+  sourceKeyColumns: SourceKeyColumns;
   [_: string]: unknown;
 }
 export const selectTargetCellsByIdOfMapping: (

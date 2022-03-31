@@ -5,28 +5,28 @@ import { selectSourceColumnsByTargetId } from "./maps";
 
 type initArg = Pick<
   ExcelMapperProps,
-  "workbook" | "mappings" | "targetIds" | "targetColumns"
+  "workbook" | "mappings" | "keyIds" | "targetColumns"
 >;
 
 export type S = {
   workbook?: WorkBook;
   workbookFileName?: string;
   mappings?: MappingsJson;
-  step?: "idColumns" | "map" | "preview";
+  step?: "keyColumns" | "map" | "preview";
 };
 
 export function init({
   workbook,
-  targetIds,
+  keyIds,
   targetColumns,
   mappings: mappingsDefault,
 }: initArg): S {
-  let mappings = { targetIds, mappings: [] } as MappingsJson;
+  let mappings = { keyIds, mappings: [] } as MappingsJson;
   if (workbook) {
     const sourceColumnsByTargetId = selectSourceColumnsByTargetId({
       workbook,
       targetColumns,
-      targetIds,
+      keyIds,
     });
 
     let mappingsByTargetId = new Map();
@@ -38,7 +38,7 @@ export function init({
     }
 
     mappings = {
-      targetIds,
+      keyIds,
       mappings: targetColumns.flatMap(({ id }) => {
         const sourceColumns = sourceColumnsByTargetId.get(id);
         const mapping = mappingsByTargetId.get(id);
@@ -59,6 +59,6 @@ export function init({
     workbook,
     workbookFileName: "-",
     mappings,
-    step: "idColumns",
+    step: "keyColumns",
   };
 }

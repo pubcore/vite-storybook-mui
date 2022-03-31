@@ -1,17 +1,17 @@
 import { createSelector } from "reselect";
-import { SourceIdColumns } from ".";
+import { SourceKeyColumns } from ".";
 
 interface S {
-  sourceIdColumns: SourceIdColumns;
+  sourceKeyColumns: SourceKeyColumns;
   [_: string]: unknown;
 }
 
-export const selectSourceIdColumnsByPageIndex: (
+export const selectSourceKeyColumnsByPageIndex: (
   s: S
-) => Map<number, SourceIdColumns> = createSelector(
-  (s: S) => s.sourceIdColumns,
-  (sourceIdColumns) => {
-    return (sourceIdColumns ?? []).reduce((acc, columns, prio) => {
+) => Map<number, SourceKeyColumns> = createSelector(
+  (s: S) => s.sourceKeyColumns,
+  (sourceKeyColumns) => {
+    return (sourceKeyColumns ?? []).reduce((acc, columns, prio) => {
       columns.forEach((col) => {
         if (!acc.get(col.pageIndex)) {
           acc.set(col.pageIndex, []);

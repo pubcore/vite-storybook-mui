@@ -4,7 +4,7 @@ import {
   targetColumnsBasic,
   workbook2,
 } from "../../../test/testWorkbook";
-import mappingJson, { targetIds } from "../../../test/testMapping.json";
+import mappingJson, { keyIds } from "../../../test/testMapping.json";
 import { workbook2 as workbook } from "../../../test/testWorkbook";
 import { ExcelMapperProps } from ".";
 import { action } from "@storybook/addon-actions";
@@ -14,7 +14,7 @@ export default {
   argTypes: {
     save: { action: "save" },
   },
-  args: { targetColumns, targetIds } as Args,
+  args: { targetColumns, keyIds } as Args,
 };
 
 type Args = ExcelMapperProps;
@@ -29,7 +29,7 @@ export const Default = (args: Args) => <ExcelMapper {...args} />,
     <ExcelMapper
       {...{
         ...args,
-        targetIds: mappingJson.targetIds,
+        keyIds: mappingJson.keyIds,
         mappings: mappingJson,
         workbook: workbook2,
       }}

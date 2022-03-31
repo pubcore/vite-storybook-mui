@@ -2,7 +2,7 @@ import { createSelector } from "reselect";
 import { WorkBook } from "xlsx";
 import { Targets } from ".";
 import { MappingsJson } from "../MappingsJson";
-import { SourceIdColumns } from "../maps";
+import { SourceKeyColumns } from "../maps";
 import { selectStateMappingsOfMappingsJson } from "../maps/selectStateMappingsOfMappingsJson";
 import { TargetRow } from "../maps/selectTargetRows";
 import { selectTargetRows as selectTargetRowsFromMapsState } from "../maps/selectTargetRows";
@@ -19,7 +19,7 @@ export const selectTargetRows: (s: S) => TargetRow[] = createSelector(
       { workbook, targetColumns },
       mappings.mappings
     )[0];
-    const sourceIdColumns = mappings.targetIds.reduce<SourceIdColumns>(
+    const sourceKeyColumns = mappings.keyIds.reduce<SourceKeyColumns>(
       (acc, id) => {
         const mapping = stateMappings.find(
           (mapping) => mapping.target.id == id
@@ -34,7 +34,7 @@ export const selectTargetRows: (s: S) => TargetRow[] = createSelector(
     const rows = selectTargetRowsFromMapsState({
       workbook,
       mappings: stateMappings,
-      sourceIdColumns,
+      sourceKeyColumns,
       targetColumns,
     });
     return rows;

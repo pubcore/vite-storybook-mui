@@ -6,8 +6,8 @@ import { Target, Targets } from "../target";
 export type S = Readonly<{
   workbook: WorkBook;
   targetColumns: Targets;
-  targetIds: string[];
-  sourceIdColumns: SourceIdColumns;
+  keyIds: string[];
+  sourceKeyColumns: SourceKeyColumns;
   mappings: Array<{
     sourceColumns: Columns;
     pipe: string;
@@ -20,7 +20,7 @@ export type StateMappings = S["mappings"];
 export type Mapping = Readonly<{
   workbook: WorkBook;
   sourceColumns: Columns;
-  sourceIdColumnsByPageindex: Map<number, SourceIdColumns>;
+  sourceKeyColumnsByPageindex: Map<number, SourceKeyColumns>;
   //Pipe defaults to identity (target = source), if it's falsy
   pipe?: string;
   target: Target;
@@ -43,7 +43,7 @@ export type SelectedColumns = Record<string, boolean[][]>;
  * First entry mapps to primary target id
  * Optional second entry maps to secondary target id and so on
  */
-export type SourceIdColumns = Array<Columns>;
+export type SourceKeyColumns = Array<Columns>;
 
 export { selectMappingsByTargetId } from "./selectMappingsByTargetId";
 export { selectMappingOfTargetId } from "./selectMappingOfTargetId";

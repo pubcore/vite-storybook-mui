@@ -1,7 +1,7 @@
 import { createSelector } from "reselect";
 import { selectTargetById } from "../target";
 import { Mapping, S as State } from "./index";
-import { selectSourceIdColumnsByPageIndex } from "./selectSourceIdColumnsByPageIndex";
+import { selectSourceKeyColumnsByPageIndex } from "./selectSourceKeyColumnsByPageIndex";
 
 const selectStateMappingIndexesByTargetId = createSelector(
   (s: S) => s.mappings,
@@ -24,7 +24,7 @@ const selectStateMappingOfTargetId = createSelector(
 
 type S = Pick<
   State,
-  "targetColumns" | "workbook" | "sourceIdColumns" | "mappings"
+  "targetColumns" | "workbook" | "sourceKeyColumns" | "mappings"
 >;
 
 export const selectMappingOfTargetId: (s: S, targetId: string) => Mapping =
@@ -33,20 +33,20 @@ export const selectMappingOfTargetId: (s: S, targetId: string) => Mapping =
     selectStateMappingOfTargetId,
     (s: S) => s.workbook,
     (s: S) => s.targetColumns,
-    selectSourceIdColumnsByPageIndex,
+    selectSourceKeyColumnsByPageIndex,
     (
       targetId,
       stateMapping,
       workbook,
       targetColumns,
-      sourceIdColumnsByPageindex
+      sourceKeyColumnsByPageindex
     ) => {
       const target = selectTargetById({ targetColumns }).get(targetId);
       if (!target) throw TypeError(`target not found for ${targetId}`);
       return {
         workbook,
         sourceColumns: stateMapping?.sourceColumns ?? [],
-        sourceIdColumnsByPageindex,
+        sourceKeyColumnsByPageindex,
         pipe: stateMapping?.pipe,
         target,
       };

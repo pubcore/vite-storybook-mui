@@ -14,7 +14,7 @@ export default {
     }),
     targetColumns,
     source: selectSource(workbook2),
-    targetIds: mappingJson.targetIds,
+    keyIds: mappingJson.keyIds,
   } as Args,
   argTypes: {
     save: {

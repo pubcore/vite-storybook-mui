@@ -3,27 +3,27 @@ import Mapper, { MapperProps } from "./Mapper";
 import { MappingsJson } from "./MappingsJson";
 import { Source } from "./source";
 
-export interface IdColumnsProps {
+export interface KeyColumnsProps {
   source: Source;
-  targetIds: string[];
+  keyIds: string[];
   mappings: NonNullable<MapperProps["mappings"]>;
   save: ({ mappings }: { mappings: MappingsJson["mappings"] }) => void;
 }
 
-export function IdColumns({
+export function KeyColumns({
   source,
-  targetIds,
+  keyIds,
   mappings: mappingsDefault,
   save,
-}: IdColumnsProps) {
+}: KeyColumnsProps) {
   return (
     <Box>
       <Mapper
         {...{
           source,
           title: "Identification Columns (IdColumns)",
-          targetColumns: targetIds.map((id) => ({ id })),
-          targetIds,
+          targetColumns: keyIds.map((id) => ({ id })),
+          keyIds,
           mappings: mappingsDefault,
           save,
         }}

@@ -1,13 +1,13 @@
 import { MapperProps } from ".";
-import { SourceIdColumns } from "../maps";
+import { SourceKeyColumns } from "../maps";
 import { selectStateMappingsOfMappingsJson } from "../maps/selectStateMappingsOfMappingsJson";
 
 export function init({
   source,
   targetColumns,
-  targetIds,
+  keyIds,
   mappings,
-}: Pick<MapperProps, "source" | "targetColumns" | "targetIds" | "mappings">) {
+}: Pick<MapperProps, "source" | "targetColumns" | "keyIds" | "mappings">) {
   const [stateMappings, findings] =
     (mappings &&
       selectStateMappingsOfMappingsJson(
@@ -27,7 +27,7 @@ export function init({
   );
 
   //this must depend on initial mapping property
-  const sourceIdColumns = targetIds.reduce<SourceIdColumns>((acc, targetId) => {
+  const sourceKeyColumns = keyIds.reduce<SourceKeyColumns>((acc, targetId) => {
     const sourceColumns =
       stateMappings &&
       stateMappings.find((mapping) => mapping.target.id === targetId)
@@ -43,8 +43,8 @@ export function init({
   return {
     workbook: source.workbook,
     targetColumns,
-    targetIds,
-    sourceIdColumns,
+    keyIds,
+    sourceKeyColumns,
     mappings: targetColumns.map(
       (target) =>
         mappingsByTargetId?.get(target.id) ?? {
