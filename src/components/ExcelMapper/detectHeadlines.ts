@@ -13,7 +13,6 @@ export const detectHeadlines = ({
   if (rows.length == 0) {
     return 0;
   }
-  console.log(rows);
   //a column with m rows is a numberColumn, if it consists of
   //1...n[none empty none number row value] + n+1...m[number row value]
   const numberColumns: number[] = [];
@@ -69,7 +68,7 @@ export const detectHeadlines = ({
       }
     }
   }
-  console.log(similarities);
+
   let headlinesCount =
     numberColumns.reduce(
       (acc, headCount) => (headCount > 0 ? headCount : acc),

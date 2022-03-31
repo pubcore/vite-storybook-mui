@@ -15,6 +15,19 @@ export const selectColHeadsByPage: (s: S) => ColHeadsByPage = createSelector(
     Array.from(rowsByPage.entries()).reduce((acc, [page, rows]) => {
       const count = countOfHeaderRowsPyPage.get(page) ?? 0 + 1;
       const headerRows = rows.slice(0, count + 1);
+
+      //ensure that width of a body row is not greater than header width ...
+      let index = 0;
+      let maxHeaderWidth = 0;
+      for (const row of headerRows) {
+        if (index < count) {
+          maxHeaderWidth = Math.max(maxHeaderWidth, row.length);
+        } else if (row.length > maxHeaderWidth) {
+          headerRows[index] = row.slice(0, maxHeaderWidth);
+        }
+        index++;
+      }
+
       //if there is no data-row, add one row
       if (headerRows.length <= count) {
         headerRows.push([]);
