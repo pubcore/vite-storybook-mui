@@ -6,10 +6,9 @@ import { MappingsJson } from "./MappingsJson";
 import { useTranslation } from "react-i18next";
 import { TargetRow } from "./maps/selectTargetRows";
 import { selectTargetRows } from "./target/selectTargetRows";
-import ActionBar from "../ActionBar";
 import { ActionButton } from "../Button";
 import { selectStateMappingsOfMappingsJson } from "./maps/selectStateMappingsOfMappingsJson";
-import { Divider } from "@mui/material";
+import { Divider, Toolbar } from "@mui/material";
 import { selectSeverities } from "./maps";
 import { Findings } from "./Findings";
 import { selectMappings } from "./maps/selectMappings";
@@ -151,19 +150,25 @@ export function MappingRunner(props: MappingRunnerProps) {
     switch (activeStep) {
       case 0:
         return (
-          <ActionBar sx={{ justifyContent: "space-between" }}>
+          <Toolbar
+            variant="dense"
+            sx={{ justifyContent: "space-between", alignItems: "end" }}
+          >
             &nbsp;
             {cancel && (
               <ActionButton variant="outlined" onClick={() => cancel()}>
                 {t("cancel")}
               </ActionButton>
             )}
-          </ActionBar>
+          </Toolbar>
         );
       case 1:
         return (
           <>
-            <ActionBar sx={{ justifyContent: "space-between" }}>
+            <Toolbar
+              variant="dense"
+              sx={{ justifyContent: "space-between", alignItems: "end" }}
+            >
               <ActionButton
                 variant="outlined"
                 onClick={() => {
@@ -183,7 +188,7 @@ export function MappingRunner(props: MappingRunnerProps) {
                   {t("save")}
                 </ActionButton>
               </div>
-            </ActionBar>
+            </Toolbar>
           </>
         );
       default:
