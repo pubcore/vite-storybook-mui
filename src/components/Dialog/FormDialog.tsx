@@ -1,12 +1,13 @@
 import {
   Button,
-  Dialog,
+  CircularProgress,
   DialogActions,
   DialogContent,
-  DialogTitle,
 } from "@mui/material";
+import Dialog from "./Dialog";
 import { ReactNode, useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "@mui/system";
 
 export interface FormDialogProps {
   cancel: () => void;
@@ -30,17 +31,15 @@ export default function FormDialog({
   const handleClose = useCallback(() => {
     cancel();
   }, [cancel]);
+  const theme = useTheme();
 
   return (
     <Dialog
       fullWidth={true}
       open={true}
       onClose={handleClose}
-      aria-labelledby="form-dialog-title"
+      title={t((name + "_title") as "_")}
     >
-      <DialogTitle id="form-dialog-title">
-        {t((name + "_title") as "_")}
-      </DialogTitle>
       <form onSubmit={execute}>
         <DialogContent
           style={{
@@ -61,6 +60,14 @@ export default function FormDialog({
             color="primary"
             disabled={isSubmitting}
           >
+            {isSubmitting && (
+              <CircularProgress
+                color="primary"
+                size={theme.spacing(3)}
+                thickness={8}
+                sx={{ position: "absolute" }}
+              />
+            )}
             {t([(name + "_submit") as "_", name as "_"])}
           </Button>
         </DialogActions>

@@ -23,3 +23,6 @@ type Args = FormDialogProps;
 export const Form = (args: Args) => (
   <FormDialog {...{ ...args }}>«content»</FormDialog>
 );
+export const FormSubmitting = (args: Args) => (
+  <FormDialog {...{ ...args, isSubmitting: true }}>«content»</FormDialog>
+);
