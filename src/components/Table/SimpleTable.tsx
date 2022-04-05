@@ -11,15 +11,17 @@ import {
 
 type RowsType = Record<string, unknown>[];
 
+export interface SimpleTableCellProps {
+  column: string;
+  row: Record<string, unknown>;
+  rows?: RowsType;
+  index?: number;
+}
+
 export interface SimpleTableProps extends Partial<TableProps> {
   rows: RowsType;
   columns: string[];
-  Cell: React.FC<{
-    column: string;
-    row: Record<string, unknown>;
-    rows?: RowsType;
-    index?: number;
-  }>;
+  Cell: React.FC<SimpleTableCellProps>;
   HeadCell?: React.FC<{ column: string }>;
 }
 

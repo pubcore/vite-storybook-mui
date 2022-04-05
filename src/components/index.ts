@@ -40,7 +40,10 @@ export type { SidbarProps } from "./Sidebar";
 export { default as Sidebar } from "./Sidebar";
 export type { ObjectTableProps } from "./Table/ObjectTable";
 export { default as ObjectTable } from "./Table/ObjectTable";
-export type { SimpleTableProps } from "./Table/SimpleTable";
+export type {
+  SimpleTableProps,
+  SimpleTableCellProps,
+} from "./Table/SimpleTable";
 export { default as SimpleTable } from "./Table/SimpleTable";
 export type { TabPanelProps } from "./Tabs";
 export { default as TabPanel } from "./Tabs";
@@ -58,3 +61,5 @@ export { default as ExcelMapper } from "./ExcelMapper";
 export type { StatusProps } from "./Status";
 export { default as Status } from "./Status";
 export { default as Dialog } from "./Dialog/Dialog";
+export { Workflow } from "./Workflow/Workflow";
+export type { WorkflowProps } from "./Workflow/Workflow";

@@ -1,7 +1,7 @@
-import SimpleTable from "./SimpleTable";
+import { SimpleTable } from "../";
 import { useTranslation } from "react-i18next";
+import { TableProps } from "@mui/material";
 
-// eslint-disable-next-line react/prop-types
 const Cell = (({ row, column }) => {
   const { t } = useTranslation();
   switch (column) {
@@ -24,7 +24,7 @@ const Cell = (({ row, column }) => {
 const columns = ["key", "value"];
 const emptyArray: string[] = [];
 
-export interface ObjectTableProps {
+export interface ObjectTableProps extends Partial<TableProps> {
   o: Record<string, unknown>;
   attributes: string[];
   name?: string;
