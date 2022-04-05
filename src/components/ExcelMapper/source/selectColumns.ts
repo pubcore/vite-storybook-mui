@@ -6,6 +6,9 @@ import { selectRowsByPage } from "./selectRowsByPage";
 import { S } from "./State";
 
 export const ROW_SEPERATOR = "⏎";
+if (ROW_SEPERATOR.toLocaleLowerCase() !== ROW_SEPERATOR) {
+  throw TypeError("ROW_SEPERATOR must be case insensitive");
+}
 
 export const selectColumns: (s: S) => {
   columns: Columns;

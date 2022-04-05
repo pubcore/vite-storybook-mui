@@ -1,11 +1,12 @@
 import { ExcelMapper } from "../";
+import mappings from "../../../test/testMapping.json";
 import {
-  targetColumns,
-  targetColumnsBasic,
+  fileName2,
+  fileName3,
+  workbook,
   workbook2,
+  workbook3,
 } from "../../../test/testWorkbook";
-import mappingJson, { keyIds } from "../../../test/testMapping.json";
-import { workbook2 as workbook } from "../../../test/testWorkbook";
 import { ExcelMapperProps } from ".";
 import { action } from "@storybook/addon-actions";
 
@@ -13,34 +14,75 @@ export default {
   title: "ExcelMapper/ExcelMapper",
   argTypes: {
     save: { action: "save" },
+    cancel: { action: "cancel" },
   },
-  args: { targetColumns, keyIds } as Args,
+  args: { mappings },
 };
 
 type Args = ExcelMapperProps;
 
-export const Default = (args: Args) => <ExcelMapper {...args} />,
+const saveTargetTable = action("saveTargetTable");
+
+export const Default = (args: Args) => (
+    <ExcelMapper {...{ ...args, mappings: { ...mappings, mappings: [] } }} />
+  ),
   CreateMappingBySearchOfTargetCols = (args: Args) => (
     <ExcelMapper
-      {...{ ...args, workbook, targetColumns: targetColumnsBasic }}
+      {...{
+        ...args,
+        workbook: workbook2,
+        mappings: { ...mappings, mappings: [] },
+      }}
     />
   ),
   LoadedMappingJson = (args: Args) => (
     <ExcelMapper
       {...{
         ...args,
-        keyIds: mappingJson.keyIds,
-        mappings: mappingJson,
-        workbook: workbook2,
+        workbook,
       }}
     />
   ),
-  SaveAfterUploadIfSaveTargetHanlder = (args: Args) => (
+  RunMappingIfSaveTargetHanlder = (args: Args) => (
     <ExcelMapper
       {...{
         ...args,
-        mappings: mappingJson,
-        saveTargetTable: action("saveTargetTable"),
+        saveTargetTable,
+      }}
+    />
+  ),
+  RunMappingSkipUploadIfWorkbook = (args: Args) => (
+    <ExcelMapper
+      {...{
+        ...args,
+        saveTargetTable,
+        workbook: workbook2,
+        workbookFileName: fileName2,
+      }}
+    />
+  ),
+  RunMappingAutoMapIdColumns = (args: Args) => (
+    <ExcelMapper
+      {...{
+        ...args,
+        saveTargetTable,
+        workbook: workbook2,
+        workbookFileName: fileName2,
+        mappings: { ...mappings, mappings: [] },
+      }}
+    />
+  ),
+  RunWithMappingErrors = (args: Args) => (
+    <ExcelMapper
+      {...{
+        ...args,
+        saveTargetTable,
+        workbook: workbook3,
+        workbookFileName: fileName3,
+        mappings: {
+          ...mappings,
+          mappings: [],
+        },
       }}
     />
   );

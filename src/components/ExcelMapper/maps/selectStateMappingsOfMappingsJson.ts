@@ -18,13 +18,14 @@ const MATCH_THRESHOLD = 0.95;
 export const selectStateMappingsOfMappingsJson: (
   s: S,
   mappings: MappingsJson["mappings"]
-) => [_1: StateMappings, _2: Array<Finding> | null] = createSelector(
+) => [_1: StateMappings, _2?: Array<Finding>] = createSelector(
   (_: S, mappings: MappingsJson["mappings"]) => mappings,
   (s: S) => s.workbook,
   (s: S) => s.targetColumns,
   (mappings, workbook, targetColumns) => {
     const sourceColumns = selectColumns(workbook);
     const foundColumnsByQueryName = new Map<string, Columns>();
+    const foundColumnsByTargetId = new Map<string, Columns>();
     const targetsById = selectTargetById({ targetColumns });
 
     const result = mappings.reduce(
@@ -48,10 +49,14 @@ export const selectStateMappingsOfMappingsJson: (
                 }
               }
             }
+
             if (columns?.length) {
               return columns;
             } else {
-              acc[1].push({ id: "COLUMN_NOT_FOUND", payload: sourceColumn });
+              acc[1].push({
+                id: "MAPPED_COLUMN_NOT_FOUND",
+                payload: sourceColumn,
+              });
               return [];
             }
           });
@@ -65,13 +70,22 @@ export const selectStateMappingsOfMappingsJson: (
             pipe: mapping.pipe ?? "",
             target,
           });
+          foundColumnsByTargetId.set(target.id, foundColumns);
         }
         return acc;
       },
       [[], []] as [StateMappings, Array<Finding>]
     );
+
+    //check if all required target columns are mapped ...
+    targetColumns.forEach((target) => {
+      const { id } = target;
+      foundColumnsByTargetId.get(id) ||
+        result[1].push({ id: "COLUMN_NOT_FOUND", payload: target });
+    });
+
     if (result[1].length <= 0) {
-      return [result[0], null];
+      return [result[0]];
     }
     return result;
   }

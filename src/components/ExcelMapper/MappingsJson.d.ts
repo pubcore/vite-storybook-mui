@@ -2,6 +2,7 @@
  * Serializable persistence format of a Mapping
  */
 export type MappingsJson = {
+  targetColumns: Array<{ id: string; name?: string }>;
   /**
    * At least one targetId must be treated as a key.
    * The set of keyIds must be a subset of targetIds.

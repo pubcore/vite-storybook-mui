@@ -1,6 +1,6 @@
 import { KeyColumns, KeyColumnsProps } from "./KeyColumns";
 import { selectSource } from "./source";
-import { workbook2 } from "../../../test/testWorkbook";
+import { workbook3 } from "../../../test/testWorkbook";
 
 const mappings: Args["mappings"] = [];
 
@@ -12,7 +12,7 @@ export default {
   args: {
     mappings,
     keyIds: ["ORDER_ID", "PRODUCT_ID"],
-    source: selectSource(workbook2),
+    source: selectSource(workbook3),
   } as Args,
 };
 type Args = KeyColumnsProps;

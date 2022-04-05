@@ -165,10 +165,7 @@ export default function Mapper({
         <ActionButton
           onClick={() =>
             save({
-              mappings: selectMappingsJson({
-                mappings: state.mappings,
-                keyIds,
-              }).mappings,
+              mappings: selectMappingsJson(state).mappings,
             })
           }
         >

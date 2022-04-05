@@ -1,19 +1,18 @@
 import Map, { MapperProps } from ".";
 import { selectSource } from "../source";
-import { fileName, workbook2 } from "../../../../test/testWorkbook";
-import { targetColumns } from "../../../../test/testWorkbook";
+import { fileName4, workbook4 } from "../../../../test/testWorkbook";
 type Args = MapperProps;
 import { t } from "i18next";
-import mappingJson from "../../../../test/testMapping.json";
+import mappingJson, { targetColumns } from "../../../../test/testMapping.json";
 
 export default {
   title: "ExcelMapper/Map",
   args: {
     title: t("map_table_title", {
-      name: fileName,
+      name: fileName4,
     }),
     targetColumns,
-    source: selectSource(workbook2),
+    source: selectSource(workbook4),
     keyIds: mappingJson.keyIds,
   } as Args,
   argTypes: {

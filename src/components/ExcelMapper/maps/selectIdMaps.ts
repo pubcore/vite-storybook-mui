@@ -27,7 +27,7 @@ interface S {
   [_: string]: unknown;
 }
 
-export const selectIdMaps: (s: S) => [idm: IdMaps, f: Findings] =
+export const selectIdMaps: (s: S) => [idm: IdMaps, f?: Findings] =
   createSelector(
     (s: S) => s.workbook,
     selectSourceKeyColumnsByPageIndex,
@@ -57,7 +57,7 @@ export const selectIdMaps: (s: S) => [idm: IdMaps, f: Findings] =
         }
       }
 
-      return [{ ids: idTree }, findings.length ? findings : null];
+      return [{ ids: idTree }, findings.length ? findings : undefined];
     }
   );
 

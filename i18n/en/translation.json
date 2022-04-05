@@ -44,5 +44,15 @@
   "five": "Fünf",
   "reset": "Reset",
   "datatable_reset_columns_title": "Reset columns",
-  "datatable_reset_columns_body": "Are you sure you want to reset the columns to their default state?"
+  "datatable_reset_columns_body": "Are you sure you want to reset the columns to their default state?",
+  "save": "Save",
+  "back": "Back",
+  "select_file": "Select a file",
+  "review_mapping_result": "Review mapping result",
+  "selected_file": "Selected file",
+  "mapping_errors_found": "There are some errors. Check findings listed below, please.",
+  "mapping_ok": "Mapping is valid.",
+  "mapping_totalCountOfRequiredColumns": "Total count of required target columns",
+  "mapping_totalCountOfMappedColumns": "Total count of target columns with mapping",
+  "mapping_totalCountOfRows": "Total count of rows by ID"
 }

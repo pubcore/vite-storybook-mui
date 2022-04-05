@@ -1,4 +1,6 @@
 import { WorkBook } from "xlsx";
+import { MappingsJson } from "../MappingsJson";
+import { Page } from "../source";
 import { Columns } from "../source/Column";
 import { Target, Targets } from "../target";
 
@@ -26,16 +28,41 @@ export type Mapping = Readonly<{
   target: Target;
 }>;
 
-export type Result = Readonly<[findings: Finding[]]>;
+export type Result = Readonly<[findings?: Finding[]]>;
 
-export type Finding = {
-  id: string;
-  payload?: Record<string, unknown>;
-};
+export type Finding =
+  | { id: "COLUMN_NOT_FOUND"; payload: Target }
+  | {
+      id: "MAPPED_COLUMN_NOT_FOUND";
+      payload: { name: string };
+    }
+  | { id: "NO_ID_COLUMNS_DEFINED_ON_PAGE"; payload: Page }
+  | { id: "TARGET_NOT_FOUND"; payload: MappingsJson["mappings"][0] };
 
-export type Findings = Array<Finding> | null;
+export type Findings = Array<Finding>;
 
 export type SelectedColumns = Record<string, boolean[][]>;
+
+type Severities = {
+  errors?: Finding[];
+  warnings?: Finding[];
+  infos?: Finding[];
+};
+
+export function selectSeverities({
+  findings,
+}: {
+  findings?: Finding[];
+}): Severities {
+  return findings
+    ? findings.reduce<Severities>((acc, finding) => {
+        if (finding.id) {
+          acc.errors = (acc.errors ?? []).concat(finding);
+        }
+        return acc;
+      }, {})
+    : {};
+}
 
 /**
  * At least one Target column is used for identification of corresponding rows.

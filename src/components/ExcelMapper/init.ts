@@ -3,25 +3,19 @@ import { ExcelMapperProps } from ".";
 import { MappingsJson } from "./MappingsJson";
 import { selectSourceColumnsByTargetId } from "./maps";
 
-type initArg = Pick<
-  ExcelMapperProps,
-  "workbook" | "mappings" | "keyIds" | "targetColumns"
->;
+type initArg = Pick<ExcelMapperProps, "workbook" | "mappings">;
 
 export type S = {
   workbook?: WorkBook;
   workbookFileName?: string;
-  mappings?: MappingsJson;
+  mappings: MappingsJson;
   step?: "keyColumns" | "map" | "preview";
 };
 
-export function init({
-  workbook,
-  keyIds,
-  targetColumns,
-  mappings: mappingsDefault,
-}: initArg): S {
-  let mappings = { keyIds, mappings: [] } as MappingsJson;
+export function init({ workbook, mappings: mappingsDefault }: initArg): S {
+  const { keyIds, targetColumns } = mappingsDefault;
+  let mappings = { targetColumns, keyIds, mappings: [] } as MappingsJson;
+
   if (workbook) {
     const sourceColumnsByTargetId = selectSourceColumnsByTargetId({
       workbook,
@@ -38,6 +32,7 @@ export function init({
     }
 
     mappings = {
+      targetColumns,
       keyIds,
       mappings: targetColumns.flatMap(({ id }) => {
         const sourceColumns = sourceColumnsByTargetId.get(id);

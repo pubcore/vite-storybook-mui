@@ -1,10 +1,6 @@
-import { Toolbar, AppBar } from "@mui/material";
-import { ReactNode } from "react";
+import { Toolbar, AppBar, AppBarProps } from "@mui/material";
 
-export interface ActionBarProps {
-  elevation?: number;
-  children: ReactNode;
-}
+export type ActionBarProps = AppBarProps;
 
 export default function ActionBar({ children, elevation = 0 }: ActionBarProps) {
   return (
