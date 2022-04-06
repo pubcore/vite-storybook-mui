@@ -12,18 +12,18 @@ export default {
 type Args = AppBarProps;
 
 export const Default = (args: Args) => {
-    const [isOpen, open] = useState(false);
-    return (
-      <AppBar
-        {...{
-          ...args,
-          isOpen,
-          toggleSidebar: () => {
-            open(!isOpen);
-            args.toggleSidebar();
-          },
-        }}
-      />
-    );
-  },
-  WithTitle = (args: Args) => <AppBar {...args}>Title</AppBar>;
+  const [isOpen, open] = useState(false);
+  return (
+    <AppBar
+      {...{
+        ...args,
+        isOpen,
+        toggleSidebar: () => {
+          open(!isOpen);
+          args.toggleSidebar();
+        },
+      }}
+    />
+  );
+};
+export const WithTitle = (args: Args) => <AppBar {...args}>Title</AppBar>;

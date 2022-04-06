@@ -1,9 +1,7 @@
-import JsonSchemaForm from "./";
+import { JsonSchemaForm } from "./";
 import type { JSONSchema7 } from "json-schema";
 import { Box } from "@mui/material";
 import { UiSchema } from "@rjsf/core";
-import { MultiSelectField, RadioField } from "./fields";
-import { FieldTemplate } from "./FieldTemplate";
 
 export default {
   title: "JSON Schema Form/Full Form",
@@ -13,38 +11,59 @@ const schema: JSONSchema7 = {
   title: "Test form",
   type: "object",
   properties: {
-    foo: {
+    group: {
       type: "object",
-      title: "Custom MultiSelect",
+      title: "Group Name",
+      required: ["foo", "bar"],
       properties: {
-        predefined: {
-          type: "array",
-          items: {
-            type: "string",
+        foo: {
+          type: "object",
+          title: "Custom MultiSelect",
+          properties: {
+            predefined: {
+              type: "array",
+              items: {
+                type: "string",
+                enum: [
+                  "ISO-XY01",
+                  "ISO-XY02",
+                  "ISO-XY03",
+                  "ISO-XY04",
+                  "ISO-XY05",
+                  "ISO-ABCDEFGHIJKLMNOPQRSTUVWXYZ-01",
+                  "ISO-ABCDEFGHIJKLMNOPQRSTUVWXYZ-02",
+                ],
+              },
+            },
+            custom: {
+              type: "array",
+              items: {
+                type: "string",
+              },
+            },
           },
         },
-        custom: {
-          type: "array",
-          items: {
-            type: "string",
-          },
+        bar: {
+          title: "Custom Radio",
+          type: "string",
+          enum: ["yes", "no", "unknown"],
         },
       },
-    },
-    bar: {
-      title: "Custom Radio",
-      type: "string",
-      enum: ["yes", "no", "unknown"],
     },
   },
 };
 
 const uiSchema: UiSchema = {
-  foo: {
-    "ui:field": "CustomMultiSelect",
-  },
-  bar: {
-    "ui:field": "CustomRadio",
+  group: {
+    foo: {
+      "ui:field": "CustomMultiSelect",
+      "ui:options": {
+        helpUri: "http://africau.edu/images/default/sample.pdf",
+      },
+    },
+    bar: {
+      "ui:field": "CustomRadio",
+    },
   },
 };
 
@@ -67,23 +86,10 @@ export const Default = () => (
   <Box sx={{ width: 600, padding: 2 }}>
     <JsonSchemaForm
       {...{
+        onSubmit: ({ formData }) => console.info("Form submitted:", formData),
         schema,
         uiSchema,
-        // widgets,
-<<<<<<< HEAD
-        // fields: {
-        //   CustomMultiSelect: MultiSelectWidget,
-        //   CustomRadio: RadioWidget,
-        // },
-        // FieldTemplate: CustomFieldTemplate,
-=======
-        fields: {
-          CustomMultiSelect: MultiSelectField,
-          CustomRadio: RadioField,
-        },
-        FieldTemplate,
->>>>>>> 1090a2f (refactor: rename widgets & extract field template)
       }}
-    ></JsonSchemaForm>
+    />
   </Box>
 );
