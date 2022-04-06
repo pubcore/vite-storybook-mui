@@ -8,28 +8,19 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import { FieldProps } from "@rjsf/core";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CustomItemsSection, maxItemDisplayLength } from "./CustomItemsSection";
 
-export function MultiSelectField({ onChange, idSchema, ...rest }: FieldProps) {
-  console.log("CustomMultiSelect props:", rest);
-
+export function MultiSelectField({ onChange, schema }: FieldProps) {
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
-  console.info("selecteditms", selectedValues);
+  const [customItems, setCustomItems] = useState<string[]>([]);
 
-  const customValues: string[] = [];
-
-  const items = useMemo(
-    () => [
-      "ISO-XY01",
-      "ISO-XY02",
-      "ISO-XY03",
-      "ISO-XY04",
-      "ISO-XY05",
-      "ISO-ABCDEFGHIJKLMNOPQRSTUVWXYZ-01",
-    ],
-    []
+  const predefItems: string[] = useMemo(
+    () =>
+      (schema?.properties?.predefined as { items?: { enum?: string[] } })?.items
+        ?.enum ?? [],
+    [schema]
   );
 
   const handleChange = useCallback(
@@ -40,9 +31,9 @@ export function MultiSelectField({ onChange, idSchema, ...rest }: FieldProps) {
       );
 
       setSelectedValues(val);
-      onChange(val);
+      // onChange(val);
     },
-    [onChange]
+    []
   );
 
   const renderItems = useCallback(() => {
@@ -55,95 +46,33 @@ export function MultiSelectField({ onChange, idSchema, ...rest }: FieldProps) {
     // return res;
 
     // return t("items_selected", { count: selectedValues.length });
-    return `${selectedValues.length} item${
-      selectedValues.length !== 1 ? "s" : ""
-    } selected`;
-  }, [selectedValues]);
+    const itmAmt = selectedValues.length + customItems.length;
+    return `${itmAmt} item${itmAmt !== 1 ? "s" : ""} selected`;
+  }, [selectedValues, customItems]);
 
-  // const [addCustomOpen, setAddCustomOpen] = useState(false);
-  // const [currentCustomVal, setCurrentCustomVal] = useState("");
-  // const [isEditingCustomVal, setIsEditingCustomVal] = useState<string | null>(
-  //   null
-  // );
-
-  // const addCustomClicked = useCallback(() => {
-  //   setAddCustomOpen(true);
-  // }, [setAddCustomOpen]);
-
-  // const addCustomVal = useCallback(() => {
-  //   if (
-  //     !currentCustomVal ||
-  //     customValues.includes(currentCustomVal) ||
-  //     items.includes(currentCustomVal) ||
-  //     currentCustomVal.length < 1
-  //   )
-  //     return;
-
-  //   setCurrentCustomVal("");
-  //   setAddCustomOpen(false);
-
-  //   setCustomValues([...customValues, currentCustomVal]);
-  //   setSelectedValues([...selectedValues, currentCustomVal]);
-  // }, [
-  //   items,
-  //   customValues,
-  //   setCustomValues,
-  //   setSelectedValues,
-  //   selectedValues,
-  //   currentCustomVal,
-  // ]);
-
-  // const editCustomValue = useCallback(
-  //   (
-  //     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  //     value: string,
-  //     newVal: string
-  //   ) => {
-  //     e.stopPropagation();
-  //     console.log(`Edit custom value '${value}', new val '${newVal}'`);
-  //   },
-  //   []
-  // );
-
-  // const deleteCustomValue = useCallback(
-  //   (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, value: string) => {
-  //     console.log(`Delete custom value '${value}'`);
-  //     e.stopPropagation();
-
-  //     const newCustomVals = [...customValues];
-  //     newCustomVals.splice(customValues.indexOf(value), 1);
-  //     setCustomValues(newCustomVals);
-
-  //     const newSelectedVals = [...selectedValues];
-  //     newSelectedVals.splice(selectedValues.indexOf(value), 1);
-  //     setSelectedValues(newSelectedVals);
-  //   },
-  //   [customValues, selectedValues]
-  // );
-
-  const hiddenInput = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    onChange({
+      predefined: predefItems.filter((itm) => selectedValues.includes(itm)),
+      custom: customItems,
+    });
+  }, [onChange, selectedValues, predefItems, customItems]);
 
   return (
-    <Box className="custom-widget multiselect-widget">
-      <input type="hidden" id={idSchema.custom.$id} ref={hiddenInput} />
+    <Box
+      className="custom-widget multiselect-widget"
+      sx={{ overflowY: "auto" }}
+      title={[...selectedValues, ...customItems].sort().join(", ")}
+    >
       <Select
         multiple
         value={selectedValues}
         onChange={handleChange}
-        // onClose={() => {
-        //   setCurrentCustomVal("");
-        //   setAddCustomOpen(false);
-        // }}
-        inputProps={{
-          id: idSchema.predefined.$id,
-        }}
         input={<OutlinedInput />}
         renderValue={renderItems}
-        title={selectedValues.join(", ")}
         // style={{ minWidth: 200 }}
         displayEmpty
       >
-        {items.map((itm) => {
+        {predefItems.map((itm) => {
           const itmTrimmed =
             itm.length > maxItemDisplayLength
               ? itm.substring(0, maxItemDisplayLength - 3) + "..."
@@ -161,8 +90,8 @@ export function MultiSelectField({ onChange, idSchema, ...rest }: FieldProps) {
           );
         })}
         <CustomItemsSection
-          {...{ items: customValues, inputRef: hiddenInput }}
-        ></CustomItemsSection>
+          {...{ items: customItems, setItems: setCustomItems }}
+        />
       </Select>
     </Box>
   );

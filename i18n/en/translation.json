@@ -58,6 +58,8 @@
   "enter_value": "Enter new value...",
   "custom_values_header": "Custom values",
   "add_custom_value": "Add value",
-  "delete_all_custom_values": "Delete all",
-  "confirm_delete_all_custom": "Delete"
+  "radio_yes": "Yes",
+  "radio_no": "No",
+  "radio_unknown": "Unknown",
+  "open_help_document": "Please click here to open the help document"
 }
