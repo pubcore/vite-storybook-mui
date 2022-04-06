@@ -1,86 +1,44 @@
-import { Add, Cancel, DeleteForever, Send } from "@mui/icons-material";
+import { Add, Cancel, Send } from "@mui/icons-material";
 import {
   Box,
   Button,
-  DialogActions,
-  DialogContent,
   IconButton,
   ListSubheader,
   TextField,
 } from "@mui/material";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActionButton } from "../../../Button";
-import Dialog from "../../../Dialog/Dialog";
 import { CustomItem } from "./CustomItem";
 
 export const maxItemDisplayLength = 32;
 
 interface CustomItemsProps {
-  items?: string[];
-  inputRef: React.RefObject<HTMLInputElement>;
+  items: string[];
+  setItems: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-export function CustomItemsSection({
-  items: initialItems,
-  inputRef,
-}: CustomItemsProps) {
+export function CustomItemsSection({ items, setItems }: CustomItemsProps) {
   const { t } = useTranslation();
 
-  const [items, setItems] = useState(initialItems ?? []);
   const [isAddCustomOpen, setIsAddCustomOpen] = useState(false);
   const [currentVal, setCurrentVal] = useState("");
 
-  if (inputRef.current) inputRef.current.value = items.join(",");
-
-  const addCustomVal = useCallback(() => {
+  const addCustomVal = () => {
     if (currentVal.length < 1 || items.includes(currentVal)) return;
 
     setItems([...items, currentVal]);
 
     setCurrentVal("");
     setIsAddCustomOpen(false);
-  }, [items, currentVal]);
+  };
 
-  const cancelAddNew = useCallback(() => {
+  const cancelAddNew = () => {
     setCurrentVal("");
     setIsAddCustomOpen(false);
-  }, []);
-
-  const [deleteAllDialogOpen, setDialogDelAllCustomOpen] = useState(false);
-
-  const deleteAllCustom = useCallback(() => {
-    setItems([]);
-    setDialogDelAllCustomOpen(false);
-  }, []);
-
-  const deleteAllCustomDialog = (
-    <Dialog
-      {...{
-        title: "Delete all custom values?",
-        open: deleteAllDialogOpen,
-      }}
-    >
-      <DialogContent>
-        Do you really want to delete all custom values?
-      </DialogContent>
-      <DialogActions>
-        <ActionButton
-          variant="outlined"
-          onClick={() => setDialogDelAllCustomOpen(false)}
-        >
-          {t("cancel")}
-        </ActionButton>
-        <ActionButton variant="contained" onClick={deleteAllCustom}>
-          {t("confirm_delete_all_custom")}
-        </ActionButton>
-      </DialogActions>
-    </Dialog>
-  );
+  };
 
   return (
     <>
-      {deleteAllCustomDialog}
       <ListSubheader>{t("custom_values_header")}</ListSubheader>
       <Box
         sx={{
@@ -131,36 +89,20 @@ export function CustomItemsSection({
             </IconButton>
           </>
         ) : (
-          <Box
-            sx={{
-              display: "flex",
-              width: "100%",
-              justifyContent: "space-between",
-            }}
-            style={{
-              marginLeft: 10,
-              marginRight: 10,
+          <Button
+            {...{
+              variant: "outlined",
+              onClick: () => setIsAddCustomOpen(true),
+              startIcon: <Add />,
+              style: {
+                width: "100%",
+                marginLeft: 10,
+                marginRight: 10,
+              },
             }}
           >
-            <Button
-              {...{
-                variant: "contained",
-                onClick: () => setIsAddCustomOpen(true),
-                startIcon: <Add />,
-              }}
-            >
-              {t("add_custom_value")}
-            </Button>
-            <Button
-              {...{
-                variant: "outlined",
-                onClick: () => setDialogDelAllCustomOpen(true),
-                startIcon: <DeleteForever />,
-              }}
-            >
-              {t("delete_all_custom_values")}
-            </Button>
-          </Box>
+            {t("add_custom_value")}
+          </Button>
         )}
       </Box>
       {[...items].sort().map((customItm) => {
