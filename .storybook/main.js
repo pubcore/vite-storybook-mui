@@ -1,11 +1,18 @@
 //const viteProjectConfig = require("../vite.config.ts");
 
+const storiesBasePath = "../src/components";
+
+// const only = [];
+const only = ["JsonSchemaForm", "Button"];
+
+
 module.exports = {
   framework: "@storybook/react",
   core: {
     builder: "@storybook/builder-vite",
   },
-  stories: ["../src/components/**/*.stories.tsx"],
+  stories: ["../src/components"],
+  stories: only.length > 0 ? only.map(o => `${storiesBasePath}/${o}/**/*.stories.tsx`) : [`${storiesBasePath}/**/*.stories.tsx`],
   typescript: {
     check: false,
     reactDocgen: false,
