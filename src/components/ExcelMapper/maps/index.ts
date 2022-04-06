@@ -37,7 +37,8 @@ export type Finding =
       payload: { name: string };
     }
   | { id: "NO_ID_COLUMNS_DEFINED_ON_PAGE"; payload: Page }
-  | { id: "TARGET_NOT_FOUND"; payload: MappingsJson["mappings"][0] };
+  | { id: "TARGET_NOT_FOUND"; payload: MappingsJson["mappings"][0] }
+  | { id: "NO_COLUMN_FOUND" };
 
 export type Findings = Array<Finding>;
 

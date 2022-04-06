@@ -11,7 +11,9 @@
     { "id": "CN", "name": "Last Name" },
     { "id": "BIRTHDAY", "name": "Birthday" },
     { "id": "EMAIL", "name": "Email address" },
-    { "id": "Sls", "name": "ORDER_TOTAL" }
+    { "id": "Sls", "name": "ORDER_TOTAL" },
+    { "id": "XY", "name": "required in group", "groupId": "X" },
+    { "id": "XZ", "name": "required in group", "groupId": "X" }
   ],
   "keyIds": ["OID", "PID"],
   "mappings": [

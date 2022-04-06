@@ -54,5 +54,6 @@
   "mapping_ok": "Mapping is valid.",
   "mapping_totalCountOfRequiredColumns": "Total count of required target columns",
   "mapping_totalCountOfMappedColumns": "Total count of target columns with mapping",
-  "mapping_totalCountOfRows": "Total count of rows by ID"
+  "mapping_totalCountOfRows": "Total count of rows by ID",
+  "mapping_no_column_found": "No column found in selected file."
 }

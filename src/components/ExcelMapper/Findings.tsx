@@ -1,4 +1,5 @@
 import { groupBy } from "lodash-es";
+import { useTranslation } from "react-i18next";
 import { ObjectTable, SimpleTableCellProps } from "../";
 import { Finding } from "./maps";
 import { selectSeverities } from "./maps";
@@ -24,6 +25,7 @@ export function Findings({ findings }: FindingsProps) {
 }
 
 function FeedbackCell({ column, row }: SimpleTableCellProps) {
+  const { t } = useTranslation();
   const value = row[column];
   switch (column) {
     case "value": {
@@ -38,6 +40,11 @@ function FeedbackCell({ column, row }: SimpleTableCellProps) {
                 return comma + finding.payload.name;
               case "TARGET_NOT_FOUND":
                 return comma + finding.payload.targetId;
+              case "NO_COLUMN_FOUND":
+                return t(
+                  "mapping_no_column_found",
+                  "No column is found in current file."
+                );
               default:
                 break;
             }
@@ -48,7 +55,12 @@ function FeedbackCell({ column, row }: SimpleTableCellProps) {
     case "key": {
       return (
         <>
-          {value}&nbsp;({(row["value"] as []).length}):
+          {value}
+          {row["key"] === "NO_COLUMN_FOUND" ? (
+            ""
+          ) : (
+            <>&nbsp;{`(${(row["value"] as []).length})`}</>
+          )}
         </>
       );
     }

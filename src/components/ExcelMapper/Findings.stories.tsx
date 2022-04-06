@@ -15,6 +15,7 @@ const findings: Finding[] = [
   { id: "MAPPED_COLUMN_NOT_FOUND", payload: { name: "column name nine" } },
   { id: "COLUMN_NOT_FOUND", payload: { id: "column name ten" } },
   { id: "COLUMN_NOT_FOUND", payload: { id: "column name eleven" } },
+  { id: "NO_COLUMN_FOUND" },
   {
     id: "TARGET_NOT_FOUND",
     payload: { targetId: "ONE", sourceColumns: [{ name: "a column" }] },

@@ -26,6 +26,7 @@ export const selectStateMappingsOfMappingsJson: (
     const sourceColumns = selectColumns(workbook);
     const foundColumnsByQueryName = new Map<string, Columns>();
     const foundColumnsByTargetId = new Map<string, Columns>();
+    const columnsFoundByGroupId = new Map<string, boolean>();
     const targetsById = selectTargetById({ targetColumns });
 
     const result = mappings.reduce(
@@ -71,18 +72,25 @@ export const selectStateMappingsOfMappingsJson: (
             target,
           });
           foundColumnsByTargetId.set(target.id, foundColumns);
+          columnsFoundByGroupId.set(target?.groupId ?? "*", true);
         }
         return acc;
       },
       [[], []] as [StateMappings, Array<Finding>]
     );
 
-    //check if all required target columns are mapped ...
-    targetColumns.forEach((target) => {
-      const { id } = target;
-      foundColumnsByTargetId.get(id) ||
-        result[1].push({ id: "COLUMN_NOT_FOUND", payload: target });
-    });
+    if (foundColumnsByTargetId.size <= 0) {
+      result[1].push({ id: "NO_COLUMN_FOUND" });
+    } else {
+      //check required target columns (if at least one column found in group)
+      targetColumns.forEach((target) => {
+        const { id, groupId = "*" } = target;
+        const noColumnsForThisGroup = !columnsFoundByGroupId.get(groupId);
+        foundColumnsByTargetId.get(id) ||
+          noColumnsForThisGroup ||
+          result[1].push({ id: "COLUMN_NOT_FOUND", payload: target });
+      });
+    }
 
     if (result[1].length <= 0) {
       return [result[0]];
