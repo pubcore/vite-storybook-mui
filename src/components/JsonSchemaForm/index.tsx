@@ -2,7 +2,7 @@ import { MuiForm5 as Form } from "@rjsf/material-ui";
 import type { FormProps } from "@rjsf/core";
 import { Theme, ThemeProvider, useTheme } from "@mui/material";
 import { FieldTemplate } from "./FieldTemplate";
-import { MultiSelectField, RadioField } from "./fields";
+import { MultiSelectField, RadioField, FooterField } from "./fields";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function JsonSchemaForm<T = any>(props: FormProps<T>) {
@@ -29,10 +29,17 @@ export function JsonSchemaForm<T = any>(props: FormProps<T>) {
           fields: {
             CustomMultiSelect: MultiSelectField,
             CustomRadio: RadioField,
+            CustomFooter: FooterField,
           },
           ...props,
         }}
-      ></Form>
+      >
+        {/* <Box sx={{ display: "flex", justifyContent: "space-around" }}>
+          <ActionButton type="submit" variant="contained" size="large">
+            {t("next_step")}
+          </ActionButton>
+        </Box> */}
+      </Form>
     </ThemeProvider>
   );
 }
