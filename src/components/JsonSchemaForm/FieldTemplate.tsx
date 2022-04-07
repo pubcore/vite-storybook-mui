@@ -19,7 +19,7 @@ import { A } from "../Link";
 export function FieldTemplate(props: FieldTemplateProps) {
   const { t } = useTranslation();
 
-  const { label, description, children, errors, uiSchema } = props;
+  const { label, children, errors, uiSchema } = props;
 
   const uiField = uiSchema?.["ui:field"];
   const pdfUri = uiSchema?.["ui:options"]?.helpUri;
@@ -31,6 +31,61 @@ export function FieldTemplate(props: FieldTemplateProps) {
   const { breakpoints } = useTheme();
 
   const isMobile = !useMediaQuery(breakpoints.up("sm"));
+
+  const labelEnabled = uiField && !["CustomFooter"].includes(uiField as string);
+
+  const fieldLabel =
+    label && uiField && labelEnabled ? (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-around",
+            marginRight: 2,
+          }}
+        >
+          <Box>
+            {/* <Box sx={{ maxWidth: 500 }}> */}
+            <Typography className="form-label">{label}</Typography>
+          </Box>
+        </Box>
+        {typeof pdfUri === "string" ? (
+          !isMobile ? (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-around",
+                marginRight: 2,
+              }}
+            >
+              <IconButton onClick={() => setIsHelpDialogOpen(true)}>
+                <HelpOutline />
+              </IconButton>
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-around",
+                marginRight: 2,
+              }}
+            >
+              <A href={pdfUri}>
+                <HelpOutline />
+              </A>
+            </Box>
+          )
+        ) : null}
+      </Box>
+    ) : null;
 
   return (
     <Box
@@ -48,7 +103,7 @@ export function FieldTemplate(props: FieldTemplateProps) {
             fullWidth: true,
             PaperProps: {
               sx: {
-                maxWidth: 800,
+                maxWidth: 900,
               },
             },
           }}
@@ -87,58 +142,15 @@ export function FieldTemplate(props: FieldTemplateProps) {
           </DialogActions>
         </Dialog>
       ) : null}
-      {label && uiField ? (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-around",
-              marginRight: 2,
-            }}
-          >
-            <Typography>{label}</Typography>
-          </Box>
-          {typeof pdfUri === "string" ? (
-            !isMobile ? (
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-around",
-                  marginRight: 2,
-                }}
-              >
-                <IconButton onClick={() => setIsHelpDialogOpen(true)}>
-                  <HelpOutline />
-                </IconButton>
-              </Box>
-            ) : (
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-around",
-                  marginRight: 2,
-                }}
-              >
-                <A href={pdfUri}>
-                  <HelpOutline />
-                </A>
-              </Box>
-            )
-          ) : null}
-        </Box>
-      ) : null}
-      <Box>
-        {description}
+      {fieldLabel}
+      <Box
+        {...(uiField === "CustomFooter"
+          ? { sx: { width: "100%", margin: 4, marginTop: 1 } }
+          : {})}
+      >
+        {/* {description} */}
         {children}
-        {errors}
+        <Box sx={{ color: "palette.error" }}>{errors}</Box> {/* TODO: */}
       </Box>
     </Box>
   );

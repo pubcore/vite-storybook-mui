@@ -62,5 +62,7 @@
   "radio_yes": "Yes",
   "radio_no": "No",
   "radio_unknown": "Unknown",
-  "open_help_document": "Please click here to open the help document"
+  "open_help_document": "Please click here to open the help document",
+  "confirm_data_correct": "I confirm this data is correct",
+  "next_step": "Next"
 }

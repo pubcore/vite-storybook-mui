@@ -7,10 +7,11 @@ export function RadioField(props: FieldProps) {
   const { onChange } = props;
 
   return (
-    <Box className="custom-widget radio-widget">
+    <Box className="custom-field radio-field">
       <RadioGroup
         row
         onChange={({ currentTarget }) => onChange(currentTarget.value)}
+        sx={{ flexWrap: "nowrap" }}
       >
         <FormControlLabel
           value="yes"

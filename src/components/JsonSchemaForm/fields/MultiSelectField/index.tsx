@@ -59,7 +59,7 @@ export function MultiSelectField({ onChange, schema }: FieldProps) {
 
   return (
     <Box
-      className="custom-widget multiselect-widget"
+      className="custom-field multiselect-field"
       sx={{ overflowY: "auto" }}
       title={[...selectedValues, ...customItems].sort().join(", ")}
     >
