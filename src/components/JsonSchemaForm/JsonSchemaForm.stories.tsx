@@ -229,7 +229,7 @@ export const Advanced = () => {
         cer_environmental_procedures: {
           "ui:field": "CustomMultiSelect",
           "ui:options": {
-            helpUri: "http://africau.edu/images/default/sample.pdf",
+            helpUri: "/sample.pdf",
           },
         },
         cer_measures_reduce_energy_consumption: {
