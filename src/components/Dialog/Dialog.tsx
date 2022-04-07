@@ -6,18 +6,14 @@ import {
 import { ReactNode } from "react";
 
 export type DialogProps = {
-  title: ReactNode;
+  title?: ReactNode;
   children: ReactNode;
 } & MuiDialogProps;
 
-export default function Dialog({ title, children, ...rest }: DialogProps) {
+export function Dialog({ title, children, ...rest }: DialogProps) {
   return (
-    <MuiDialog
-      {...rest}
-      aria-labelledby="modal-modal-title"
-      aria-describedby="modal-modal-description"
-    >
-      <DialogTitle id="modal-modal-title">{title}</DialogTitle>
+    <MuiDialog {...rest} aria-labelledby="modal-modal-title">
+      {title ? <DialogTitle id="modal-modal-title">{title}</DialogTitle> : null}
       {children}
     </MuiDialog>
   );

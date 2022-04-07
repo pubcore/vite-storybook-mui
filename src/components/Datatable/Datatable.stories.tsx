@@ -95,82 +95,82 @@ export default {
 
 const _200_cols = new Array(200).fill(null).map((_, i) => i.toString());
 
-export const EmptyTable = () => <Datatable />,
-  IndividualTitleComponent = () => (
-    <Datatable
-      title={
-        <button type="button" onClick={() => alert("Hi, I'm a button")}>
-          test
-        </button>
-      }
-    />
-  ),
-  AllRowsLoaded = (args: Args) => <Datatable {...{ ...args }} />,
-  SomeRowsLoadedNoServerSideFilterAvailable = (args: Args) => (
-    <Datatable {...{ ...args, loadRows: loadRows(1000000) }} />
-  ),
-  SomeRowsLoadedWithServerSideFilterAndSort = (args: Args) => (
-    <Datatable
-      {...{
-        ...args,
-        loadRows: loadRows(1000000),
-        rowFilterServer: ["name"],
-        rowSortServer: ["name"],
-      }}
-    />
-  ),
-  BoundOnRowClick = (args: Args) => (
-    <Datatable
-      {...{
-        ...args,
-        loadRows: loadRows(10),
-        onRowClick: action("onRowClick"),
-      }}
-    />
-  ),
-  RowSelectionImutable = (args: Args) => (
-    <Datatable {...{ ...args, selectedRows: new Set([0, 1]) }} />
-  ),
-  RowSelection = (args: Args) => (
-    <Datatable
-      {...{
-        ...args,
-        selectedRows: new Set([0, 1]),
-        toggleRowSelection: action("toggleRowSelection"),
-      }}
-    />
-  ),
-  RowSelectionWithToggleAllRowsHeader = (args: Args) => (
-    <Datatable
-      {...{
-        ...args,
-        loadRows: loadRows(2),
-        selectedRows: new Set([0]),
-        toggleRowSelection: action("toggleRowSelection"),
-        toggleAllRowsSelection: action("toggleAllRowsSelection"),
-      }}
-    />
-  ),
-  RowSelectionWithLocalStorage = (args: Args) => (
-    <Datatable
-      {...{
-        ...args,
-        selectedRows: new Set([0, 1]),
-        toggleRowSelection: action("toggleRowSelection"),
-        storageId: "sb-datatable-1",
-      }}
-    />
-  ),
-  _200_Columns = (args: Args) => (
-    <Datatable
-      {...{
-        ...args,
-        columns: _200_cols.map((v) => ({ name: `c${v}`, width: 50 })),
-        rows: _200_cols.map((v) => ({
-          [`c${v}`]: String(Math.floor(Math.random() * 10) + 1),
-        })),
-        selectedRows: new Set(["c0", "c1"]),
-        toggleRowSelection: action("toggleRowSelection"),
-      }}
-    ></Datatable>
-  );
+export const EmptyTable = () => <Datatable />;
+export const IndividualTitleComponent = () => (
+  <Datatable
+    title={
+      <button type="button" onClick={() => alert("Hi, I'm a button")}>
+        test
+      </button>
+    }
+  />
+);
+export const AllRowsLoaded = (args: Args) => <Datatable {...{ ...args }} />;
+export const SomeRowsLoadedNoServerSideFilterAvailable = (args: Args) => (
+  <Datatable {...{ ...args, loadRows: loadRows(1000000) }} />
+);
+export const SomeRowsLoadedWithServerSideFilterAndSort = (args: Args) => (
+  <Datatable
+    {...{
+      ...args,
+      loadRows: loadRows(1000000),
+      rowFilterServer: ["name"],
+      rowSortServer: ["name"],
+    }}
+  />
+);
+export const BoundOnRowClick = (args: Args) => (
+  <Datatable
+    {...{
+      ...args,
+      loadRows: loadRows(10),
+      onRowClick: action("onRowClick"),
+    }}
+  />
+);
+export const RowSelectionImutable = (args: Args) => (
+  <Datatable {...{ ...args, selectedRows: new Set([0, 1]) }} />
+);
+export const RowSelection = (args: Args) => (
+  <Datatable
+    {...{
+      ...args,
+      selectedRows: new Set([0, 1]),
+      toggleRowSelection: action("toggleRowSelection"),
+    }}
+  />
+);
+export const RowSelectionWithToggleAllRowsHeader = (args: Args) => (
+  <Datatable
+    {...{
+      ...args,
+      loadRows: loadRows(2),
+      selectedRows: new Set([0]),
+      toggleRowSelection: action("toggleRowSelection"),
+      toggleAllRowsSelection: action("toggleAllRowsSelection"),
+    }}
+  />
+);
+export const RowSelectionWithLocalStorage = (args: Args) => (
+  <Datatable
+    {...{
+      ...args,
+      selectedRows: new Set([0, 1]),
+      toggleRowSelection: action("toggleRowSelection"),
+      storageId: "sb-datatable-1",
+    }}
+  />
+);
+export const _200_Columns = (args: Args) => (
+  <Datatable
+    {...{
+      ...args,
+      columns: _200_cols.map((v) => ({ name: `c${v}`, width: 50 })),
+      rows: _200_cols.map((v) => ({
+        [`c${v}`]: String(Math.floor(Math.random() * 10) + 1),
+      })),
+      selectedRows: new Set(["c0", "c1"]),
+      toggleRowSelection: action("toggleRowSelection"),
+    }}
+  ></Datatable>
+);

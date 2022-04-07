@@ -4,7 +4,7 @@ import {
   DialogActions,
   DialogContent,
 } from "@mui/material";
-import Dialog from "./Dialog";
+import { Dialog } from "./Dialog";
 import { ReactNode, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@mui/system";
