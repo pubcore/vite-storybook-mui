@@ -10,6 +10,7 @@ export function RadioField(props: FieldProps) {
     <Box className="custom-widget radio-widget">
       <RadioGroup
         row
+        className="radio-group"
         onChange={({ currentTarget }) => onChange(currentTarget.value)}
       >
         <FormControlLabel
