@@ -1,38 +1,43 @@
 import { MuiForm5 as Form } from "@rjsf/material-ui";
-import type { FormProps } from "@rjsf/core";
-import { Theme, ThemeProvider, useTheme } from "@mui/material";
+import type { AjvError, FormProps } from "@rjsf/core";
 import { FieldTemplate } from "./FieldTemplate";
-import { MultiSelectField, RadioField } from "./fields";
+import {
+  MultiSelectField,
+  RadioField,
+  FooterField,
+  UploadField,
+} from "./fields";
+import { t } from "i18next";
+
+const fieldMapping: FormProps<unknown>["fields"] = {
+  CustomMultiSelect: MultiSelectField,
+  CustomRadio: RadioField,
+  CustomFooter: FooterField,
+  CustomUpload: UploadField,
+};
+
+function transformErrors(errors: AjvError[]): AjvError[] {
+  return errors.map((e) => ({ ...e, message: t(`form_error_${e.name}`) }));
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function JsonSchemaForm<T = any>(props: FormProps<T>) {
-  const theme: Theme = {
-    ...useTheme(),
-    components: {
-      MuiFormLabel: {
-        // replaced with custom labels in FieldTemplate.tsx
-        styleOverrides: {
-          root: {
-            display: "none",
-          },
-        },
-      },
-    },
-  };
-
   return (
-    <ThemeProvider {...{ theme }}>
-      <Form
-        {...{
-          idPrefix: "rjsf",
-          FieldTemplate,
-          fields: {
-            CustomMultiSelect: MultiSelectField,
-            CustomRadio: RadioField,
-          },
-          ...props,
-        }}
-      ></Form>
-    </ThemeProvider>
+    <Form
+      {...{
+        idPrefix: "rjsf",
+        FieldTemplate,
+        fields: fieldMapping,
+        showErrorList: false,
+        transformErrors,
+        ...props,
+      }}
+    >
+      {/* <Box sx={{ display: "flex", justifyContent: "space-around" }}>
+          <ActionButton type="submit" variant="contained" size="large">
+            {t("next_step")}
+          </ActionButton>
+        </Box> */}
+    </Form>
   );
 }

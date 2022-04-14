@@ -7,8 +7,6 @@ export function FooterField(props: FieldProps) {
   const { t } = useTranslation();
   const { onChange } = props;
 
-  console.log("footer field props", props);
-
   return (
     <Box
       className="custom-field footer-field"
@@ -18,10 +16,13 @@ export function FooterField(props: FieldProps) {
         <FormControlLabel
           control={
             <Checkbox
-              onChange={({ currentTarget }) => onChange(currentTarget.checked)}
+              defaultChecked={false}
+              onChange={({ currentTarget: { checked } }) => onChange(checked)}
             />
           }
-          label={t("confirm_data_correct")}
+          label={
+            <Box sx={{ userSelect: "none" }}>{t("confirm_data_correct")}</Box>
+          }
           sx={{ marginRight: 6 }}
         />
         <ActionButton type="submit" variant="contained" size="large">

@@ -6,6 +6,7 @@ import {
   IconButton,
   SxProps,
   Theme,
+  ThemeProvider,
   Typography,
   useMediaQuery,
   useTheme,
@@ -13,6 +14,7 @@ import {
 import { FieldTemplateProps } from "@rjsf/core";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { createTheme } from "../../theme";
 import { ActionButton } from "../Button";
 import { Dialog } from "../Dialog/Dialog";
 import { A } from "../Link";
@@ -26,11 +28,14 @@ export function FieldTemplate(props: FieldTemplateProps) {
   const uiField = uiSchema?.["ui:field"];
   const pdfUri = uiSchema?.["ui:options"]?.helpUri;
 
-  // console.log(`Props for field template '${uiField}':`, props);
+  console.log(`Field '${uiField}' template props:`, props);
 
   const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
 
-  const { breakpoints } = useTheme();
+  const theme = createTheme({
+    darkMode: useMediaQuery("(prefers-color-scheme: dark)"),
+  });
+  const { breakpoints } = theme;
 
   const isMobile = !useMediaQuery(breakpoints.up("sm"));
 
@@ -39,6 +44,7 @@ export function FieldTemplate(props: FieldTemplateProps) {
   const fieldLabel =
     label && uiField && labelEnabled ? (
       <Box
+        className="form-field-label"
         sx={{
           display: "flex",
           flexDirection: "row",
@@ -54,7 +60,7 @@ export function FieldTemplate(props: FieldTemplateProps) {
           }}
         >
           {/* <Box sx={{ maxWidth: 500 }}> */}
-          <span className="form-label">{label}</span>
+          <span>{label}</span>
         </Box>
         {typeof pdfUri === "string" ? (
           !isMobile ? (
@@ -96,6 +102,7 @@ export function FieldTemplate(props: FieldTemplateProps) {
 
   return (
     <Box
+      className="form-field-container"
       sx={{
         display: "flex",
         flexDirection: "row",
@@ -151,16 +158,27 @@ export function FieldTemplate(props: FieldTemplateProps) {
       ) : null}
       {fieldLabel}
       <Box
-        className="form-field-container"
+        className="form-input-container"
         {...(uiField === "CustomFooter"
-          ? { sx: { ...containerSx, width: "100%", margin: 4, marginTop: 1 } }
+          ? {
+              sx: {
+                ...containerSx,
+                width: "100%",
+                marginBottom: 2,
+                marginTop: 2,
+              },
+            }
           : { sx: containerSx })}
       >
         {/* {description} */}
         {children}
-        {Array.isArray(rawErrors) ? (
-          /* TODO: */ <Box sx={{ color: "palette.error" }}>{errors}</Box>
-        ) : null}
+        {Array.isArray(rawErrors)
+          ? rawErrors.map((err) => (
+              <Typography key={err} color="error">
+                {err}
+              </Typography>
+            ))
+          : null}
       </Box>
     </Box>
   );
