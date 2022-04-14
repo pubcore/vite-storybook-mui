@@ -1,32 +1,49 @@
-import { Box, FormControlLabel, Radio, RadioGroup } from "@mui/material";
+import {
+  Box,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  FormControl,
+  SxProps,
+  RadioProps,
+} from "@mui/material";
 import { FieldProps } from "@rjsf/core";
+import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
-export function RadioField(props: FieldProps) {
+export function RadioField({ onChange }: FieldProps) {
   const { t } = useTranslation();
-  const { onChange } = props;
+
+  // const error = Array.isArray(rawErrors) && rawErrors.length > 0;
+
+  const getLabel = useCallback(
+    (key: string) => <Box sx={{ userSelect: "none" }}>{t(key as "_")}</Box>,
+    [t]
+  );
 
   return (
     <Box className="custom-widget radio-widget">
       <RadioGroup
         row
         className="radio-group"
-        onChange={({ currentTarget }) => onChange(currentTarget.value)}
+        onChange={({ currentTarget: { value } }) => onChange(value)}
+        sx={{ flexWrap: "nowrap" }}
       >
         <FormControlLabel
           value="yes"
           control={<Radio />}
-          label={t("radio_yes")}
+          label={getLabel("radio_yes")}
         />
         <FormControlLabel
           value="no"
           control={<Radio />}
-          label={t("radio_no")}
+          label={getLabel("radio_no")}
         />
         <FormControlLabel
           value="unknown"
           control={<Radio />}
-          label={t("radio_unknown")}
+          label={getLabel("radio_unknown")}
+          sx={{ marginRight: 0 }}
         />
       </RadioGroup>
     </Box>

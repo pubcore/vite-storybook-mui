@@ -71,6 +71,7 @@ export function MultiSelectField({ onChange, schema }: FieldProps) {
         renderValue={renderItems}
         // style={{ minWidth: 200 }}
         displayEmpty
+        sx={{ minWidth: 240 }}
       >
         {predefItems.map((itm) => {
           const itmTrimmed =
