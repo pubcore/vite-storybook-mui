@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Workflow } from "./Workflow";
 
 export default {
@@ -9,3 +10,22 @@ export const Default = () => (
     «children»
   </Workflow>
 );
+
+export const Clickable = () => {
+  const [activeStep, setActiveStep] = useState(2);
+  return (
+    <Workflow
+      {...{
+        steps: [
+          { id: "upload", clickable: true },
+          { id: "review", clickable: true },
+          { id: "confirm", clickable: true },
+        ],
+        activeStep,
+        setActiveStep,
+      }}
+    >
+      «children»
+    </Workflow>
+  );
+};
