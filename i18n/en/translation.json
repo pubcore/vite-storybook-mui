@@ -58,6 +58,7 @@
   "enter_value": "Enter new value...",
   "custom_values_header": "Custom values",
   "add_custom_value": "Add value",
+  "radio_also_yes": "Yes, but on the right",
   "radio_yes": "Yes",
   "radio_no": "No",
   "radio_unknown": "Unknown",

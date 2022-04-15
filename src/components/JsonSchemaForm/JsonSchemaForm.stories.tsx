@@ -13,7 +13,7 @@ export default {
 
 // const fields1: { [k: string]: Field } = {}; // see https://react-jsonschema-form.readthedocs.io/en/latest/advanced-customization/custom-widgets-fields/
 
-export const Default = () => {
+export const PredefinedValues = () => {
   const schema: JSONSchema7 = {
     title: "Test form",
     type: "object",
@@ -51,9 +51,14 @@ export const Default = () => {
             },
           },
           bar: {
-            title: "Custom Radio",
+            title: "Custom Radio 1",
             type: "string",
             enum: ["yes", "no", "unknown"],
+          },
+          baz: {
+            title: "Custom Radio 2",
+            type: "string",
+            enum: ["yes", "also_yes"],
           },
         },
       },
@@ -71,16 +76,34 @@ export const Default = () => {
       bar: {
         "ui:field": "CustomRadio",
       },
+      baz: {
+        "ui:field": "CustomRadio",
+      },
     },
+  };
+
+  type PredefFormData = {
+    foo: { custom: string[]; predefined: string[] };
+    bar: string;
+    baz: string;
+  };
+
+  const formData: Partial<PredefFormData> = {
+    foo: {
+      predefined: ["pre1", "pre2", "pre3"],
+      custom: [],
+    },
+    baz: "also_yes",
   };
 
   return (
     <Box sx={{ width: 600, padding: 2 }}>
-      <JsonSchemaForm
+      <JsonSchemaForm<PredefFormData>
         {...{
           onSubmit: ({ formData }) => console.info("Form submitted:", formData),
           schema,
           uiSchema,
+          formData: formData as PredefFormData,
         }}
       />
     </Box>

@@ -20,7 +20,8 @@ export function UploadField({ onChange }: FieldProps) {
 
   const handleFile = useCallback(
     async ({ formData }: { formData: FormData }) => {
-      const file = formData.get("file") as File;
+      const file = formData?.get("file") as File;
+      if (!file) return;
       const dataUri = await blobToDataUri(file);
       onChange(dataUri);
     },

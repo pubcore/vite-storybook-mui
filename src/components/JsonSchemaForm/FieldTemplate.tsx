@@ -23,12 +23,10 @@ import { A } from "../Link";
 export function FieldTemplate(props: FieldTemplateProps) {
   const { t } = useTranslation();
 
-  const { label, children, errors, uiSchema, rawErrors } = props;
+  const { label, children, uiSchema, rawErrors } = props;
 
   const uiField = uiSchema?.["ui:field"];
   const pdfUri = uiSchema?.["ui:options"]?.helpUri;
-
-  console.log(`Field '${uiField}' template props:`, props);
 
   const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
 
@@ -174,7 +172,7 @@ export function FieldTemplate(props: FieldTemplateProps) {
         {children}
         {Array.isArray(rawErrors)
           ? rawErrors.map((err) => (
-              <Typography key={err} color="error">
+              <Typography key={err} color="error" className="form-error">
                 {err}
               </Typography>
             ))
