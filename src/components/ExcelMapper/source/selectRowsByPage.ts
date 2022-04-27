@@ -14,7 +14,7 @@ export const selectRowsByPage: (s: S) => RowsByPage = createSelector(
       (acc, page) =>
         acc.set(
           page,
-          utils.sheet_to_json<string[]>(workbook.Sheets[page.name], {
+          utils.sheet_to_json<string[]>(workbook.Sheets[page.name]!, {
             header: 1,
             raw: false,
           })

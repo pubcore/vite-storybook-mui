@@ -14,8 +14,8 @@ export const selectCellStringsByColumn: (s: S) => Map<Column, string[]> =
     (rowsByPage, pages, { columnsByPageindex }, countOfHeaderRowsByPage) => {
       return pages.reduce((acc, page) => {
         const pageColumns = columnsByPageindex[page.index];
-        pageColumns.forEach((column) => {
-          const colStrings: string[] = [];
+        pageColumns?.forEach((column) => {
+          const colStrings: (string | undefined)[] = [];
           rowsByPage.get(page)?.forEach((row, index) => {
             if (index >= (countOfHeaderRowsByPage.get(page) ?? 0)) {
               colStrings.push(row[column.index]);

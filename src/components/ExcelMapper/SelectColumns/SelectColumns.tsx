@@ -48,9 +48,9 @@ export default function SelectColumns({
       columnIndex: number;
     }) => {
       return filterPredicate
-        ? columnsByPageIndex[pageIndex][columnIndex].name
-            .toLowerCase()
-            .indexOf(filterPredicate.toLowerCase()) >= 0
+        ? columnsByPageIndex[pageIndex]?.[columnIndex]?.name
+            ?.toLowerCase()
+            .indexOf(filterPredicate.toLowerCase())! >= 0
         : true;
     },
     [columnsByPageIndex, filterPredicate]
@@ -259,7 +259,7 @@ export default function SelectColumns({
               </Button>
             ))
           : t("pages", "One Page: {{name}}", {
-              name: pages[0].name,
+              name: pages[0]?.name,
               count: pages.length,
             })}
       </Box>

@@ -14,14 +14,19 @@ export function reducer(state: S, action: Action): S {
   switch (action.type) {
     case "toggleSourceColumn": {
       const { page, column, targetId } = action.payload;
-      const col = selectColumns(state.workbook).columnsByPageindex[page][
+      const col = selectColumns(state.workbook).columnsByPageindex[page]?.[
         column
       ];
+      if (col === undefined) {
+        console.warn("column not found", column);
+        return state;
+      }
       const mappingIndex = selectMappingIndexesByTargetId(state).get(targetId);
       if (mappingIndex === undefined) return state;
-      const columnIndex = state.mappings[mappingIndex].sourceColumns.findIndex(
-        (column) => column === col
-      );
+      const columnIndex =
+        state.mappings[mappingIndex]?.sourceColumns.findIndex(
+          (column) => column === col
+        ) ?? -1;
       return update(state, {
         mappings: {
           [mappingIndex]: {

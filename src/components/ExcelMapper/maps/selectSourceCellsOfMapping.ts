@@ -34,7 +34,7 @@ export const selectSourceCellsOfMapping: (
       parentIds: string[] = []
     ) {
       ids.forEach((subTree, id) => {
-        const rowIndexByPageIndex = new Map<number, number>();
+        const rowIndexByPageIndex = new Map<number, number | undefined>();
 
         if (Array.isArray(subTree)) {
           rowIndexByPageIndex.set(id as number, subTree[0]);
@@ -55,7 +55,8 @@ export const selectSourceCellsOfMapping: (
             if (rowIndex === undefined) {
               return acc;
             }
-            const value = sourceRowsByPage.get(page)?.[rowIndex][column.index];
+            const value =
+              sourceRowsByPage.get(page)?.[rowIndex]?.[column.index];
             const cell = { column, rowIndex, value };
             return acc.concat(cell);
           }, [] as SourceCells["cells"]);

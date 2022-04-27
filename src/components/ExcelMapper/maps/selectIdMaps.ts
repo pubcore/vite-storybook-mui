@@ -75,7 +75,7 @@ export function addRowToIdTree(
     return;
   }
 
-  const id = row[idColumn?.index];
+  const id = row[idColumn?.index ?? -1];
   if (depth === 0 && !id) {
     return;
   }
@@ -86,11 +86,11 @@ export function addRowToIdTree(
     if (depth + 1 < sourceKeyColumns.length) {
       const _tree: IdTree = new Map();
       _tree.__id = id;
-      idTree.set(id, _tree);
+      idTree.set(id!, _tree);
       addRowToIdTree(_tree, rowIndex, row, sourceKeyColumns, depth + 1);
     } else {
-      const rows: Rows = new Map([[idColumn.pageIndex, [rowIndex]]]);
-      idTree.set(id, rows);
+      const rows: Rows = new Map([[idColumn!.pageIndex, [rowIndex]]]);
+      idTree.set(id!, rows);
     }
   } else {
     if (depth + 1 < sourceKeyColumns.length) {
@@ -102,12 +102,14 @@ export function addRowToIdTree(
           sourceKeyColumns,
           depth + 1
         );
-      } else {
+      } else if (id !== undefined) {
         const _tree: IdTree = new Map();
         _tree.__id = id;
         _tree.set(id, subTree);
         idTree.set(id, _tree);
         addRowToIdTree(_tree, rowIndex, row, sourceKeyColumns, depth + 1);
+      } else {
+        console.warn("Undefined id for id-column", idColumn);
       }
     } else {
       if ((subTree as IdTree).__id) {
@@ -122,10 +124,11 @@ export function addRowToIdTree(
         });
       } else {
         const pageIndex = idColumn?.pageIndex ?? lastIdColumn?.pageIndex;
-        (subTree as Rows).set(
-          pageIndex,
-          ((subTree as Rows).get(pageIndex) ?? []).concat(rowIndex)
-        );
+        pageIndex !== undefined &&
+          (subTree as Rows).set(
+            pageIndex,
+            ((subTree as Rows).get(pageIndex) ?? []).concat(rowIndex)
+          );
       }
     }
   }

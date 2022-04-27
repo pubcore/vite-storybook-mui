@@ -19,7 +19,7 @@ function useTestForm(Story: TStory, defaultValues = {}) {
   if (!forms[key]) {
     forms[key] = form;
   }
-  return forms[key];
+  return forms[key]!;
 }
 
 export interface FormDecoratorProps {

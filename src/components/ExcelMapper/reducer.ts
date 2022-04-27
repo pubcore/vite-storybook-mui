@@ -36,11 +36,11 @@ export function reducer(s: S, action: Action) {
 
         if (newMappingIndex >= 0 && mappingIndex < 0) {
           mappingsToSet = update(mappingsToSet, {
-            $unshift: [newMappings[newMappingIndex]],
+            $unshift: [newMappings[newMappingIndex]!],
           });
         } else if (newMappingIndex >= 0 && mappingIndex >= 0) {
           mappingsToSet = update(mappingsToSet, {
-            [mappingIndex]: { $set: newMappings[newMappingIndex] },
+            [mappingIndex]: { $set: newMappings[newMappingIndex]! },
           });
         } else if (newMappingIndex < 0 && mappingIndex >= 0) {
           mappingsToSet = update(mappingsToSet, {

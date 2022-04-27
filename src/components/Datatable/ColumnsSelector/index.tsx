@@ -68,7 +68,7 @@ export default function ColumnSelector({
         return columnsSequence;
       }
       const a = columnsSequence.slice();
-      [a[current], a[current + 1]] = [a[current + 1], a[current]];
+      [a[current], a[current + 1]] = [a[current + 1]!, a[current]!];
       setSequence(a);
     },
     [columnsSequence, setSequence]
@@ -80,7 +80,7 @@ export default function ColumnSelector({
         return columnsSequence;
       }
       const a = columnsSequence.slice();
-      [a[current], a[current - 1]] = [a[current - 1], a[current]];
+      [a[current], a[current - 1]] = [a[current - 1]!, a[current]!];
       setSequence(a);
     },
     [columnsSequence, setSequence]

@@ -13,7 +13,7 @@ export function RadioField(props: FieldProps) {
         value,
         control: <Radio />,
         label: (
-          <Box sx={{ userSelect: "none" }}>{t(`radio_${value}` as "_")}</Box>
+          <Box sx={{ userSelect: "none" }}>{t`radio_${String(value)}`}</Box>
         ),
         ...(i === values.length - 1 ? { sx: { marginRight: 0 } } : {}),
       }}

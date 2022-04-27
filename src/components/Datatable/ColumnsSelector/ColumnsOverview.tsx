@@ -13,10 +13,11 @@ interface ColumnsOverviewProps {
 /** Moves an item in `array`, `from` one index `to` another (returns the array, doesn't mutate) */
 const moveInArray = <T,>(array: T[], from: number, to: number): T[] => {
   const arr = [...array];
-  let numberOfDeletedElm = 1;
-  const elm = arr.splice(from, numberOfDeletedElm)[0];
-  numberOfDeletedElm = 0;
-  arr.splice(to, numberOfDeletedElm, elm);
+  const elm = arr.splice(from, 1)[0];
+  if (elm === undefined) {
+    return array;
+  }
+  arr.splice(to, 0, elm);
   return arr;
 };
 

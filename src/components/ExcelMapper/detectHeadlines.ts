@@ -23,9 +23,9 @@ export const detectHeadlines = ({
       !!Number(String(v).replaceAll(REGEX, ""))
     );
   }
-  for (let j = 0; j < rows[0].length; j++) {
+  for (let j = 0; j < (rows[0]?.length ?? 0); j++) {
     for (let i = 0; i < Math.min(rows.length, detectionRangeSize); i++) {
-      const currentVal = rows[i][j];
+      const currentVal = rows[i]?.[j];
       const nextVal = rows[i + 1]?.[j];
       const currentValIsNumber = isRelevantNumber(currentVal);
 
@@ -41,7 +41,7 @@ export const detectHeadlines = ({
         numberColumns[j] = i + 1;
       } else if (
         (currentValIsNumber || currentVal == "" || currentVal == undefined) &&
-        numberColumns[j] >= 1
+        (numberColumns[j] ?? 0) >= 1
       ) {
         //do nothing
       } else {
@@ -51,9 +51,9 @@ export const detectHeadlines = ({
       //similarities ...
       if (similarities[j] === undefined) similarities[j] = [];
       if (currentValIsNumber || isRelevantNumber(nextVal)) {
-        similarities[j].push(1);
+        similarities[j]?.push(1);
       } else {
-        similarities[j].push(
+        similarities[j]?.push(
           Math.round(
             Math.max(
               compareTwoStrings(String(currentVal), String(nextVal)),
@@ -98,15 +98,15 @@ export const detectHeadlines = ({
 
   //there could be only one or no data row ... check last header row
   if (
-    rows[headlinesCount - 1] &&
+    Array.isArray(rows[headlinesCount - 1]) &&
     //count empty cells and cells starts with a number
-    rows[headlinesCount - 1].reduce<number>((acc, val) => {
+    rows[headlinesCount - 1]!.reduce<number>((acc, val) => {
       const test = String(val).trim();
       (!test || test.match(/^[0-9.,+ -]+/)) && ++acc;
       return acc;
     }, 0) + //plus count of empty array elements:
-      rows[headlinesCount - 1].length -
-      rows[headlinesCount - 1].filter(String).length >=
+      rows[headlinesCount - 1]!.length -
+      rows[headlinesCount - 1]!.filter(String).length >=
       1
   ) {
     headlinesCount--;
