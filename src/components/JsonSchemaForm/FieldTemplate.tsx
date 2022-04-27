@@ -6,10 +6,8 @@ import {
   IconButton,
   SxProps,
   Theme,
-  ThemeProvider,
   Typography,
   useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import { FieldTemplateProps } from "@rjsf/core";
 import { useState } from "react";

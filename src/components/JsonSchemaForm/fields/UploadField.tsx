@@ -8,9 +8,9 @@ import FileUpload from "../../FileUpload";
 function blobToDataUri(blob: Blob): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = (_) => resolve(reader.result as string);
-    reader.onerror = (_) => reject(reader.error);
-    reader.onabort = (_) => reject(new Error("Read aborted"));
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.onabort = () => reject(new Error("Read aborted"));
     reader.readAsDataURL(blob);
   });
 }

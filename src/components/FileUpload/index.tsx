@@ -3,7 +3,6 @@ import { useDropzone } from "react-dropzone";
 import { CircularProgress, SxProps } from "@mui/material";
 import { useTheme, Box } from "@mui/material";
 import { ReactNode, useCallback, useState } from "react";
-import { BaseProps } from "@mui/material/OverridableComponent";
 
 export interface FileUploadProps {
   handleFile(arg: { formData: FormData }): Promise<void>;
