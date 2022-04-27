@@ -1,33 +1,52 @@
-import { Box, FormControlLabel, Radio, RadioGroup } from "@mui/material";
+import {
+  Box,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  FormControl,
+  SxProps,
+  RadioProps,
+} from "@mui/material";
 import { FieldProps } from "@rjsf/core";
+import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
 export function RadioField(props: FieldProps) {
   const { t } = useTranslation();
-  const { onChange } = props;
+  const { onChange, schema } = props;
+
+  console.log("radiofield props", props);
+
+  const values = schema?.enum ?? ["yes", "no", "unknown"];
+  const trValues = values.map((v) => t(`radio_${v}` as "_"));
+
+  // const error = Array.isArray(rawErrors) && rawErrors.length > 0;
+
+  const getLabel = useCallback(
+    (txt: string) => <Box sx={{ userSelect: "none" }}>{txt}</Box>,
+    []
+  );
+
+  const items = values.map((value, i) => (
+    <FormControlLabel
+      {...{
+        value,
+        control: <Radio />,
+        label: getLabel(trValues[i]),
+        ...(i === values.length - 1 ? { sx: { marginRight: 0 } } : {}),
+      }}
+    />
+  ));
 
   return (
-    <Box className="custom-field radio-field">
+    <Box className="custom-widget radio-widget">
       <RadioGroup
         row
-        onChange={({ currentTarget }) => onChange(currentTarget.value)}
+        className="radio-group"
+        onChange={({ currentTarget: { value } }) => onChange(value)}
         sx={{ flexWrap: "nowrap" }}
       >
-        <FormControlLabel
-          value="yes"
-          control={<Radio />}
-          label={t("radio_yes")}
-        />
-        <FormControlLabel
-          value="no"
-          control={<Radio />}
-          label={t("radio_no")}
-        />
-        <FormControlLabel
-          value="unknown"
-          control={<Radio />}
-          label={t("radio_unknown")}
-        />
+        {items}
       </RadioGroup>
     </Box>
   );

@@ -4,6 +4,9 @@ import {
   DialogActions,
   DialogContent,
   IconButton,
+  SxProps,
+  Theme,
+  ThemeProvider,
   Typography,
   useMediaQuery,
   useTheme,
@@ -11,6 +14,7 @@ import {
 import { FieldTemplateProps } from "@rjsf/core";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { createTheme } from "../../theme";
 import { ActionButton } from "../Button";
 import { Dialog } from "../Dialog/Dialog";
 import { A } from "../Link";
@@ -19,16 +23,17 @@ import { A } from "../Link";
 export function FieldTemplate(props: FieldTemplateProps) {
   const { t } = useTranslation();
 
-  const { label, children, errors, uiSchema } = props;
+  const { label, children, uiSchema, rawErrors } = props;
 
   const uiField = uiSchema?.["ui:field"];
   const pdfUri = uiSchema?.["ui:options"]?.helpUri;
 
-  console.log(`Props for field template '${uiField}':`, props);
-
   const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
 
-  const { breakpoints } = useTheme();
+  const theme = createTheme({
+    darkMode: useMediaQuery("(prefers-color-scheme: dark)"),
+  });
+  const { breakpoints } = theme;
 
   const isMobile = !useMediaQuery(breakpoints.up("sm"));
 
@@ -37,9 +42,11 @@ export function FieldTemplate(props: FieldTemplateProps) {
   const fieldLabel =
     label && uiField && labelEnabled ? (
       <Box
+        className="form-field-label"
         sx={{
           display: "flex",
           flexDirection: "row",
+          marginRight: 2,
         }}
       >
         <Box
@@ -50,10 +57,8 @@ export function FieldTemplate(props: FieldTemplateProps) {
             marginRight: 2,
           }}
         >
-          <Box>
-            {/* <Box sx={{ maxWidth: 500 }}> */}
-            <Typography className="form-label">{label}</Typography>
-          </Box>
+          {/* <Box sx={{ maxWidth: 500 }}> */}
+          <span>{label}</span>
         </Box>
         {typeof pdfUri === "string" ? (
           !isMobile ? (
@@ -87,8 +92,15 @@ export function FieldTemplate(props: FieldTemplateProps) {
       </Box>
     ) : null;
 
+  const containerSx: Partial<SxProps<Theme>> = {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-around",
+  };
+
   return (
     <Box
+      className="form-field-container"
       sx={{
         display: "flex",
         flexDirection: "row",
@@ -103,7 +115,7 @@ export function FieldTemplate(props: FieldTemplateProps) {
             fullWidth: true,
             PaperProps: {
               sx: {
-                maxWidth: 900,
+                maxWidth: 800,
               },
             },
           }}
@@ -144,13 +156,27 @@ export function FieldTemplate(props: FieldTemplateProps) {
       ) : null}
       {fieldLabel}
       <Box
+        className="form-input-container"
         {...(uiField === "CustomFooter"
-          ? { sx: { width: "100%", margin: 4, marginTop: 1 } }
-          : {})}
+          ? {
+              sx: {
+                ...containerSx,
+                width: "100%",
+                marginBottom: 2,
+                marginTop: 2,
+              },
+            }
+          : { sx: containerSx })}
       >
         {/* {description} */}
         {children}
-        <Box sx={{ color: "palette.error" }}>{errors}</Box> {/* TODO: */}
+        {Array.isArray(rawErrors)
+          ? rawErrors.map((err) => (
+              <Typography key={err} color="error" className="form-error">
+                {err}
+              </Typography>
+            ))
+          : null}
       </Box>
     </Box>
   );

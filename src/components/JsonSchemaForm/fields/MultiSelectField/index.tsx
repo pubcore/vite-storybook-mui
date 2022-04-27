@@ -59,7 +59,7 @@ export function MultiSelectField({ onChange, schema }: FieldProps) {
 
   return (
     <Box
-      className="custom-field multiselect-field"
+      className="custom-widget multiselect-widget"
       sx={{ overflowY: "auto" }}
       title={[...selectedValues, ...customItems].sort().join(", ")}
     >
@@ -71,6 +71,7 @@ export function MultiSelectField({ onChange, schema }: FieldProps) {
         renderValue={renderItems}
         // style={{ minWidth: 200 }}
         displayEmpty
+        sx={{ minWidth: 240 }}
       >
         {predefItems.map((itm) => {
           const itmTrimmed =

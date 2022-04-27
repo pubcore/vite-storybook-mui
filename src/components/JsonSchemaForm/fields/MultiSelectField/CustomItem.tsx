@@ -106,7 +106,7 @@ export function CustomItem({ value, title, items, setItems }: CustomItemProps) {
                 }
               },
             }}
-          ></TextField>
+          />
           <Box sx={{ whiteSpace: "nowrap" }}>
             <IconButton sx={{ marginRight: 1 }} onClick={editItem}>
               <Save />

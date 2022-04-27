@@ -1,17 +1,34 @@
 import { useTranslation } from "react-i18next";
 import { useDropzone } from "react-dropzone";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, SxProps } from "@mui/material";
 import { useTheme, Box } from "@mui/material";
-import { useCallback, useState } from "react";
+import { ReactNode, useCallback, useState } from "react";
+import { BaseProps } from "@mui/material/OverridableComponent";
 
 export interface FileUploadProps {
   handleFile(arg: { formData: FormData }): Promise<void>;
+  children?: ReactNode;
+  accept?: string[];
+  containerSxOverride?: SxProps;
 }
 
-export default function FileUpload({ handleFile }: FileUploadProps) {
+export default function FileUpload({
+  handleFile,
+  children,
+  accept,
+  containerSxOverride = {},
+}: FileUploadProps) {
   const { t } = useTranslation();
   const theme = useTheme();
   const [progress, setProgress] = useState(0);
+
+  if (!Array.isArray(accept) || accept.length === 0)
+    accept = [
+      ".csv",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-excel",
+    ];
+
   const getFilesFromEvent = useCallback(
     async (e) => {
       try {
@@ -38,8 +55,7 @@ export default function FileUpload({ handleFile }: FileUploadProps) {
   );
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept:
-      ".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel",
+    accept: accept.join(", "),
     maxFiles: 1,
     getFilesFromEvent,
   });
@@ -60,6 +76,7 @@ export default function FileUpload({ handleFile }: FileUploadProps) {
         outline: "none",
         transition: "border 0.24s ease-in-out",
         cursor: "pointer",
+        ...containerSxOverride,
       }}
       {...getRootProps()}
     >
@@ -71,7 +88,7 @@ export default function FileUpload({ handleFile }: FileUploadProps) {
           thickness={6}
         />
       ) : (
-        t("file_upload_dropzone")
+        children ?? t("file_upload_dropzone")
       )}
     </Box>
   );
