@@ -8,11 +8,11 @@ import {
   Theme,
   Typography,
   useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { FieldTemplateProps } from "@rjsf/core";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { createTheme } from "../../theme";
 import { ActionButton } from "../Button";
 import { Dialog } from "../Dialog/Dialog";
 import { A } from "../Link";
@@ -27,11 +27,7 @@ export function FieldTemplate(props: FieldTemplateProps) {
   const pdfUri = uiSchema?.["ui:options"]?.helpUri;
 
   const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
-
-  const theme = createTheme({
-    darkMode: useMediaQuery("(prefers-color-scheme: dark)"),
-  });
-  const { breakpoints } = theme;
+  const { breakpoints } = useTheme();
 
   const isMobile = !useMediaQuery(breakpoints.up("sm"));
 

@@ -18,7 +18,7 @@ import { useTranslation } from "react-i18next";
 import { ActionButton, Dialog } from "../..";
 import ColumnsOverview from "./ColumnsOverview";
 import RenderIfVisible from "react-render-if-visible";
-import { DatatableProps } from "../Datatable";
+import { DatatableProps } from "../DatatableTypes";
 import { Commit } from "@mui/icons-material";
 import { Box } from "@mui/system";
 

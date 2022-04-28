@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Tooltip, Checkbox } from "@mui/material";
-import type { GetRowId } from "./Datatable";
+import type { GetRowId } from "./DatatableTypes";
 
 type Row = Record<string, unknown>;
 type Rows = Row[];

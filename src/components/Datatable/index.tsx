@@ -30,14 +30,14 @@ import initThroat from "throat";
 import { autoWidth } from "./autoWidth";
 import { useVisibleColumns } from "./useVisibleColumns";
 import { useColumnsStorage } from "./useColumnsStorage";
-import {
+import type {
   CellValDefault,
   DatatableProps,
   GetRowId,
   LoadRows,
   Row,
   RowsState,
-} from "./Datatable";
+} from "./DatatableTypes";
 import React from "react";
 const throat = initThroat(10);
 

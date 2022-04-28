@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { Checkbox } from "@mui/material";
-import type { GetRowId } from "./Datatable";
+import type { GetRowId } from "./DatatableTypes";
 
 type Row = Record<string, unknown>;
 

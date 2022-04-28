@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig-base.json",
+  "compilerOptions": {
+    "noEmitOnError": true,
+    "outDir": "dist",
+    "declaration": true
+  },
+  "files": [
+    "src/components/index.ts",
+    "src/components/Datatable/DatatableTypes.ts"
+  ]
+}

@@ -1,4 +1,4 @@
-import type { ColumnType } from "./Datatable";
+import type { ColumnType } from "./DatatableTypes";
 
 interface autoWidthArgs {
   minWidth: number;

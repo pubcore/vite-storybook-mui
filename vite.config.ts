@@ -18,10 +18,7 @@ export default defineConfig({
       external: Object.keys(peerDependencies),
       plugins: [
         typescript({
-          declaration: true,
-          declarationDir: "./dist",
-          include: "./src/components/**/*",
-          exclude: "./src/**/*.stories.tsx",
+          tsconfig: "./tsconfig-build.json",
         }),
       ],
     },

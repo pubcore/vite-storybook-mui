@@ -1,4 +1,4 @@
-import { HeaderRowProps } from "./Datatable";
+import type { HeaderRowProps } from "./DatatableTypes";
 
 export default function HeaderRow({
   className,

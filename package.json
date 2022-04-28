@@ -15,7 +15,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "npm run lint && vite build",
     "watch": "vite build --watch",
     "serve": "vite preview",
     "prepare": "patch-package && husky install && npm run build",

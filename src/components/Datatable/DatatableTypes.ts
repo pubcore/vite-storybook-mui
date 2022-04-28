@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import type {
   ColumnProps,
   TableProps,
@@ -7,8 +7,8 @@ import type {
   TableHeaderRowProps,
 } from "react-virtualized";
 import type { SortDirection } from "@mui/material";
-import { SelectRowProps } from "./SelectRowCheckbox";
-import { SelectAllCheckboxProps } from "./SelectAllCheckbox";
+import type { SelectRowProps } from "./SelectRowCheckbox";
+import type { SelectAllCheckboxProps } from "./SelectAllCheckbox";
 
 export type Row = Record<string, unknown>;
 export type Rows = Row[] | null;
