@@ -270,3 +270,37 @@ export const AllDefaultFields = () => {
     </JsonSchemaForm>
   );
 };
+
+export const Translated = () => {
+  const schema: JSONSchema7 = {
+    type: "object",
+    properties: {
+      translated: {
+        title: "Fallback title",
+        type: "string",
+        enum: ["x"],
+      },
+      not_translated: {
+        title: "Fallback title",
+        type: "string",
+        enum: ["x"],
+      },
+    },
+  };
+
+  const uiSchema: UiSchema = {
+    translated: {
+      "ui:field": "CustomRadio",
+    },
+    not_translated: {
+      "ui:field": "CustomRadio",
+    },
+  };
+
+  return (
+    <JsonSchemaForm {...{ idPrefix: "stb", schema, uiSchema }}>
+      <Box sx={{ display: "none" }} />
+      {/* Empty child to disable the default submit button */}
+    </JsonSchemaForm>
+  );
+};

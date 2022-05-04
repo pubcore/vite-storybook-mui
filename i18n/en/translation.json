@@ -67,5 +67,6 @@
   "next_step": "Next",
   "attach_file": "Drag and drop or click to attach a file",
   "form_error_required": "This field is required",
-  "mapping_no_column_found": "No column is found in current file."
+  "mapping_no_column_found": "No column is found in current file.",
+  "stb_translated": "Translated field title"
 }

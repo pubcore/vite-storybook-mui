@@ -21,7 +21,7 @@ import { A } from "../Link";
 export function FieldTemplate(props: FieldTemplateProps) {
   const { t } = useTranslation();
 
-  const { label, children, uiSchema, rawErrors } = props;
+  const { id, label, children, uiSchema, rawErrors } = props;
 
   const uiField = uiSchema?.["ui:field"];
   const pdfUri = uiSchema?.["ui:options"]?.helpUri;
@@ -33,8 +33,10 @@ export function FieldTemplate(props: FieldTemplateProps) {
 
   const labelEnabled = uiField && !["CustomFooter"].includes(uiField as string);
 
+  const labelText = labelEnabled ? t(id as "_", label) : "";
+
   const fieldLabel =
-    label && uiField && labelEnabled ? (
+    uiField && labelEnabled ? (
       <Box
         className="form-field-label"
         sx={{
@@ -52,7 +54,7 @@ export function FieldTemplate(props: FieldTemplateProps) {
           }}
         >
           {/* <Box sx={{ maxWidth: 500 }}> */}
-          <span>{label}</span>
+          <span>{labelText}</span>
         </Box>
         {typeof pdfUri === "string" ? (
           !isMobile ? (
