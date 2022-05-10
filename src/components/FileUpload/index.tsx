@@ -11,23 +11,21 @@ export interface FileUploadProps {
   containerSxOverride?: SxProps;
 }
 
+const defaultAccept = [
+  ".csv",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-excel",
+];
+
 export default function FileUpload({
   handleFile,
   children,
-  accept,
+  accept = defaultAccept,
   containerSxOverride = {},
 }: FileUploadProps) {
   const { t } = useTranslation();
   const theme = useTheme();
   const [progress, setProgress] = useState(0);
-
-  if (!Array.isArray(accept) || accept.length === 0)
-    accept = [
-      ".csv",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "application/vnd.ms-excel",
-    ];
-
   const getFilesFromEvent = useCallback(
     async (e) => {
       try {
