@@ -1,0 +1,138 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "object",
+  "properties": {
+    "groups": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "name": { "$ref": "#/$defs/const", "default": "groupA" },
+            "claims": {
+              "type": "array",
+              "title": "A group with one question",
+              "items": [
+                {
+                  "type": "object",
+                  "description": "Sit pariatur ullamco culpa culpa eiusmod occaecat aliquip ullamco aute velit occaecat tempor aliqua minim. Veniam aliquip irure voluptate cillum anim ex amet deserunt. Voluptate Lorem aliqua nisi ullamco.",
+                  "required": ["answer"],
+                  "properties": {
+                    "name": {
+                      "$ref": "#/$defs/const",
+                      "default": "firstQuestion"
+                    },
+                    "answer": {
+                      "$ref": "#/$defs/yesNoUnknown"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": { "$ref": "#/$defs/const", "default": "groupB" },
+            "claims": {
+              "type": "array",
+              "title": "A group with custom fields",
+              "items": [
+                {
+                  "type": "object",
+                  "description": "Short description",
+                  "required": ["certificates"],
+                  "properties": {
+                    "name": {
+                      "$ref": "#/$defs/const",
+                      "default": "firstQuestion",
+                      "description": "/sample.pdf"
+                    },
+                    "certificates": {
+                      "type": "object",
+                      "properties": {
+                        "predefined": {
+                          "type": "array",
+                          "minItems": 1,
+                          "uniqueItems": true,
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "ISO-XY01",
+                              "ISO-XY02",
+                              "ISO-XY03",
+                              "ISO-XY04",
+                              "ISO-XY05",
+                              "ISO-ABCDEFGHIJKLMNOPQRSTUVWXYZ-01",
+                              "ISO-ABCDEFGHIJKLMNOPQRSTUVWXYZ-02"
+                            ]
+                          }
+                        },
+                        "custom": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "description": "Short description",
+                  "required": ["answer"],
+                  "properties": {
+                    "name": {
+                      "$ref": "#/$defs/const",
+                      "default": "secondQuestion"
+                    },
+                    "answer": {
+                      "$ref": "#/$defs/yesNoUnknown"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "description": "A file upload",
+                  "required": ["file"],
+                  "properties": {
+                    "name": {
+                      "$ref": "#/$defs/const",
+                      "default": "someFile"
+                    },
+                    "file": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "confirmed": {
+      "type": "boolean",
+      "enum": [true],
+      "title": "I confirm this data is correct"
+    }
+  },
+  "required": ["confirmed"],
+  "$defs": {
+    "yesNoUnknown": {
+      "type": "string",
+      "oneOf": [
+        { "const": "yes", "title": "Yes" },
+        { "const": "now", "title": "Now" },
+        { "const": "unknown", "title": "Unknown" }
+      ]
+    },
+    "const": {
+      "type": "string",
+      "readOnly": true,
+      "default": "«value»"
+    }
+  }
+}

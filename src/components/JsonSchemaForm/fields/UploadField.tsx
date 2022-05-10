@@ -15,7 +15,9 @@ function blobToDataUri(blob: Blob): Promise<string> {
   });
 }
 
-export function UploadField({ onChange }: FieldProps) {
+const defaultAccept = ["*"];
+
+export function UploadField({ onChange, accept = defaultAccept }: FieldProps) {
   const { t } = useTranslation();
 
   const handleFile = useCallback(
@@ -29,19 +31,17 @@ export function UploadField({ onChange }: FieldProps) {
   );
 
   return (
-    <Box className="custom-field upload-field">
-      <FileUpload
-        {...{
-          handleFile,
-          accept: ["*"],
-          containerSxOverride: { padding: 1.5, marginTop: 0 },
-        }}
-      >
-        <Box sx={{ whiteSpace: "nowrap" }}>
-          <UploadFile />
-          {t("attach_file")}
-        </Box>
-      </FileUpload>
-    </Box>
+    <FileUpload
+      {...{
+        handleFile,
+        accept,
+        containerSxOverride: { padding: 1.5, marginTop: 0 },
+      }}
+    >
+      <Box sx={{ whiteSpace: "nowrap" }}>
+        <UploadFile />
+        {t("attach_file")}
+      </Box>
+    </FileUpload>
   );
 }

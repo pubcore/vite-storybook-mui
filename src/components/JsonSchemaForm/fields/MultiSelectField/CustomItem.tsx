@@ -14,7 +14,7 @@ interface CustomItemProps {
   value: string;
   title: string;
   items: string[];
-  setItems: React.Dispatch<React.SetStateAction<string[]>>;
+  setItems: (_: string[]) => void;
 }
 
 export function CustomItem({ value, title, items, setItems }: CustomItemProps) {

@@ -14,7 +14,7 @@ export const maxItemDisplayLength = 32;
 
 interface CustomItemsProps {
   items: string[];
-  setItems: React.Dispatch<React.SetStateAction<string[]>>;
+  setItems: (_: string[]) => void;
 }
 
 export function CustomItemsSection({ items, setItems }: CustomItemsProps) {

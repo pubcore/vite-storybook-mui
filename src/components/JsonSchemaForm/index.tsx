@@ -1,43 +1,41 @@
-import { MuiForm5 as Form } from "@rjsf/material-ui";
+import Form from "@rjsf/material-ui/v5";
 import type { AjvError, FormProps } from "@rjsf/core";
+import { MultiSelectField, UploadField } from "./fields";
+import { ArrayFieldTemplate } from "./ArrayFieldTemplate";
+import { ObjectFieldTemplate } from "./ObjectFieldTemplate";
+import { useTranslation } from "react-i18next";
+import { useCallback } from "react";
 import { FieldTemplate } from "./FieldTemplate";
-import {
-  MultiSelectField,
-  RadioField,
-  FooterField,
-  UploadField,
-} from "./fields";
-import { t } from "i18next";
 
-const fieldMapping: FormProps<unknown>["fields"] = {
+const fields: FormProps<unknown>["fields"] = {
   CustomMultiSelect: MultiSelectField,
-  CustomRadio: RadioField,
-  CustomFooter: FooterField,
   CustomUpload: UploadField,
 };
 
-function transformErrors(errors: AjvError[]): AjvError[] {
-  return errors.map((e) => ({ ...e, message: t(`form_error_${e.name}`) }));
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function JsonSchemaForm<T = any>(props: FormProps<T>) {
+  const { t } = useTranslation();
+  const transformErrors = useCallback(
+    (errors: AjvError[]): AjvError[] => {
+      return errors.map((e) => ({
+        ...e,
+        message: t(`form_error_${e.name}` as "_"),
+      }));
+    },
+    [t]
+  );
+
   return (
     <Form
       {...{
         idPrefix: "rjsf",
-        FieldTemplate,
-        fields: fieldMapping,
-        showErrorList: false,
         transformErrors,
+        FieldTemplate,
+        ObjectFieldTemplate,
+        showErrorList: false,
+        ArrayFieldTemplate,
+        fields,
         ...props,
       }}
-    >
-      {/* <Box sx={{ display: "flex", justifyContent: "space-around" }}>
-          <ActionButton type="submit" variant="contained" size="large">
-            {t("next_step")}
-          </ActionButton>
-        </Box> */}
-    </Form>
+    />
   );
 }

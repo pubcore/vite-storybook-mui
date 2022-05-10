@@ -1,0 +1,23 @@
+{
+  "groups": {
+    "items": {
+      "name": { "ui:widget": "hidden" },
+      "claims": {
+        "items": {
+          "name": { "ui:widget": "hidden" },
+          "answer": {
+            "ui:widget": "radio",
+            "ui:inline": true,
+            "ui:label": false
+          },
+          "certificates": {
+            "ui:field": "CustomMultiSelect"
+          },
+          "file": {
+            "ui:field": "CustomUpload"
+          }
+        }
+      }
+    }
+  }
+}
