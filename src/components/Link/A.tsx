@@ -9,8 +9,8 @@ export interface AProps extends LinkProps {
 //Use A for external links. Use "Link" for internal links
 export default function A({ href, children, ...rest }: AProps) {
   //security: https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
-  const protocolWhitelist = ["https:", "http:"];
-  let protocol;
+  const protocolWhitelist = ["https:", "http:", ""];
+  let protocol, path;
 
   try {
     protocol = new URL(href).protocol;
@@ -18,8 +18,9 @@ export default function A({ href, children, ...rest }: AProps) {
     protocol = "";
   }
 
-  const protocolOk = protocolWhitelist.includes(protocol);
+  const protocolOk = protocolWhitelist.includes(protocol!);
   if (!protocolOk) {
+    console.log(typeof protocol);
     console.error(Error(`Invalid protocol "${protocol}"`));
   }
 
