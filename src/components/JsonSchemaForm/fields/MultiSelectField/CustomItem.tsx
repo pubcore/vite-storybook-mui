@@ -31,6 +31,7 @@ export function CustomItem({ value, title, items, setItems }: CustomItemProps) {
   const [editVal, setEditVal] = useState("");
 
   const editItem = useCallback(() => {
+    if (items.indexOf(editVal) > -1) return;
     if (editVal.length < 1) {
       setEditVal("");
       setIsEditing(false);
@@ -100,10 +101,7 @@ export function CustomItem({ value, title, items, setItems }: CustomItemProps) {
                   setEditVal("");
                   setIsEditing(false);
                 }
-                if (e.key === "Enter") {
-                  editItem();
-                  setIsEditing(false);
-                }
+                if (e.key === "Enter") editItem();
               },
             }}
           />

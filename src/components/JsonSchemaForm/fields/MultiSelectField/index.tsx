@@ -28,11 +28,13 @@ export function MultiSelectField(props: FieldProps) {
   const handleChange = useCallback(
     ({ target: { value } }: SelectChangeEvent<string[]>) => {
       onChange({
-        predefined: value,
+        predefined: Array.isArray(value)
+          ? value.filter((v) => predefItems.includes(v))
+          : value,
         custom,
       });
     },
-    [custom, onChange]
+    [custom, onChange, predefItems]
   );
 
   const setCustomItems = useCallback(
