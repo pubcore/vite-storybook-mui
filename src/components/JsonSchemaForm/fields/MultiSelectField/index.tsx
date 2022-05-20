@@ -30,7 +30,6 @@ export function MultiSelectField(props: FieldProps) {
       const val = Array.isArray(value)
         ? value.filter((v) => predefItems.includes(v))
         : value;
-      console.log("set predefined", val, "\n", custom);
       onChange({
         predefined: val,
         custom,
@@ -41,7 +40,6 @@ export function MultiSelectField(props: FieldProps) {
 
   const setCustomItems = useCallback(
     (items) => {
-      console.log("set custom", predefined, "\n", items);
       onChange({ predefined, custom: items });
     },
     [onChange, predefined]
