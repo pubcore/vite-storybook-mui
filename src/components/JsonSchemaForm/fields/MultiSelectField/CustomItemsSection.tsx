@@ -105,14 +105,10 @@ export function CustomItemsSection({ items, setItems }: CustomItemsProps) {
           </Button>
         )}
       </Box>
-      {[...items].sort().map((customItm) => {
-        const itmTrimmed =
-          customItm.length > maxItemDisplayLength
-            ? customItm.substring(0, maxItemDisplayLength - 3) + "..."
-            : customItm;
+      {[...items].sort().map((value) => {
         return (
           <Box
-            key={customItm}
+            key={value}
             style={{
               marginLeft: 13,
               marginRight: 13,
@@ -120,8 +116,8 @@ export function CustomItemsSection({ items, setItems }: CustomItemsProps) {
           >
             <CustomItem
               {...{
-                value: itmTrimmed,
-                title: customItm,
+                value,
+                title: value,
                 items,
                 setItems,
               }}
