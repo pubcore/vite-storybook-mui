@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useDropzone } from "react-dropzone";
+import { Accept, useDropzone } from "react-dropzone";
 import { CircularProgress, SxProps } from "@mui/material";
 import { useTheme, Box } from "@mui/material";
 import { ReactNode, useCallback, useState } from "react";
@@ -7,20 +7,14 @@ import { ReactNode, useCallback, useState } from "react";
 export interface FileUploadProps {
   handleFile(arg: { formData: FormData }): Promise<void>;
   children?: ReactNode;
-  accept?: string[];
+  accept?: Accept;
   containerSxOverride?: SxProps;
 }
-
-const defaultAccept = [
-  ".csv",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "application/vnd.ms-excel",
-];
 
 export default function FileUpload({
   handleFile,
   children,
-  accept = defaultAccept,
+  accept,
   containerSxOverride = {},
 }: FileUploadProps) {
   const { t } = useTranslation();
@@ -52,9 +46,9 @@ export default function FileUpload({
   );
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept: accept.join(", "),
     maxFiles: 1,
     getFilesFromEvent,
+    accept,
   });
   return (
     <Box

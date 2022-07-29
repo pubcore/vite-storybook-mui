@@ -126,6 +126,18 @@ export function MappingEditor(props: MappingEditorProps) {
         return null;
     }
   } else {
-    return <FileUpload {...{ handleFile }} />;
+    return (
+      <FileUpload
+        {...{
+          handleFile,
+          accept: {
+            "text/csv": [".csv"],
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+              [".xlsx"],
+            "application/vnd.ms-excel": [".xls"],
+          },
+        }}
+      />
+    );
   }
 }

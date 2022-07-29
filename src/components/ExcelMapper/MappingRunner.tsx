@@ -104,7 +104,19 @@ export function MappingRunner(props: MappingRunnerProps) {
   const step = (() => {
     switch (activeStep) {
       case 0:
-        return <FileUpload {...{ handleFile }} />;
+        return (
+          <FileUpload
+            {...{
+              handleFile,
+              accept: {
+                "text/csv": [".csv"],
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                  [".xlsx"],
+                "application/vnd.ms-excel": [".xls"],
+              },
+            }}
+          />
+        );
       case 1: {
         return (
           <>
