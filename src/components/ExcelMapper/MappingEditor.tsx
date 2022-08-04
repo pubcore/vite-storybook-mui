@@ -1,5 +1,11 @@
 import { useCallback, useReducer } from "react";
-import { ActionButton, DatatableProps, FileUpload, FileUploadProps } from "../";
+import {
+  ActionButton,
+  DatatableProps,
+  FileUpload,
+  FileUploadProps,
+  acceptExcel,
+} from "../";
 import XLSX, { WorkBook } from "xlsx";
 import WorkbookTeaser from "./WorkbookTeaser";
 import { Divider } from "@mui/material";
@@ -130,12 +136,7 @@ export function MappingEditor(props: MappingEditorProps) {
       <FileUpload
         {...{
           handleFile,
-          accept: {
-            "text/csv": [".csv"],
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-              [".xlsx"],
-            "application/vnd.ms-excel": [".xls"],
-          },
+          accept: acceptExcel,
         }}
       />
     );

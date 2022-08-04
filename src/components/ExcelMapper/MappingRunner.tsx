@@ -1,5 +1,11 @@
 import { useCallback, useState } from "react";
-import { FileUpload, FileUploadProps, Status, Workflow } from "../";
+import {
+  FileUpload,
+  FileUploadProps,
+  acceptExcel,
+  Status,
+  Workflow,
+} from "../";
 import XLSX, { WorkBook } from "xlsx";
 import WorkbookTeaser from "./WorkbookTeaser";
 import { MappingsJson } from "./MappingsJson";
@@ -108,12 +114,7 @@ export function MappingRunner(props: MappingRunnerProps) {
           <FileUpload
             {...{
               handleFile,
-              accept: {
-                "text/csv": [".csv"],
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-                  [".xlsx"],
-                "application/vnd.ms-excel": [".xls"],
-              },
+              accept: acceptExcel,
             }}
           />
         );

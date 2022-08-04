@@ -11,6 +11,14 @@ export interface FileUploadProps {
   containerSxOverride?: SxProps;
 }
 
+export const acceptExcel: Accept = {
+  "text/csv": [".csv"],
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
+    ".xlsx",
+  ],
+  "application/vnd.ms-excel": [".xls"],
+};
+
 export default function FileUpload({
   handleFile,
   children,

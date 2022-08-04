@@ -4,10 +4,10 @@ import { MultiSelectField } from "./fields";
 import { ArrayFieldTemplate } from "./ArrayFieldTemplate";
 import { ObjectFieldTemplate } from "./ObjectFieldTemplate";
 import { useTranslation } from "react-i18next";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { FieldTemplate } from "./FieldTemplate";
 
-const fields: FormProps<unknown>["fields"] = {
+const defaultFields: FormProps<unknown>["fields"] = {
   CustomMultiSelect: MultiSelectField,
 };
 
@@ -23,6 +23,11 @@ export function JsonSchemaForm<T = any>(props: FormProps<T>) {
     [t]
   );
 
+  const fields = useMemo(
+    () => ({ ...defaultFields, ...props.fields }),
+    [props.fields]
+  );
+
   return (
     <Form
       {...{
@@ -32,7 +37,7 @@ export function JsonSchemaForm<T = any>(props: FormProps<T>) {
         ObjectFieldTemplate,
         showErrorList: false,
         ArrayFieldTemplate,
-        fields: { ...fields, ...props.fields },
+        fields,
         ...props,
       }}
     />
