@@ -51,7 +51,9 @@ export function FieldTemplate({
   ) : String(props.schema.type) === "array" &&
     //count underscore in id string to detect nesting level ...
     (id.match(/_/g) || []).length > 1 ? (
-    <Paper elevation={1}>{children}</Paper>
+    <Paper elevation={3} sx={{ padding: 3 }}>
+      {children}
+    </Paper>
   ) : (
     <>{children}</>
   );

@@ -1,5 +1,11 @@
 import { useCallback, useReducer } from "react";
-import { ActionButton, DatatableProps, FileUpload, FileUploadProps } from "../";
+import {
+  ActionButton,
+  DatatableProps,
+  FileUpload,
+  FileUploadProps,
+  acceptExcel,
+} from "../";
 import XLSX, { WorkBook } from "xlsx";
 import WorkbookTeaser from "./WorkbookTeaser";
 import { Divider } from "@mui/material";
@@ -126,6 +132,13 @@ export function MappingEditor(props: MappingEditorProps) {
         return null;
     }
   } else {
-    return <FileUpload {...{ handleFile }} />;
+    return (
+      <FileUpload
+        {...{
+          handleFile,
+          accept: acceptExcel,
+        }}
+      />
+    );
   }
 }

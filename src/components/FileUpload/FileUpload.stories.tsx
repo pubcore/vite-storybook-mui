@@ -10,3 +10,18 @@ export default {
 type Args = FileUploadProps;
 
 export const Default = (args: Args) => <FileUpload {...{ ...args }} />;
+
+export const OnlyImages = (args: Args) => (
+  <FileUpload
+    {...{
+      ...args,
+      accept: {
+        "image/png": [".png"],
+        "image/jpeg": [".jpg", ".jpeg"],
+        "image/gif": [".gif"],
+        "image/svg+xml": [".svg"],
+        "image/tiff": [".tif", ".tiff"],
+      },
+    }}
+  />
+);

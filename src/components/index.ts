@@ -52,7 +52,7 @@ export { default as UserMenu } from "./UserMenu";
 export { default as Datatable } from "./Datatable";
 export type { DatatableProps } from "./Datatable/DatatableTypes";
 export type { HeaderRowFilterProps as DatatableHeaderRowFilterProps } from "./Datatable/DatatableTypes";
-export { default as FileUpload } from "./FileUpload";
+export { default as FileUpload, acceptExcel } from "./FileUpload";
 export type { FileUploadProps } from "./FileUpload";
 export type { TooltipOnOverflowProps } from "./Tooltip/TooltipOnOverflow";
 export { default as TooltipOnOverflow } from "./Tooltip/TooltipOnOverflow";

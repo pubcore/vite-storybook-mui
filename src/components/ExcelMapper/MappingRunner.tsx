@@ -1,5 +1,11 @@
 import { useCallback, useState } from "react";
-import { FileUpload, FileUploadProps, Status, Workflow } from "../";
+import {
+  FileUpload,
+  FileUploadProps,
+  acceptExcel,
+  Status,
+  Workflow,
+} from "../";
 import XLSX, { WorkBook } from "xlsx";
 import WorkbookTeaser from "./WorkbookTeaser";
 import { MappingsJson } from "./MappingsJson";
@@ -104,7 +110,14 @@ export function MappingRunner(props: MappingRunnerProps) {
   const step = (() => {
     switch (activeStep) {
       case 0:
-        return <FileUpload {...{ handleFile }} />;
+        return (
+          <FileUpload
+            {...{
+              handleFile,
+              accept: acceptExcel,
+            }}
+          />
+        );
       case 1: {
         return (
           <>
