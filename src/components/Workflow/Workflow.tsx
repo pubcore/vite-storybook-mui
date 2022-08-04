@@ -26,13 +26,16 @@ export type WorkflowProps = {
   children: StepperProps["children"];
 } & StepperProps;
 
+const emptyObject = {};
+const emptySet = new Set<number>();
+
 export function Workflow({
   steps: _steps,
   activeStep,
   setActiveStep,
   nonLinear = false,
-  stepperProps = {},
-  completedSteps = new Set<number>(),
+  stepperProps = emptyObject,
+  completedSteps = emptySet,
   children,
 }: WorkflowProps) {
   const steps = _steps.map((step) =>
