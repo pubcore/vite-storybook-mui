@@ -23,9 +23,11 @@ export function JsonSchemaForm<T = any>(props: FormProps<T>) {
     [t]
   );
 
+  const { fields: propsFields, ...rest } = props;
+
   const fields = useMemo(
-    () => ({ ...defaultFields, ...props.fields }),
-    [props.fields]
+    () => ({ ...defaultFields, ...propsFields }),
+    [propsFields]
   );
 
   return (
@@ -38,7 +40,7 @@ export function JsonSchemaForm<T = any>(props: FormProps<T>) {
         showErrorList: false,
         ArrayFieldTemplate,
         fields,
-        ...props,
+        ...rest,
       }}
     />
   );
