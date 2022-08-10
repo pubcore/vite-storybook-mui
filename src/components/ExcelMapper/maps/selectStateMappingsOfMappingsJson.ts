@@ -10,6 +10,7 @@ import { selectTargetById, Targets } from "../target";
 interface S {
   workbook: WorkBook;
   targetColumns: Targets;
+  keyIds: string[];
   [_: string]: unknown;
 }
 
@@ -22,7 +23,8 @@ export const selectStateMappingsOfMappingsJson: (
   (_: S, mappings: MappingsJson["mappings"]) => mappings,
   (s: S) => s.workbook,
   (s: S) => s.targetColumns,
-  (mappings, workbook, targetColumns) => {
+  (s: S) => s.keyIds,
+  (mappings, workbook, targetColumns, keyIds) => {
     const sourceColumns = selectColumns(workbook);
     const foundColumnsByQueryName = new Map<string, Columns>();
     const foundColumnsByTargetId = new Map<string, Columns>();
@@ -88,6 +90,7 @@ export const selectStateMappingsOfMappingsJson: (
         const noColumnsForThisGroup = !columnsFoundByGroupId.get(groupId);
         foundColumnsByTargetId.get(id) ||
           noColumnsForThisGroup ||
+          keyIds.indexOf(id) > 0 || //secondary keys are optional
           result[1].push({ id: "COLUMN_NOT_FOUND", payload: target });
       });
     }

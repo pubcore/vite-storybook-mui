@@ -16,7 +16,7 @@ export const selectTargetRows: (s: S) => TargetRow[] = createSelector(
       []
     );
     const stateMappings = selectStateMappingsOfMappingsJson(
-      { workbook, targetColumns },
+      { workbook, targetColumns, keyIds: mappings.keyIds },
       mappings.mappings
     )[0];
     const sourceKeyColumns = mappings.keyIds.reduce<SourceKeyColumns>(

@@ -3,9 +3,11 @@ import mappings from "../../../test/testMapping.json";
 import {
   fileName2,
   fileName3,
+  fileName5,
   workbook,
   workbook2,
   workbook3,
+  workbook5,
 } from "../../../test/testWorkbook";
 import { ExcelMapperProps } from ".";
 import { action } from "@storybook/addon-actions";
@@ -79,10 +81,19 @@ export const Default = (args: Args) => (
         saveTargetTable,
         workbook: workbook3,
         workbookFileName: fileName3,
-        mappings: {
-          ...mappings,
-          mappings: [],
-        },
+        mappings: { ...mappings, mappings: [] },
+      }}
+    />
+  ),
+  //only the first keyId is required for all pages, secondary keyIds must not exist
+  RunWithOptionalKeyColumns = (args: Args) => (
+    <ExcelMapper
+      {...{
+        ...args,
+        saveTargetTable,
+        workbook: workbook5,
+        workbookFileName: fileName5,
+        mappings: { ...mappings, mappings: [] },
       }}
     />
   );

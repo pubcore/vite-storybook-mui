@@ -93,6 +93,7 @@ export function MappingRunner(props: MappingRunnerProps) {
         {
           workbook,
           targetColumns,
+          keyIds: mappings.keyIds,
         },
         mappings.mappings
       )

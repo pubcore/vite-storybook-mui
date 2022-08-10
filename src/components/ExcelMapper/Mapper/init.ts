@@ -14,6 +14,7 @@ export function init({
         {
           workbook: source.workbook,
           targetColumns,
+          keyIds,
         },
         mappings
       )) ??
