@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Accept, useDropzone } from "react-dropzone";
 import { CircularProgress, SxProps } from "@mui/material";
 import { useTheme, Box } from "@mui/material";
-import { ReactNode, useCallback, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 
 export interface FileUploadProps {
   handleFile(arg: { formData: FormData }): Promise<void>;
@@ -28,36 +28,33 @@ export default function FileUpload({
   const { t } = useTranslation();
   const theme = useTheme();
   const [progress, setProgress] = useState(0);
-  const getFilesFromEvent = useCallback(
-    async (e) => {
+
+  const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
+    maxFiles: 1,
+    accept,
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+    const processFile = async (files: typeof acceptedFiles) => {
       try {
         setProgress(1);
-        if (!["drop", "change"].includes(e.type)) {
-          return [];
-        }
-        const files = e.dataTransfer ? e.dataTransfer.files : e.target.files;
-        if (!files) {
-          return [];
-        }
         const formData = new FormData();
-        formData.append("file", files[0]);
-        //reset the input field
-        e.target.value = null;
-
+        formData.append("file", files[0]!);
         await handleFile({ formData });
         return [];
       } finally {
-        setProgress(0);
+        isMounted && setProgress(0);
       }
-    },
-    [handleFile]
-  );
+    };
+    if (acceptedFiles.length > 0) {
+      processFile(acceptedFiles);
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [acceptedFiles, handleFile]);
 
-  const { getRootProps, getInputProps } = useDropzone({
-    maxFiles: 1,
-    getFilesFromEvent,
-    accept,
-  });
   return (
     <Box
       sx={{
