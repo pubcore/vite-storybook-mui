@@ -1,10 +1,5 @@
 import { Field, FieldProps, ObjectFieldTemplateProps, utils } from "@rjsf/core";
-import {
-  FunctionComponent,
-  JSXElementConstructor,
-  ReactElement,
-  ReactNode,
-} from "react";
+import { FunctionComponent, JSXElementConstructor, ReactElement } from "react";
 import { ObjectFieldTemplate } from "../ObjectFieldTemplate";
 import { noop } from "lodash-es";
 
@@ -30,9 +25,7 @@ export function HigherOrderField(props: FieldProps<Claim>) {
     name,
     schema,
     uiSchema,
-    formContext,
     formData,
-    id,
     errorSchema,
     registry,
     wasPropertyKeyModified,
@@ -49,8 +42,6 @@ export function HigherOrderField(props: FieldProps<Claim>) {
     props.schema.description ||
     schema.description;
   const errors = errorSchema.__errors;
-  const help = uiSchema["ui:help"];
-  const hidden = uiSchema["ui:widget"] === "hidden";
 
   const uiSchemaHideError = uiSchema["ui:hideError"];
   // Set hideError to the value provided in the uiSchema, otherwise stick with the prop to propagate to children
@@ -66,12 +57,6 @@ export function HigherOrderField(props: FieldProps<Claim>) {
     label = uiSchema["ui:title"] || props.schema.title || schema.title || name;
   }
 
-  const displayLabel = utils.getDisplayLabel(
-    schema,
-    uiSchema,
-    registry.rootSchema
-  );
-
   const disabled = Boolean(props.disabled || uiSchema["ui:disabled"]);
 
   const readonly = Boolean(
@@ -86,9 +71,7 @@ export function HigherOrderField(props: FieldProps<Claim>) {
     classes.push("field-error has-error has-danger");
   }
   classes.push(uiSchema.classNames);
-  const classNames = classes.join(" ").trim();
 
-  const CustomMultiSelect = registry.fields.CustomMultiSelect!;
   const SchemaField = registry.fields.SchemaField! as unknown as Field;
   const DescriptionField = registry.fields
     .DescriptionField! as unknown as FunctionComponent<{
@@ -120,7 +103,6 @@ export function HigherOrderField(props: FieldProps<Claim>) {
       "ui:label": false,
     };
   }
-  // TODO: evidence
 
   const templateProps: ObjectFieldTemplateProps = {
     ...props,
@@ -128,7 +110,7 @@ export function HigherOrderField(props: FieldProps<Claim>) {
     description,
     DescriptionField,
     TitleField,
-    onAddClick: () => () => void 0,
+    onAddClick: () => () => {},
     // rawDescription: description,
     // help: <Help id={id + "__help"} help={help} />,
     // rawHelp: typeof help === "string" ? help : "",
@@ -197,45 +179,3 @@ export function HigherOrderField(props: FieldProps<Claim>) {
     <ObjectFieldTemplate {...(templateProps as ObjectFieldTemplateProps)} />
   );
 }
-
-function Help(props: { id?: string; help: ReactNode | null }) {
-  const { id, help } = props;
-  if (!help) {
-    return null;
-  }
-  if (typeof help === "string") {
-    return (
-      <p id={id} className="help-block">
-        {help}
-      </p>
-    );
-  }
-  return (
-    <div id={id} className="help-block">
-      {help}
-    </div>
-  );
-}
-
-// function ErrorList(props: { errors: { error: ReactNode }[] }) {
-//   const { errors = [] } = props;
-//   if (errors.length === 0) {
-//     return null;
-//   }
-
-//   return (
-//     <div>
-//       <ul className="error-detail bs-callout bs-callout-info">
-//         {errors
-//           .filter((elem) => !!elem)
-//           .map((error, index) => {
-//             return (
-//               <li className="text-danger" key={index}>
-//                 {error}
-//               </li>
-//             );
-//           })}
-//       </ul>
-//     </div>
-//   );
-// }
