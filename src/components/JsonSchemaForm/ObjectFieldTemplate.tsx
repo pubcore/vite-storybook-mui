@@ -8,7 +8,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { ObjectFieldTemplateProps } from "@rjsf/core";
+import { ObjectFieldTemplateProps, UiSchema } from "@rjsf/core";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { A, ActionButton, JSONSchema7 } from "..";
@@ -27,6 +27,9 @@ export function ObjectFieldTemplate({
   const { breakpoints } = useTheme();
   const isMobile = !useMediaQuery(breakpoints.up("sm"));
   const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
+
+  const uiOpts: UiSchema = uiSchema?.["ui:options"] ?? {};
+  const fieldStyle = uiOpts?.fieldStyle ?? "horizontal";
 
   let headers = [];
   if (uiSchema["ui:title"] || title) {
@@ -54,27 +57,53 @@ export function ObjectFieldTemplate({
     ? (schema?.properties?.[nameProperty.name] as JSONSchema7).description
     : null;
 
+  const helpButton = (
+    <Grid item xs={1} sx={{ textAlign: "center" }}>
+      {helpUri ? (
+        isMobile ? (
+          <A href={helpUri}>
+            <HelpOutline />
+          </A>
+        ) : (
+          <IconButton onClick={() => setIsHelpDialogOpen(true)}>
+            <HelpOutline />
+          </IconButton>
+        )
+      ) : null}
+    </Grid>
+  );
+
   return headers.length ? (
     <>
-      <Grid container>
-        <Grid item xs={11} sm={5}>
-          {headers}
-        </Grid>
-        <Grid item xs={1} sx={{ textAlign: "center" }}>
-          {helpUri ? (
-            isMobile ? (
-              <A href={helpUri}>
-                <HelpOutline />
-              </A>
-            ) : (
-              <IconButton onClick={() => setIsHelpDialogOpen(true)}>
-                <HelpOutline />
-              </IconButton>
-            )
-          ) : null}
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          {elements}
+      <Grid
+        container
+        className={`objectfieldtemplate-${fieldStyle}`}
+        sx={{
+          whiteSpace: fieldStyle === "vertical" ? "initial" : "nowrap",
+        }}
+        direction={fieldStyle === "vertical" ? "column" : "row"}
+      >
+        <Grid
+          container
+          direction="row"
+          sx={{ flexWrap: fieldStyle === "vertical" ? "wrap" : "nowrap" }}
+        >
+          <Grid
+            item
+            xs={fieldStyle === "vertical" ? 11 : 5}
+            sm={fieldStyle === "vertical" ? 11 : 5}
+            sx={{ whiteSpace: "normal" }}
+          >
+            {headers}
+          </Grid>
+          {helpButton}
+          <Grid
+            item
+            xs={fieldStyle === "vertical" ? 12 : 6}
+            sm={fieldStyle === "vertical" ? 12 : 6}
+          >
+            {elements}
+          </Grid>
         </Grid>
       </Grid>
       {isHelpDialogOpen && helpUri && (
