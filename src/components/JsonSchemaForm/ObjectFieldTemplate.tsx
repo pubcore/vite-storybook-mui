@@ -5,9 +5,11 @@ import {
   DialogContent,
   Grid,
   IconButton,
+  Paper,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import { Box } from "@mui/system";
 import { ObjectFieldTemplateProps, UiSchema } from "@rjsf/core";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -30,6 +32,7 @@ export function ObjectFieldTemplate({
 
   const uiOpts: UiSchema = uiSchema?.["ui:options"] ?? {};
   const fieldStyle = uiOpts?.fieldStyle ?? "horizontal";
+  const paperElevation = uiOpts?.paperElevation as number | undefined;
 
   let headers = [];
   if (uiSchema["ui:title"] || title) {
@@ -44,11 +47,13 @@ export function ObjectFieldTemplate({
   }
   if (description) {
     headers.push(
-      <DescriptionField
-        id={`${idSchema.$id}-description`}
-        description={description}
-        key={description}
-      />
+      <Box sx={{ marginBottom: fieldStyle === "vertical" ? 2 : 0 }}>
+        <DescriptionField
+          id={`${idSchema.$id}-description`}
+          description={description}
+          key={description}
+        />
+      </Box>
     );
   }
   const elements = properties.map((element) => element.content);
@@ -73,48 +78,58 @@ export function ObjectFieldTemplate({
     </Grid>
   );
 
-  return headers.length ? (
-    <>
+  const content = (
+    <Grid
+      container
+      className={`objectfieldtemplate-${fieldStyle}`}
+      sx={{
+        whiteSpace: fieldStyle === "vertical" ? "initial" : "nowrap",
+      }}
+      direction={fieldStyle === "vertical" ? "column" : "row"}
+    >
       <Grid
         container
-        className={`objectfieldtemplate-${fieldStyle}`}
-        sx={{
-          whiteSpace: fieldStyle === "vertical" ? "initial" : "nowrap",
-        }}
-        direction={fieldStyle === "vertical" ? "column" : "row"}
+        direction="row"
+        sx={{ flexWrap: fieldStyle === "vertical" ? "wrap" : "nowrap" }}
       >
         <Grid
-          container
-          direction="row"
-          sx={{ flexWrap: fieldStyle === "vertical" ? "wrap" : "nowrap" }}
+          item
+          xs={fieldStyle === "vertical" ? 11 : 5}
+          sm={fieldStyle === "vertical" ? 11 : 5}
+          sx={{ whiteSpace: "normal" }}
         >
-          <Grid
-            item
-            xs={fieldStyle === "vertical" ? 11 : 5}
-            sm={fieldStyle === "vertical" ? 11 : 5}
-            sx={{ whiteSpace: "normal" }}
-          >
-            {headers}
-          </Grid>
-          {helpButton}
-          <Grid
-            item
-            xs={fieldStyle === "vertical" ? 12 : 6}
-            sm={fieldStyle === "vertical" ? 12 : 6}
-          >
-            {elements}
-          </Grid>
+          {headers}
+        </Grid>
+        {helpButton}
+        <Grid
+          item
+          xs={fieldStyle === "vertical" ? 12 : 6}
+          sm={fieldStyle === "vertical" ? 12 : 6}
+        >
+          {elements}
         </Grid>
       </Grid>
-      {isHelpDialogOpen && helpUri && (
-        <HelpDialog
-          close={() => {
-            setIsHelpDialogOpen(false);
-          }}
-          pdfUri={helpUri}
-        />
-      )}
-    </>
+    </Grid>
+  );
+  {
+    isHelpDialogOpen && helpUri && (
+      <HelpDialog
+        close={() => {
+          setIsHelpDialogOpen(false);
+        }}
+        pdfUri={helpUri}
+      />
+    );
+  }
+
+  return headers.length ? (
+    paperElevation ? (
+      <Paper elevation={paperElevation} sx={{ padding: 3 }}>
+        {content}
+      </Paper>
+    ) : (
+      <>{content}</>
+    )
   ) : (
     <>{elements}</>
   );
