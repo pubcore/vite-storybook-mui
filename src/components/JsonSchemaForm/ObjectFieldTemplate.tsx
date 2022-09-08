@@ -84,30 +84,25 @@ export function ObjectFieldTemplate({
       className={`objectfieldtemplate-${fieldStyle}`}
       sx={{
         whiteSpace: fieldStyle === "vertical" ? "initial" : "nowrap",
+        flexWrap: fieldStyle === "vertical" ? "wrap" : "nowrap",
       }}
       direction={fieldStyle === "vertical" ? "column" : "row"}
     >
       <Grid
-        container
-        direction="row"
-        sx={{ flexWrap: fieldStyle === "vertical" ? "wrap" : "nowrap" }}
+        item
+        xs={fieldStyle === "vertical" ? 11 : 5}
+        sm={fieldStyle === "vertical" ? 11 : 5}
+        sx={{ whiteSpace: "normal" }}
       >
-        <Grid
-          item
-          xs={fieldStyle === "vertical" ? 11 : 5}
-          sm={fieldStyle === "vertical" ? 11 : 5}
-          sx={{ whiteSpace: "normal" }}
-        >
-          {headers}
-        </Grid>
-        {helpButton}
-        <Grid
-          item
-          xs={fieldStyle === "vertical" ? 12 : 6}
-          sm={fieldStyle === "vertical" ? 12 : 6}
-        >
-          {elements}
-        </Grid>
+        {headers}
+      </Grid>
+      {helpButton}
+      <Grid
+        item
+        xs={fieldStyle === "vertical" ? 12 : 6}
+        sm={fieldStyle === "vertical" ? 12 : 6}
+      >
+        {elements}
       </Grid>
     </Grid>
   );
