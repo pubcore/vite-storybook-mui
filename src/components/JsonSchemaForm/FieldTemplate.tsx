@@ -19,8 +19,6 @@ export function FieldTemplate({
   rawDescription,
   ...props
 }: FieldTemplateProps) {
-  //count underscore in id string to detect nesting level ...
-  const nestingLevel = (id.match(/_/g) || []).length;
   return hidden ? (
     <></>
   ) : ["string", "number", "boolean"].includes(String(props.schema.type)) ? (
@@ -51,8 +49,8 @@ export function FieldTemplate({
       </FormControl>
     </>
   ) : String(props.schema.type) === "array" &&
-    nestingLevel > 1 &&
-    nestingLevel < 4 ? (
+    //count underscore in id string to detect nesting level ...
+    (id.match(/_/g) || []).length > 1 ? (
     <Paper elevation={3} sx={{ padding: 3 }}>
       {children}
     </Paper>

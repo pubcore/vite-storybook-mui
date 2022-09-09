@@ -5,12 +5,10 @@ import {
   DialogContent,
   Grid,
   IconButton,
-  Paper,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { Box } from "@mui/system";
-import { ObjectFieldTemplateProps, UiSchema } from "@rjsf/core";
+import { ObjectFieldTemplateProps } from "@rjsf/core";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { A, ActionButton, JSONSchema7 } from "..";
@@ -30,10 +28,6 @@ export function ObjectFieldTemplate({
   const isMobile = !useMediaQuery(breakpoints.up("sm"));
   const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
 
-  const uiOpts: UiSchema = uiSchema?.["ui:options"] ?? {};
-  const fieldStyle = uiOpts?.fieldStyle ?? "horizontal";
-  const paperElevation = uiOpts?.paperElevation as number | undefined;
-
   let headers = [];
   if (uiSchema["ui:title"] || title) {
     headers.push(
@@ -47,13 +41,11 @@ export function ObjectFieldTemplate({
   }
   if (description) {
     headers.push(
-      <Box sx={{ marginBottom: fieldStyle === "vertical" ? 2 : 0 }}>
-        <DescriptionField
-          id={`${idSchema.$id}-description`}
-          description={description}
-          key={description}
-        />
-      </Box>
+      <DescriptionField
+        id={`${idSchema.$id}-description`}
+        description={description}
+        key={description}
+      />
     );
   }
   const elements = properties.map((element) => element.content);
@@ -62,69 +54,38 @@ export function ObjectFieldTemplate({
     ? (schema?.properties?.[nameProperty.name] as JSONSchema7).description
     : null;
 
-  const helpButton = (
-    <Grid item xs={1} sx={{ textAlign: "center" }}>
-      {helpUri ? (
-        isMobile ? (
-          <A href={helpUri}>
-            <HelpOutline />
-          </A>
-        ) : (
-          <IconButton onClick={() => setIsHelpDialogOpen(true)}>
-            <HelpOutline />
-          </IconButton>
-        )
-      ) : null}
-    </Grid>
-  );
-
-  const content = (
-    <Grid
-      container
-      className={`objectfieldtemplate-${fieldStyle}`}
-      sx={{
-        whiteSpace: fieldStyle === "vertical" ? "initial" : "nowrap",
-        flexWrap: fieldStyle === "vertical" ? "wrap" : "nowrap",
-      }}
-      direction={fieldStyle === "vertical" ? "column" : "row"}
-    >
-      <Grid
-        item
-        xs={fieldStyle === "vertical" ? 11 : 5}
-        sm={fieldStyle === "vertical" ? 11 : 5}
-        sx={{ whiteSpace: "normal" }}
-      >
-        {headers}
-      </Grid>
-      {helpButton}
-      <Grid
-        item
-        xs={fieldStyle === "vertical" ? 12 : 6}
-        sm={fieldStyle === "vertical" ? 12 : 6}
-      >
-        {elements}
-      </Grid>
-    </Grid>
-  );
-  {
-    isHelpDialogOpen && helpUri && (
-      <HelpDialog
-        close={() => {
-          setIsHelpDialogOpen(false);
-        }}
-        pdfUri={helpUri}
-      />
-    );
-  }
-
   return headers.length ? (
-    paperElevation ? (
-      <Paper elevation={paperElevation} sx={{ padding: 3 }}>
-        {content}
-      </Paper>
-    ) : (
-      <>{content}</>
-    )
+    <>
+      <Grid container>
+        <Grid item xs={11} sm={5}>
+          {headers}
+        </Grid>
+        <Grid item xs={1} sx={{ textAlign: "center" }}>
+          {helpUri ? (
+            isMobile ? (
+              <A href={helpUri}>
+                <HelpOutline />
+              </A>
+            ) : (
+              <IconButton onClick={() => setIsHelpDialogOpen(true)}>
+                <HelpOutline />
+              </IconButton>
+            )
+          ) : null}
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          {elements}
+        </Grid>
+      </Grid>
+      {isHelpDialogOpen && helpUri && (
+        <HelpDialog
+          close={() => {
+            setIsHelpDialogOpen(false);
+          }}
+          pdfUri={helpUri}
+        />
+      )}
+    </>
   ) : (
     <>{elements}</>
   );
