@@ -23,12 +23,14 @@ export const OnlyImages = (args: Args) => (
   <FileUpload
     {...{
       ...args,
-      accept: {
-        "image/png": [".png"],
-        "image/jpeg": [".jpg", ".jpeg"],
-        "image/gif": [".gif"],
-        "image/svg+xml": [".svg"],
-        "image/tiff": [".tif", ".tiff"],
+      dropzoneOptions: {
+        accept: {
+          "image/png": [".png"],
+          "image/jpeg": [".jpg", ".jpeg"],
+          "image/gif": [".gif"],
+          "image/svg+xml": [".svg"],
+          "image/tiff": [".tif", ".tiff"],
+        },
       },
     }}
   >
