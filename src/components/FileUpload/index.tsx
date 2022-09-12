@@ -1,14 +1,15 @@
 import { useTranslation } from "react-i18next";
-import { Accept, useDropzone } from "react-dropzone";
+import { Accept, DropzoneOptions, useDropzone } from "react-dropzone";
 import { CircularProgress, SxProps } from "@mui/material";
 import { useTheme, Box } from "@mui/material";
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 export interface FileUploadProps {
-  handleFile(arg: { formData: FormData }): Promise<void>;
+  handleFile?: (arg: { formData: FormData }) => Promise<void>;
+  handleFiles?: (arg: { files: File[] }) => Promise<void>;
   children?: ReactNode;
-  accept?: Accept;
   containerSxOverride?: SxProps;
+  dropzoneOptions?: DropzoneOptions;
 }
 
 export const acceptExcel: Accept = {
@@ -21,8 +22,9 @@ export const acceptExcel: Accept = {
 
 export default function FileUpload({
   handleFile,
+  handleFiles,
   children,
-  accept,
+  dropzoneOptions = {},
   containerSxOverride = {},
 }: FileUploadProps) {
   const { t } = useTranslation();
@@ -30,8 +32,8 @@ export default function FileUpload({
   const [progress, setProgress] = useState(0);
 
   const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
-    maxFiles: 1,
-    accept,
+    maxFiles: handleFiles ? undefined : 1,
+    ...dropzoneOptions,
   });
 
   useEffect(() => {
@@ -39,10 +41,14 @@ export default function FileUpload({
     const processFile = async (files: typeof acceptedFiles) => {
       try {
         setProgress(1);
-        const formData = new FormData();
-        formData.append("file", files[0]!);
-        await handleFile({ formData });
+        if (handleFile) {
+          const formData = new FormData();
+          formData.append("file", files[0]!);
+          await handleFile({ formData });
+        } else if (handleFiles) await handleFiles({ files });
         return [];
+      } catch (err) {
+        console.error(err);
       } finally {
         isMounted && setProgress(0);
       }
@@ -53,7 +59,7 @@ export default function FileUpload({
     return () => {
       isMounted = false;
     };
-  }, [acceptedFiles, handleFile]);
+  }, [acceptedFiles, handleFile, handleFiles]);
 
   return (
     <Box
@@ -84,7 +90,9 @@ export default function FileUpload({
           thickness={6}
         />
       ) : (
-        children ?? t("file_upload_dropzone")
+        <Box sx={{ userSelect: "none" }}>
+          {children ?? t("file_upload_dropzone")}
+        </Box>
       )}
     </Box>
   );
