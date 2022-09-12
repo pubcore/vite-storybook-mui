@@ -32,7 +32,8 @@ export default function FileUpload({
   const [progress, setProgress] = useState(0);
 
   const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
-    maxFiles: handleFiles ? undefined : 1,
+    maxFiles: handleFile ? 1 : undefined,
+    accept: acceptExcel,
     ...dropzoneOptions,
   });
 
