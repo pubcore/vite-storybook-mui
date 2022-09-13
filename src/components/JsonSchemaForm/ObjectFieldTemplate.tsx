@@ -1,6 +1,5 @@
 import { HelpOutline } from "@mui/icons-material";
 import {
-  Box,
   Dialog,
   DialogActions,
   DialogContent,
@@ -10,7 +9,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { ObjectFieldTemplateProps } from "@rjsf/core";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { A, ActionButton, JSONSchema7 } from "..";
 
