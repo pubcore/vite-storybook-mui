@@ -10,7 +10,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { ObjectFieldTemplateProps } from "@rjsf/core";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { A, ActionButton, JSONSchema7 } from "..";
 
@@ -59,9 +59,7 @@ export function ObjectFieldTemplate({
     <>
       <Grid container>
         <Grid item xs={11} sm={5}>
-          {headers.map((h, i) => (
-            <Box key={`${idSchema.$id}-${i}`}>{h}</Box>
-          ))}
+          {headers}
         </Grid>
         <Grid item xs={1} sx={{ textAlign: "center" }}>
           {helpUri ? (
