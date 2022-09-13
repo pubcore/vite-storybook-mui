@@ -38,7 +38,7 @@ export function FieldTemplate({
           <List sx={{ marginTop: -1 }} dense={true} disablePadding={true}>
             {rawErrors.map((error, i: number) => {
               return (
-                <ListItem key={i} disableGutters={true}>
+                <ListItem key={`error-${id}-${i}`} disableGutters={true}>
                   <FormHelperText id={id}>{error}</FormHelperText>
                 </ListItem>
               );
