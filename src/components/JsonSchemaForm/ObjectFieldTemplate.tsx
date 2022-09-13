@@ -1,5 +1,6 @@
 import { HelpOutline } from "@mui/icons-material";
 import {
+  Box,
   Dialog,
   DialogActions,
   DialogContent,
@@ -58,7 +59,9 @@ export function ObjectFieldTemplate({
     <>
       <Grid container>
         <Grid item xs={11} sm={5}>
-          {headers}
+          {headers.map((h, i) => (
+            <Box key={`${idSchema.$id}-${i}`}>{h}</Box>
+          ))}
         </Grid>
         <Grid item xs={1} sx={{ textAlign: "center" }}>
           {helpUri ? (
