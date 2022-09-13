@@ -35,7 +35,7 @@ export function ObjectFieldTemplate({
         id={`${idSchema.$id}-title`}
         title={title}
         required={required}
-        key={title}
+        key={`${idSchema.$id}-title-${title}`}
       />
     );
   }
@@ -44,7 +44,7 @@ export function ObjectFieldTemplate({
       <DescriptionField
         id={`${idSchema.$id}-description`}
         description={description}
-        key={description}
+        key={`${idSchema.$id}-description-${description}`}
       />
     );
   }
