@@ -138,13 +138,13 @@ export function MappingRunner(props: MappingRunnerProps) {
                 <ObjectTable
                   {...{
                     o: {
-                      totalCountOfRequiredColumns: targetColumns.length,
+                      totalCountOfTargetColumns: targetColumns.length,
                       totalCountOfMappedColumns: Object.keys(rows[0] ?? {})
                         .length,
                       totalCountOfRows: rows.length,
                     },
                     attributes: [
-                      "totalCountOfRequiredColumns",
+                      "totalCountOfTargetColumns",
                       "totalCountOfMappedColumns",
                       "totalCountOfRows",
                     ],
