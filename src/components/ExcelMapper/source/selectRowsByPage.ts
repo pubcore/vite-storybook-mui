@@ -17,6 +17,7 @@ export const selectRowsByPage: (s: S) => RowsByPage = createSelector(
           utils.sheet_to_json<string[]>(workbook.Sheets[page.name]!, {
             header: 1,
             raw: false,
+            defval: "",
           })
         ),
       new Map()

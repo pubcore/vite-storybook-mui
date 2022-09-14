@@ -56,7 +56,6 @@ export const selectIdMaps: (s: S) => [idm: IdMaps, f?: Findings] =
           addRowToIdTree(idTree, rowIndex, row, pageSourceKeyColumns);
         }
       }
-
       return [{ ids: idTree }, findings.length ? findings : undefined];
     }
   );
@@ -76,11 +75,11 @@ export function addRowToIdTree(
   }
 
   const id = row[idColumn?.index ?? -1];
-  if (depth === 0 && !id) {
+  if (depth === 0 && id === undefined) {
     return;
   }
 
-  const subTree = id ? idTree.get(id) : idTree;
+  const subTree = id !== undefined ? idTree.get(id) : idTree;
 
   if (!subTree) {
     if (depth + 1 < sourceKeyColumns.length) {
