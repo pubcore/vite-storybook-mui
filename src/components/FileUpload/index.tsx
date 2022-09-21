@@ -91,7 +91,7 @@ export default function FileUpload({
       }}
       {...getRootProps()}
     >
-      <input className="bnmarl-drop" {...getInputProps()} />
+      <input {...{ ...getInputProps(), "data-test-name": "bnmarl-drop" }} />
       {progress ? (
         <CircularProgress
           size={theme.spacing(3)}
