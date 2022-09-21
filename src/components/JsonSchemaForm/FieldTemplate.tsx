@@ -48,12 +48,6 @@ export function FieldTemplate({
         {rawHelp && <FormHelperText id={id}>{rawHelp}</FormHelperText>}
       </FormControl>
     </>
-  ) : String(props.schema.type) === "array" &&
-    //count underscore in id string to detect nesting level ...
-    (id.match(/_/g) || []).length > 1 ? (
-    <Paper elevation={3} sx={{ padding: 3 }}>
-      {children}
-    </Paper>
   ) : (
     <>{children}</>
   );
