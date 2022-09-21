@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Accept, DropzoneOptions, useDropzone } from "react-dropzone";
 import { CircularProgress, SxProps } from "@mui/material";
 import { useTheme, Box } from "@mui/material";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 export interface FileUploadProps {
   handleFile?: (arg: { formData: FormData }) => Promise<void>;
@@ -20,12 +20,15 @@ export const acceptExcel: Accept = {
   "application/vnd.ms-excel": [".xls"],
 };
 
+const emptyObject = {};
+const emptyHandlerRef: Pick<FileUploadProps, "handleFile" | "handleFiles"> = {};
+
 export default function FileUpload({
   handleFile,
   handleFiles,
   children,
-  dropzoneOptions = {},
-  containerSxOverride = {},
+  dropzoneOptions = emptyObject,
+  containerSxOverride = emptyObject,
 }: FileUploadProps) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -37,16 +40,28 @@ export default function FileUpload({
     ...dropzoneOptions,
   });
 
+  const getRefHandlers = useCallback(
+    () => ({
+      handleFile,
+      handleFiles,
+    }),
+    [handleFile, handleFiles]
+  );
+
+  const handlers = useRef(emptyHandlerRef);
+  handlers.current = getRefHandlers();
+
   useEffect(() => {
     let isMounted = true;
     const processFile = async (files: typeof acceptedFiles) => {
       try {
         setProgress(1);
-        if (handleFile) {
+        if (handlers.current.handleFile) {
           const formData = new FormData();
           formData.append("file", files[0]!);
-          await handleFile({ formData });
-        } else if (handleFiles) await handleFiles({ files });
+          await handlers.current.handleFile({ formData });
+        } else if (handlers.current.handleFiles)
+          await handlers.current.handleFiles({ files });
         return [];
       } catch (err) {
         console.error(err);
@@ -60,7 +75,7 @@ export default function FileUpload({
     return () => {
       isMounted = false;
     };
-  }, [acceptedFiles, handleFile, handleFiles]);
+  }, [acceptedFiles, handlers]);
 
   return (
     <Box
@@ -83,7 +98,7 @@ export default function FileUpload({
       }}
       {...getRootProps()}
     >
-      <input id="bnmarl-drop" {...getInputProps()} />
+      <input className="bnmarl-drop" {...getInputProps()} />
       {progress ? (
         <CircularProgress
           size={theme.spacing(3)}
