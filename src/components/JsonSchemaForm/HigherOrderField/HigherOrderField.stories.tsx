@@ -2,10 +2,10 @@ import { ISubmitEvent, UiSchema } from "@rjsf/core";
 import type { JSONSchema7 } from "json-schema";
 import { HigherOrderField as HOField } from ".";
 import { JsonSchemaForm } from "..";
-import { MultiSelectField } from "../fields/MultiSelectField";
+import { MultiSelectField } from "../fields";
 
 export default {
-  title: "JSON Schema Form/Higher Order Field",
+  title: "JSON Schema Form/Fields/Higher Order Field",
 };
 
 const onSubmit = ({ formData }: ISubmitEvent<Record<string, unknown>>) =>

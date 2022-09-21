@@ -36,9 +36,9 @@ export function JsonSchemaForm<T = any>(props: FormProps<T>) {
         idPrefix: "rjsf",
         transformErrors,
         FieldTemplate,
+        ArrayFieldTemplate,
         ObjectFieldTemplate,
         showErrorList: false,
-        ArrayFieldTemplate,
         fields,
         ...rest,
       }}
