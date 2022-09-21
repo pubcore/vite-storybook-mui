@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Accept, DropzoneOptions, useDropzone } from "react-dropzone";
 import { CircularProgress, SxProps } from "@mui/material";
 import { useTheme, Box } from "@mui/material";
-import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 
 export interface FileUploadProps {
   handleFile?: (arg: { formData: FormData }) => Promise<void>;
@@ -21,11 +21,10 @@ export const acceptExcel: Accept = {
 };
 
 const emptyObject = {};
-const emptyHandlerRef: Pick<FileUploadProps, "handleFile" | "handleFiles"> = {};
 
 export default function FileUpload({
-  handleFile,
-  handleFiles,
+  handleFile: handleFileProp,
+  handleFiles: handleFilesProp,
   children,
   dropzoneOptions = emptyObject,
   containerSxOverride = emptyObject,
@@ -35,33 +34,27 @@ export default function FileUpload({
   const [progress, setProgress] = useState(0);
 
   const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
-    maxFiles: handleFile ? 1 : undefined,
+    maxFiles: handleFileProp ? 1 : undefined,
     accept: acceptExcel,
     ...dropzoneOptions,
   });
 
-  const getRefHandlers = useCallback(
-    () => ({
-      handleFile,
-      handleFiles,
-    }),
-    [handleFile, handleFiles]
-  );
+  const handleFile = useRef(handleFileProp);
+  handleFile.current = handleFileProp;
 
-  const handlers = useRef(emptyHandlerRef);
-  handlers.current = getRefHandlers();
+  const handleFiles = useRef(handleFilesProp);
+  handleFiles.current = handleFilesProp;
 
   useEffect(() => {
     let isMounted = true;
     const processFile = async (files: typeof acceptedFiles) => {
       try {
         setProgress(1);
-        if (handlers.current.handleFile) {
+        if (handleFile.current) {
           const formData = new FormData();
           formData.append("file", files[0]!);
-          await handlers.current.handleFile({ formData });
-        } else if (handlers.current.handleFiles)
-          await handlers.current.handleFiles({ files });
+          await handleFile.current({ formData });
+        } else if (handleFiles.current) await handleFiles.current({ files });
         return [];
       } catch (err) {
         console.error(err);
@@ -75,7 +68,7 @@ export default function FileUpload({
     return () => {
       isMounted = false;
     };
-  }, [acceptedFiles, handlers]);
+  }, [acceptedFiles]);
 
   return (
     <Box
