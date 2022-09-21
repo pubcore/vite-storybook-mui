@@ -7,7 +7,7 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import { FieldProps } from "@rjsf/core";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { CustomItemsSection } from "./CustomItemsSection";
 
 type FormData = {

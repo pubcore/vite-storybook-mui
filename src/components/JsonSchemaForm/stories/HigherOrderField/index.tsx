@@ -1,7 +1,7 @@
 import { Field, FieldProps, ObjectFieldTemplateProps, utils } from "@rjsf/core";
 import { FunctionComponent, JSXElementConstructor, ReactElement } from "react";
-import { ObjectFieldTemplate } from "../ObjectFieldTemplate";
 import { noop } from "lodash-es";
+import { ObjectFieldTemplate } from "../../ObjectFieldTemplate";
 
 type Claim = {
   [key: string]:

@@ -4,7 +4,7 @@ import { CustomItemsSection } from "./CustomItemsSection";
 import { CustomItem as CustomItm } from "./CustomItem";
 
 export default {
-  title: "JSON Schema Form/Custom Items",
+  title: "JSON Schema Form/Fields/MultiSelect Custom Items",
 };
 
 export const NoValues = () => {
