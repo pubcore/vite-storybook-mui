@@ -48,6 +48,8 @@ export function MultiSelectField(props: FieldProps) {
     return predefined.concat(custom).join(", ");
   }, [predefined, custom]);
 
+  const renderedItems = renderItems();
+
   return (
     <Select
       multiple
@@ -61,6 +63,7 @@ export function MultiSelectField(props: FieldProps) {
         required ? !Boolean(predefined.length > 0 || custom.length) : false
       }
       autoComplete="off"
+      title={renderedItems}
     >
       {predefItems.map((itm) => {
         return (
