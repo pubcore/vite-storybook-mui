@@ -1,4 +1,4 @@
-import React, { useState, SyntheticEvent } from "react";
+import { useState, SyntheticEvent } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -31,6 +31,12 @@ export interface LoginProps {
   login: (values: FormValues) => Promise<{ textkey: string; severity: string }>;
   registerUri: string;
 }
+
+const removeAutofillBgProps = {
+  style: {
+    WebkitBoxShadow: "0 0 0 1000px rgba(0,0,0,0) inset",
+  },
+};
 
 export default function Login({ login, registerUri }: LoginProps) {
   const { t } = useTranslation();
@@ -78,6 +84,7 @@ export default function Login({ login, registerUri }: LoginProps) {
           autoComplete: "username",
           error: Boolean(errors?.username),
           helperText: errors?.username?.message || " ",
+          inputProps: removeAutofillBgProps,
         }}
       />
       <FormControl
@@ -106,6 +113,7 @@ export default function Login({ login, registerUri }: LoginProps) {
               </InputAdornment>
             ),
             label: t("password"),
+            inputProps: removeAutofillBgProps,
           }}
         />
         <FormHelperText {...{ error: Boolean(errors?.password) }}>
