@@ -40,13 +40,15 @@ export default function Sidebar({ items, isOpen, toggle, close }: SidbarProps) {
   const navLinkStyle = useCallback(
     ({ isActive }) => {
       const { secondary, text, background } = palette;
-      return isActive
-        ? {
-            color: text.primary,
-            textDecoration: "none",
-            backgroundImage: `linear-gradient(to right, ${secondary.main} 20%, ${background.default} 75%)`,
-          }
-        : { color: text.secondary };
+      return {
+        textDecoration: "none",
+        ...(isActive
+          ? {
+              color: text.primary,
+              backgroundImage: `linear-gradient(to right, ${secondary.main} 20%, ${background.default} 75%)`,
+            }
+          : { color: text.secondary }),
+      };
     },
     [palette]
   );
