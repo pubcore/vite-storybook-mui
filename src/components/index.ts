@@ -73,3 +73,9 @@ export type {
   WidgetProps,
   FieldProps,
 } from "@rjsf/core";
+
+declare module "i18next" {
+  interface CustomTypeOptions {
+    returnNull: false;
+  }
+}

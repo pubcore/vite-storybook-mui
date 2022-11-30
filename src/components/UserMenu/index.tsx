@@ -1,27 +1,10 @@
-import {
-  Children,
-  useState,
-  isValidElement,
-  cloneElement,
-  ReactNode,
-  SyntheticEvent,
-} from "react";
+import { useState, ReactNode, SyntheticEvent } from "react";
 import { Tooltip, IconButton, Menu, Button, Avatar } from "@mui/material";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import { useTranslation } from "react-i18next";
 import Logout from "../Logout";
 
 const label = "user_menu";
-
-// const Button = styled(MuiButton)`
-//   text-transform: none;
-// `;
-// const Avatar = styled(MuiAvatar)`
-//   ${({ theme }) => `
-//   width: ${theme.spacing(4)};
-//   height: ${theme.spacing(4)};
-//   `}
-// `;
 
 export interface UserMenuProps {
   user?:
@@ -101,13 +84,7 @@ export default function UserMenu({
         open={isOpen}
         onClose={handleClose}
       >
-        {Children.map(children, (menuItem) =>
-          isValidElement(menuItem)
-            ? cloneElement(menuItem, {
-                onClick: handleClose,
-              })
-            : null
-        )}
+        {children}
         <Logout {...{ logout }} />
       </Menu>
     </div>

@@ -6,7 +6,7 @@ import {
   Status,
   Workflow,
 } from "../";
-import XLSX, { WorkBook } from "xlsx";
+import { WorkBook, read } from "xlsx";
 import WorkbookTeaser from "./WorkbookTeaser";
 import { MappingsJson } from "./MappingsJson";
 import { useTranslation } from "react-i18next";
@@ -77,7 +77,7 @@ export function MappingRunner(props: MappingRunnerProps) {
     async ({ formData }) => {
       const file = formData.get("file") as File;
       const data = await file?.arrayBuffer();
-      const workbook = XLSX.read(data);
+      const workbook = read(data);
       setWorkbook({ workbook, fileName: file.name });
       setActiveStep(1);
     },

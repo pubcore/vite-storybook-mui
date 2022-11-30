@@ -6,7 +6,7 @@ import {
   FileUploadProps,
   acceptExcel,
 } from "../";
-import XLSX, { WorkBook } from "xlsx";
+import { WorkBook, read } from "xlsx";
 import WorkbookTeaser from "./WorkbookTeaser";
 import { Divider } from "@mui/material";
 import Mapper, { MapperProps } from "./Mapper";
@@ -40,7 +40,7 @@ export function MappingEditor(props: MappingEditorProps) {
     async ({ formData }) => {
       const file = formData.get("file") as File;
       const data = await file?.arrayBuffer();
-      const workbook = XLSX.read(data);
+      const workbook = read(data);
 
       dispatch({
         type: "loadWorkbook",

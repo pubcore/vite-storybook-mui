@@ -1,11 +1,11 @@
 import axios from "axios";
-import XLSX from "xlsx";
+import { read } from "xlsx";
 
 const getWorkbook = async (fileName: string) => {
   const response = await axios.get(fileName, {
     responseType: "arraybuffer",
   });
-  return XLSX.read(response.data);
+  return read(response.data);
 };
 
 export const fileName = "/publicTestData.xlsx";
