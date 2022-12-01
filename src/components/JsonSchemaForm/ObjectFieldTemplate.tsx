@@ -136,9 +136,7 @@ function HelpDialog({ close, pdfUri }: HelpDialogProps) {
         </object>
       </DialogContent>
       <DialogActions>
-        <ActionButton variant="contained" onClick={() => close()}>
-          {t("close")}
-        </ActionButton>
+        <ActionButton onClick={() => close()}>{t("close")}</ActionButton>
       </DialogActions>
     </Dialog>
   );

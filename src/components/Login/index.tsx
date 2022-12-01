@@ -32,12 +32,6 @@ export interface LoginProps {
   registerUri: string;
 }
 
-const removeAutofillBgProps = {
-  style: {
-    WebkitBoxShadow: "0 0 0 1000px rgba(0,0,0,0) inset",
-  },
-};
-
 export default function Login({ login, registerUri }: LoginProps) {
   const { t } = useTranslation();
   const [showPw, toggleShowPw] = useState(false);
@@ -84,7 +78,6 @@ export default function Login({ login, registerUri }: LoginProps) {
           autoComplete: "username",
           error: Boolean(errors?.username),
           helperText: errors?.username?.message || " ",
-          inputProps: removeAutofillBgProps,
         }}
       />
       <FormControl
@@ -113,7 +106,6 @@ export default function Login({ login, registerUri }: LoginProps) {
               </InputAdornment>
             ),
             label: t("password"),
-            inputProps: removeAutofillBgProps,
           }}
         />
         <FormHelperText {...{ error: Boolean(errors?.password) }}>
