@@ -151,7 +151,7 @@ export const RowSelectionWithToggleAllRowsHeader = (args: Args) => (
     }}
   />
 );
-export const RowSelectionWithLocalStorage = (args: Args) => (
+export const ManagedColumnsSavedToLocalStorage = (args: Args) => (
   <Datatable
     {...{
       ...args,
@@ -172,5 +172,17 @@ export const _200_Columns = (args: Args) => (
       selectedRows: new Set(["c0", "c1"]),
       toggleRowSelection: action("toggleRowSelection"),
     }}
-  ></Datatable>
+  />
+);
+export const DownloadCsv = (args: Args) => (
+  <Datatable
+    {...{
+      ...args,
+      loadRows: loadRows(10000),
+      rowFilterServer: ["name"],
+      rowSortServer: ["name"],
+      downloadCsv: true,
+      downloadCsvFilename: "datatable-test",
+    }}
+  />
 );

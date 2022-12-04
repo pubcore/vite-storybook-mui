@@ -58,6 +58,9 @@ export function AppDecorator({
             textColor: "secondary",
           },
         },
+        MuiSvgIcon: {
+          defaultProps: { fontSize: "small" },
+        },
       },
     } as ThemeOptions);
   }, [createTheme, darkMode, darkModeBySwitch]);

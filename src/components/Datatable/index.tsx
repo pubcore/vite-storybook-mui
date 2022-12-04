@@ -17,7 +17,7 @@ import {
   useTheme,
   Box,
 } from "@mui/material";
-import { ActionBar } from "../";
+import { ActionBar, ActionButton } from "../";
 import ColumnSelector from "./ColumnsSelector";
 import ColumnHead from "./ColumnHead";
 import SelectAllCheckbox from "./SelectAllCheckbox";
@@ -38,15 +38,20 @@ import type {
   Row,
   RowsState,
 } from "./DatatableTypes";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import React from "react";
+import { Parser } from "@json2csv/plainjs";
+import { saveAs } from "file-saver";
+import { LoadingButton } from "@mui/lab";
+
 const throat = initThroat(10);
 
 export default function Datatable({
   title,
   //https://github.com/bvaughn/react-virtualized/blob/master/docs/Column.md
   columns,
-  rows: propRows, //ignored, if loadRows is defined
-  loadRows,
+  rows: rowsProp, //ignored, if loadRows is defined
+  loadRows: loadRowsProp,
   pageSize: propPageSize,
   minPageSize = 3,
   headerHeight = 40,
@@ -62,6 +67,8 @@ export default function Datatable({
   onRowClick,
   maxResourceLimit = 100,
   manageColumns = true,
+  downloadCsv = false,
+  downloadCsvFilename = "table",
   cellVal = cellValDefault,
   selectedRows,
   getRowId = getRowIdDefault,
@@ -92,10 +99,12 @@ export default function Datatable({
     page: number;
     scrollToIndex?: number;
   }>({ page: 1 });
+
   const showFilter =
     (count > rowFilterHideUpTo || Object.keys(filter).length > 0) &&
     (!serverMode || (rowFilterServer && rowFilterServer.length > 0)) &&
     Boolean(rowFilter);
+
   const [availableHeight, setHeight] = useState(
     minPageSize * rowHeight + headerHeight
   );
@@ -127,49 +136,53 @@ export default function Datatable({
 
   const [initialSequence, setInitialSequence] = useState<string[] | null>(null);
 
+  const loadRows = useMemo<LoadRows>(() => {
+    //if "'loadRows' and 'rows' are undefined, default to empty array"
+    return rowsProp
+      ? ({ startIndex, stopIndex }: Parameters<LoadRows>[0]) =>
+          Promise.resolve({
+            rows: rowsProp.slice(startIndex, stopIndex + 1),
+            count: rowsProp.length,
+          })
+      : loadRowsProp ?? (() => Promise.resolve({ rows: [], count: 0 }));
+  }, [loadRowsProp, rowsProp]);
+
+  const loadAll = useCallback(
+    async (count) => {
+      const batchCount = Math.ceil(count / maxResourceLimit);
+      return (
+        await Promise.all(
+          new Array(batchCount).fill(null).map((_, index) =>
+            throat(() =>
+              loadRows({
+                startIndex: index * maxResourceLimit,
+                stopIndex: (index + 1) * maxResourceLimit - 1,
+              })
+            )
+          )
+        )
+      ).reduce<Row[]>((acc, { rows }) => acc.concat(rows), []);
+    },
+    [loadRows, maxResourceLimit]
+  );
+
   //initial load first rows ...
   useEffect(() => {
     let mounted = true;
-    if (!loadRows && !propRows) {
-      console.warn("'loadRows' and 'rows' undefined, default to empty array");
-      setRowdata((s) => ({ ...s, serverMode: false, rows: [] }));
-      return;
-    }
-
-    const _loadRows = propRows
-      ? ({ startIndex, stopIndex }: Parameters<LoadRows>[0]) =>
-          Promise.resolve({
-            rows: propRows.slice(startIndex, stopIndex + 1),
-            count: propRows.length,
-          })
-      : (loadRows as LoadRows);
 
     async function load() {
-      const firstPage = await _loadRows({
+      const firstPage = await loadRows({
         startIndex: 0,
         stopIndex: minimumBatchSize - 1,
       });
 
       let all: { rows: Row[]; count: number } | undefined;
-
       if (
-        propRows ||
+        rowsProp ||
         (firstPage.count <= loadAllUpTo && firstPage.count > pageSize)
       ) {
-        const batchCount = Math.ceil(firstPage.count / maxResourceLimit);
         all = {
-          rows: (
-            await Promise.all(
-              new Array(batchCount).fill(null).map((_, index) =>
-                throat(() =>
-                  _loadRows({
-                    startIndex: index * maxResourceLimit,
-                    stopIndex: (index + 1) * maxResourceLimit - 1,
-                  })
-                )
-              )
-            )
-          ).reduce((acc, { rows }) => acc.concat(rows as Row[]), [] as Row[]),
+          rows: await loadAll(firstPage.count),
           count: firstPage.count,
         };
       } else if (firstPage.count <= pageSize) {
@@ -210,14 +223,7 @@ export default function Datatable({
     return () => {
       mounted = false;
     };
-  }, [
-    loadRows,
-    pageSize,
-    loadAllUpTo,
-    maxResourceLimit,
-    minimumBatchSize,
-    propRows,
-  ]);
+  }, [loadRows, pageSize, loadAllUpTo, minimumBatchSize, rowsProp, loadAll]);
 
   const isRowLoaded = useCallback(
     ({ index }) => Boolean((filteredRows ?? rows ?? [])[index]),
@@ -285,10 +291,10 @@ export default function Datatable({
   const request = useMemo(
     () =>
       debounce(async ({ filter, sorting }) => {
-        if (!loadRows) {
+        if (!loadRowsProp) {
           return;
         }
-        const { rows, count } = await loadRows({
+        const { rows, count } = await loadRowsProp({
           startIndex: 0,
           stopIndex: pageSize - 1,
           filter,
@@ -300,7 +306,7 @@ export default function Datatable({
         }));
         setPagination((s) => ({ ...s, page: 1, scrollToIndex: 0 }));
       }, 300),
-    [loadRows, pageSize]
+    [loadRowsProp, pageSize]
   );
 
   const sort = useCallback(
@@ -447,6 +453,33 @@ export default function Datatable({
     }
   }, [defaultSelected, initialSequence]);
 
+  const [isLoadingDownloadCsv, setIsLoadingDownloadCsv] = useState(false);
+  const handleDownloadCsv = useCallback(async () => {
+    try {
+      setIsLoadingDownloadCsv(true);
+      let rows: Row[] = [];
+      for (let i = 0; i < count; i++) {
+        if (!isRowLoaded({ index: i })) {
+          rows = await loadAll(count);
+          break;
+        } else {
+          rows.push(rowGetter({ index: i }));
+        }
+      }
+      const parser = new Parser({ delimiter: ";" });
+      const csv = parser.parse(rows);
+      const BOM = "\uFEFF";
+      var csvBlob = new Blob([BOM, csv], {
+        type: "text/plain;charset=utf-8",
+      });
+      saveAs(csvBlob, `${downloadCsvFilename ?? "table"}.csv`);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoadingDownloadCsv(false);
+    }
+  }, [count, downloadCsvFilename, isRowLoaded, loadAll, rowGetter]);
+
   return (
     <Paper
       sx={{
@@ -484,18 +517,30 @@ export default function Datatable({
           ) : (
             <>{React.isValidElement(title) ? title : null}</>
           )}
-          {manageColumns && count > 0 && (
-            <ColumnSelector
-              {...{
-                columns,
-                columnsSequence,
-                setSequence: setColumnsSequence,
-                resetSequence,
-                selected: selectedColumns,
-                setSelected: setSelectedColumns,
-              }}
-            />
-          )}
+          <Box display="flex" gap={1}>
+            {downloadCsv && count > 0 && (
+              <LoadingButton
+                onClick={handleDownloadCsv}
+                variant="text"
+                startIcon={<FileDownloadIcon />}
+                loading={isLoadingDownloadCsv}
+              >
+                {t("download_csv")}
+              </LoadingButton>
+            )}
+            {manageColumns && count > 0 && (
+              <ColumnSelector
+                {...{
+                  columns,
+                  columnsSequence,
+                  setSequence: setColumnsSequence,
+                  resetSequence,
+                  selected: selectedColumns,
+                  setSelected: setSelectedColumns,
+                }}
+              />
+            )}
+          </Box>
         </ActionBar>
       )}
       <div style={{ flexGrow: 1 }} ref={containerRef}>

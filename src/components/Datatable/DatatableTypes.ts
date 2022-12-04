@@ -41,16 +41,43 @@ export type ColumnType = Omit<ColumnProps, "dataKey"> & {
 export interface DatatableProps extends Omit<TableProps, "rowHeight"> {
   title?: ReactNode;
   columns?: ColumnType[];
+  /**
+   * To be used, if all rows exists in memory. If set, "loadRows" is ignored
+   */
   rows?: Row[];
+  /**
+   * Callback to fetch rows during pagination. It is ignored if "rows" is given
+   */
   loadRows?: LoadRows;
   pageSize?: number;
+  /**
+   * Minimum number or rows to show, including empty rows
+   */
   minPageSize?: number;
+  /**
+   * A fixed row height is required to support pagination with infinit scroll
+   */
   rowHeight?: number;
   noRowsRenderer?: () => JSX.Element;
+  /**
+   * If set, and total count of resource's items is not higher, all items
+   * will be requested (in batches) in order to support client-site filter
+   * and sort.
+   */
   loadAllUpTo?: number;
+  /**
+   * The maximum number of items resource can serve by one request
+   */
+  maxResourceLimit?: number;
   rowSort?: Record<string, ((a: unknown, b: unknown) => number) | null>;
+  /**
+   * Name of Columns supporting server-side sorting
+   */
   rowSortServer?: string[];
   rowFilter?: HeaderRowProps["rowFilter"];
+  /**
+   * Name of columns supporting serve-side filtering.
+   */
   rowFilterServer?: string[];
   rowFilterMatch?: ({
     row,
@@ -62,8 +89,9 @@ export interface DatatableProps extends Omit<TableProps, "rowHeight"> {
     cellVal: unknown;
   }) => boolean;
   rowFilterHideUpTo?: number;
-  maxResourceLimit?: number;
   manageColumns?: boolean;
+  downloadCsv?: boolean;
+  downloadCsvFilename?: string;
   cellVal?: CellValDefault;
   getRowId?: GetRowId;
   selectedRows?: Set<ReturnType<GetRowId>>;
