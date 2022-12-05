@@ -69,6 +69,7 @@ export default function Datatable({
   manageColumns = true,
   downloadCsv = false,
   downloadCsvFilename = "table",
+  downloadCsvTransforms,
   cellVal = cellValDefault,
   selectedRows,
   getRowId = getRowIdDefault,
@@ -466,7 +467,10 @@ export default function Datatable({
           rows.push(rowGetter({ index: i }));
         }
       }
-      const parser = new Parser({ delimiter: ";" });
+      const parser = new Parser({
+        delimiter: ";",
+        transforms: downloadCsvTransforms,
+      });
       const csv = parser.parse(rows);
       const BOM = "\uFEFF";
       var csvBlob = new Blob([BOM, csv], {
@@ -478,7 +482,14 @@ export default function Datatable({
     } finally {
       setIsLoadingDownloadCsv(false);
     }
-  }, [count, downloadCsvFilename, isRowLoaded, loadAll, rowGetter]);
+  }, [
+    count,
+    downloadCsvFilename,
+    downloadCsvTransforms,
+    isRowLoaded,
+    loadAll,
+    rowGetter,
+  ]);
 
   return (
     <Paper

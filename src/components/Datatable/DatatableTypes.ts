@@ -92,6 +92,12 @@ export interface DatatableProps extends Omit<TableProps, "rowHeight"> {
   manageColumns?: boolean;
   downloadCsv?: boolean;
   downloadCsvFilename?: string;
+  /**
+   * @see https://www.npmjs.com/package/@json2csv/transforms
+   */
+  downloadCsvTransforms?: ((
+    row: unknown
+  ) => Record<string | number, unknown>)[];
   cellVal?: CellValDefault;
   getRowId?: GetRowId;
   selectedRows?: Set<ReturnType<GetRowId>>;

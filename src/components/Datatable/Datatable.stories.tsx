@@ -183,6 +183,12 @@ export const DownloadCsv = (args: Args) => (
       rowSortServer: ["name"],
       downloadCsv: true,
       downloadCsvFilename: "datatable-test",
+      downloadCsvTransforms: [
+        (row) => {
+          const { date, ...rest } = (row ?? {}) as Record<string, unknown>;
+          return rest;
+        },
+      ],
     }}
   />
 );
