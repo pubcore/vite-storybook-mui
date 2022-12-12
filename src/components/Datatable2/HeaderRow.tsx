@@ -16,6 +16,7 @@ export function HeaderRow({
   rowFilter,
   changeFilter,
   sorting,
+  rowSort,
   sort,
   disableSort,
 }: HeaderRowProps & SelectAllCheckboxProps) {
@@ -24,6 +25,7 @@ export function HeaderRow({
     visibleColumns,
     sorting,
     disableSort,
+    rowSort,
     sort,
   });
 

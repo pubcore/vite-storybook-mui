@@ -402,16 +402,18 @@ export function Datatable2<T extends DatatableRow>({
           });
         }
 
+        const newFilteredRows = serverMode
+          ? null
+          : ((r) => (sortDirection === "DESC" ? r.reverse() : r))(
+              (filteredRows ?? rows ?? []).slice().sort(compare(sortBy))
+            );
+
         return {
           ...rest,
           rows,
           filter,
           serverMode,
-          filteredRows: serverMode
-            ? null
-            : ((r) => (sortDirection === "DESC" ? r.reverse() : r))(
-                (filteredRows ?? rows ?? []).slice().sort(compare(sortBy))
-              ),
+          filteredRows: newFilteredRows,
           sorting: { sortBy, sortDirection },
         };
       });
@@ -493,6 +495,7 @@ export function Datatable2<T extends DatatableRow>({
                         selectedRows: selectedRows ?? new Set<string>(),
                         toggleAllRowsSelection: () => undefined,
                         rows,
+                        rowSort,
                         sorting,
                         sort,
                       }}
@@ -541,6 +544,7 @@ export function Datatable2<T extends DatatableRow>({
                                 <RowRenderer<T>
                                   {...{
                                     ...props,
+                                    filteredRows,
                                     rows,
                                     columns,
                                     visibleColumns: visibleColumns.map(

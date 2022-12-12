@@ -1,23 +1,29 @@
 import { ListChildComponentProps } from "react-window";
 import {
   DatatableColumn,
+  DatatableProps,
   DatatableRow,
   DatatableSupportedTypes,
+  Rows,
 } from "./DatatableTypes";
 import { useRowRenderer } from "./useRowRenderer";
 
-export function RowRenderer<T extends Record<string, DatatableSupportedTypes>>({
+export function RowRenderer<
+  T extends Record<string, DatatableSupportedTypes> & { name: string }
+>({
   index: rowIndex,
   style,
   rows,
+  filteredRows,
   columns,
   visibleColumns,
 }: ListChildComponentProps<T> & {
   rows: DatatableRow<T>[];
+  filteredRows: Rows<T> | null;
   columns: DatatableColumn[];
   visibleColumns: string[];
 }) {
-  const row = rows[rowIndex];
+  const row = filteredRows?.[rowIndex] ?? rows[rowIndex];
 
   const rowElements = useRowRenderer({
     row,

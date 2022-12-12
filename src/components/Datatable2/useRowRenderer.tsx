@@ -1,11 +1,12 @@
 import { TableSortLabel } from "@mui/material";
 import { noop } from "lodash-es";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   CellRenderer,
   ChangeFilter,
   DatatableColumn,
+  DatatableProps,
   DatatableRow,
   HeaderRowProps,
   RowFilterFunction,
@@ -15,6 +16,7 @@ import {
 const emptyArray: unknown[] = [];
 const marginWidth = 10;
 
+/** Specifically renders data rows */
 export function useRowRenderer({
   row,
   rowIndex,
@@ -29,7 +31,7 @@ export function useRowRenderer({
   const elements = [...emptyArray] as ReactNode[];
   let left = 10;
 
-  visibleColumns.forEach((columnName, columnIndex) => {
+  visibleColumns.forEach((columnName, colIndex) => {
     const col = columns.find((c) => c.name === columnName);
     const val = row?.[columnName];
     const renderer: CellRenderer =
@@ -39,7 +41,7 @@ export function useRowRenderer({
 
     elements.push(
       <div
-        key={`datatable_row_${rowIndex}_col_${col.name}`}
+        key={`datatable_row_${rowIndex}_column_${columnName}`}
         style={{
           position: "absolute",
           width: col.width,
@@ -48,48 +50,55 @@ export function useRowRenderer({
           overflow: "hidden",
           textOverflow: "ellipsis",
           whiteSpace: "nowrap",
-          ...(columnIndex === 0 ? { marginLeft: marginWidth } : {}),
+          marginLeft: colIndex === 0 ? marginWidth : "initial",
         }}
         title={String(val)}
       >
         {renderer({
           cellData: val ? String(val) : undefined,
           rowIndex,
-          columnIndex,
+          columnIndex: colIndex,
         })}
       </div>
     );
 
-    left += col.width + marginWidth * (columnIndex === 0 ? 2 : 1);
+    left += col.width + marginWidth * (colIndex === 0 ? 2 : 1);
   });
 
   return <>{elements}</>;
 }
 
+/** Specifically renders the header row */
 export function useHeaderRowRenderer({
   columns,
   visibleColumns,
   sorting,
   disableSort,
+  rowSort,
   sort,
 }: {
   columns: DatatableColumn[];
   visibleColumns: string[];
   sorting?: RowsState["sorting"];
   disableSort?: boolean;
+  rowSort: DatatableProps["rowSort"];
   sort: HeaderRowProps["sort"];
 }) {
   const { t } = useTranslation();
   const elements = [...emptyArray] as ReactNode[];
   let left = 10;
 
+  const [lastSortedCol, setLastSortedCol] = useState<string | undefined>();
+
   visibleColumns.forEach((colName, colIndex) => {
     const col = columns.find((c) => c.name === colName);
     if (!col) return;
 
+    const dataKey = col.dataKey ?? col.name;
+
     elements.push(
       <div
-        key={`datatable_header_row_${col.name}`}
+        key={`datatable_header_row_column_${colName}`}
         style={{
           position: "absolute",
           width: col.width,
@@ -98,30 +107,33 @@ export function useHeaderRowRenderer({
           overflow: "hidden",
           textOverflow: "ellipsis",
           whiteSpace: "nowrap",
-          ...(colIndex === 0 ? { marginLeft: marginWidth } : {}),
+          marginLeft: colIndex === 0 ? marginWidth : "initial",
         }}
       >
         {disableSort === true ? (
           <div>{t(col.name as "_")}</div>
         ) : (
           <TableSortLabel
-            active={
-              sorting?.sortBy !== undefined && col.dataKey === sorting.sortBy
-            }
+            disabled={!rowSort?.[dataKey]}
+            active={sorting?.sortBy !== undefined && dataKey === sorting.sortBy}
             direction={
               sorting?.sortDirection?.toLowerCase() as
                 | "desc"
                 | "asc"
                 | undefined
             }
-            onClick={() =>
-              sort
-                ? sort({
-                    sortBy: colName,
-                    sortDirection: toggleSortDirection(sorting?.sortDirection),
-                  })
-                : undefined
-            }
+            onClick={() => {
+              if (sort) {
+                sort({
+                  sortBy: colName,
+                  sortDirection:
+                    colName === lastSortedCol
+                      ? toggleSortDirection(sorting?.sortDirection)
+                      : "ASC",
+                });
+                setLastSortedCol(colName);
+              }
+            }}
           >
             {t(col.name as "_")}
           </TableSortLabel>
@@ -135,6 +147,7 @@ export function useHeaderRowRenderer({
   return <>{elements}</>;
 }
 
+/** Miscellaneous row renderer for rows with custom elements (like filter) */
 export function useGenericRowRenderer({
   columns,
   visibleColumns,
@@ -156,7 +169,7 @@ export function useGenericRowRenderer({
 
     elements.push(
       <div
-        key={`datatable_header_row_${col.name}`}
+        key={`datatable_generic_row_column_${colName}`}
         style={{
           position: "absolute",
           width: col.width,
@@ -165,7 +178,7 @@ export function useGenericRowRenderer({
           overflow: "hidden",
           textOverflow: "ellipsis",
           whiteSpace: "nowrap",
-          ...(colIndex === 0 ? { marginLeft: marginWidth } : {}),
+          marginLeft: colIndex === 0 ? marginWidth : "initial",
         }}
       >
         {itm.element ? itm.element({ name: colName, changeFilter }) : null}

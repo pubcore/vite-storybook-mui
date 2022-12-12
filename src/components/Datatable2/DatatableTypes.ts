@@ -141,6 +141,7 @@ export interface HeaderRowProps {
   rowFilter?: RowFilter;
   changeFilter: ChangeFilter;
   sorting?: RowsState["sorting"];
+  rowSort: DatatableProps["rowSort"];
   sort?: ({
     sortBy,
     sortDirection,
