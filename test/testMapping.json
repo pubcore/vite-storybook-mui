@@ -4,6 +4,7 @@
     { "id": "PID" },
     { "id": "OD" },
     { "id": "PRIO_1_DETAIL" },
+    { "id": "S" },
     { "id": "Cty", "name": "City, Village or Town" },
     { "id": "PC", "name": "Postal code" },
     { "id": "ADDRESS1", "name": "Street" },

@@ -79,3 +79,5 @@ declare module "i18next" {
     returnNull: false;
   }
 }
+
+export * as stringMaps from "./ExcelMapper/stringMaps";

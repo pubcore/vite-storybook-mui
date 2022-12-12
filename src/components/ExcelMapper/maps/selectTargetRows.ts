@@ -11,7 +11,11 @@ export type TargetRow = Record<string, TargetCell | undefined>;
 
 type S = Pick<
   State,
-  "workbook" | "sourceKeyColumns" | "mappings" | "targetColumns"
+  | "workbook"
+  | "sourceKeyColumns"
+  | "mappings"
+  | "targetColumns"
+  | "systemMappings"
 > & {
   [_: string]: unknown;
 };
@@ -21,7 +25,14 @@ export const selectTargetRows: (s: S) => TargetRow[] = createSelector(
   (s: S) => s.workbook,
   (s: S) => s.sourceKeyColumns,
   selectMappingsByTargetId,
-  ([{ ids }], workbook, sourceKeyColumns, mappingsByTargetId) => {
+  (s: S) => s.systemMappings,
+  (
+    [{ ids }],
+    workbook,
+    sourceKeyColumns,
+    mappingsByTargetId,
+    systemMappings
+  ) => {
     const rows: TargetRow[] = [];
     const mappingsAndTargetIds = Array.from(mappingsByTargetId);
 
@@ -37,6 +48,7 @@ export const selectTargetRows: (s: S) => TargetRow[] = createSelector(
                   {
                     workbook,
                     sourceKeyColumns,
+                    systemMappings,
                   },
                   mapping
                 );

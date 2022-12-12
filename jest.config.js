@@ -2,6 +2,9 @@
 module.exports = {
   preset: "ts-jest",
   testEnvironment: "node",
-  roots: ["<rootDir>/src"],
+  roots: ["<rootDir>/src/"],
   collectCoverage: true,
+  transform: {
+    "^.+\\.(t|j)sx?$": "@swc/jest",
+  },
 };

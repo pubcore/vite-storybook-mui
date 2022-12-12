@@ -1,4 +1,4 @@
-import { ExcelMapper } from "../";
+import { ExcelMapper, stringMaps } from "../";
 import mappings from "../../../test/testMapping.json";
 import {
   fileName2,
@@ -94,6 +94,27 @@ export const Default = (args: Args) => (
         workbook: workbook5,
         workbookFileName: fileName5,
         mappings: { ...mappings, mappings: [] },
+      }}
+    />
+  ),
+  RunWithSystemMappings = (args: Args) => (
+    <ExcelMapper
+      {...{
+        ...args,
+        saveTargetTable,
+        workbook: workbook5,
+        workbookFileName: fileName5,
+        mappings: { ...mappings, mappings: [] },
+        systemMappings: {
+          S: [
+            (s: string) => stringMaps.delimiters(s, { to: "|" })!,
+            (s: string) =>
+              s
+                .split("|")
+                .map((v) => v.trim())
+                .join("|"),
+          ],
+        },
       }}
     />
   );

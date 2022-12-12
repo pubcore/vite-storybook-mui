@@ -2,15 +2,20 @@ import { createSelector } from "reselect";
 import { WorkBook } from "xlsx";
 import { Targets } from ".";
 import { MappingsJson } from "../MappingsJson";
-import { SourceKeyColumns } from "../maps";
+import { SourceKeyColumns, SystemMap } from "../maps";
 import { selectStateMappingsOfMappingsJson } from "../maps/selectStateMappingsOfMappingsJson";
 import { TargetRow } from "../maps/selectTargetRows";
 import { selectTargetRows as selectTargetRowsFromMapsState } from "../maps/selectTargetRows";
-type S = { workbook: WorkBook; mappings: MappingsJson };
+type S = {
+  workbook: WorkBook;
+  mappings: MappingsJson;
+  systemMappings?: Record<string, SystemMap[]>;
+};
 export const selectTargetRows: (s: S) => TargetRow[] = createSelector(
   (s: S) => s.workbook,
   (s: S) => s.mappings,
-  (workbook, mappings) => {
+  (s: S) => s.systemMappings,
+  (workbook, mappings, systemMappings) => {
     const targetColumns = mappings.mappings.reduce<Targets>(
       (acc, mapping) => acc.concat({ id: mapping.targetId }),
       []
@@ -36,6 +41,7 @@ export const selectTargetRows: (s: S) => TargetRow[] = createSelector(
       mappings: stateMappings,
       sourceKeyColumns,
       targetColumns,
+      systemMappings,
     });
     return rows;
   }

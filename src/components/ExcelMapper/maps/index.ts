@@ -15,6 +15,7 @@ export type S = Readonly<{
     pipe: string;
     target: Target;
   }>;
+  systemMappings?: Record<string, SystemMap[]>;
 }>;
 
 export type StateMappings = S["mappings"];
@@ -27,6 +28,9 @@ export type Mapping = Readonly<{
   pipe?: string;
   target: Target;
 }>;
+
+//global, target dependant value mapping
+export type SystemMap = (s: string) => string;
 
 export type Result = Readonly<[findings?: Finding[]]>;
 

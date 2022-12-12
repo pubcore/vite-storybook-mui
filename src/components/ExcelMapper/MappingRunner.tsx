@@ -15,13 +15,14 @@ import { selectTargetRows } from "./target/selectTargetRows";
 import { ActionButton } from "../Button";
 import { selectStateMappingsOfMappingsJson } from "./maps/selectStateMappingsOfMappingsJson";
 import { Divider, Toolbar } from "@mui/material";
-import { selectSeverities } from "./maps";
+import { selectSeverities, SystemMap } from "./maps";
 import { Findings } from "./Findings";
 import { selectMappings } from "./maps/selectMappings";
 import ObjectTable from "../Table/ObjectTable";
 
 export interface MappingRunnerProps {
   mappings: MappingsJson;
+  systemMappings?: Record<string, SystemMap[]>;
   saveTargetTable: ({
     rows,
     workbookFileName,
@@ -48,6 +49,7 @@ export function MappingRunner(props: MappingRunnerProps) {
     workbook: workbookDefault,
     workbookFileName,
     cancel,
+    systemMappings,
   } = props;
   const { t } = useTranslation();
   const steps = [t("select_file"), t("review_mapping_result"), t("save")];
@@ -105,6 +107,7 @@ export function MappingRunner(props: MappingRunnerProps) {
       ? selectTargetRows({
           workbook,
           mappings: { ...mappingsJson, mappings: mappings.mappings },
+          systemMappings,
         })
       : [];
 
