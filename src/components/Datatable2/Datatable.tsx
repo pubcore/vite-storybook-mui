@@ -489,10 +489,12 @@ export function Datatable2<T extends DatatableRow>({
                         changeFilter,
                         tableWidth: columnsWidth,
                         showFilter,
-                        selectedRows,
+                        rowFilter,
+                        selectedRows: selectedRows ?? new Set<string>(),
                         toggleAllRowsSelection: () => undefined,
                         rows,
                         sorting,
+                        sort,
                       }}
                     />
                     <InfiniteLoader
@@ -528,7 +530,6 @@ export function Datatable2<T extends DatatableRow>({
                               itemCount: count,
                               itemSize: rowHeight,
                               columnCount: visibleColumns.length,
-                              sort: sort,
                               sortBy: sorting.sortBy,
                               sortDirection:
                                 sorting.sortDirection as SortDirection,

@@ -1,10 +1,14 @@
-import { SortDirection, TableSortLabel } from "@mui/material";
+import { TableSortLabel } from "@mui/material";
+import { noop } from "lodash-es";
 import { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import {
   CellRenderer,
+  ChangeFilter,
   DatatableColumn,
   DatatableRow,
+  HeaderRowProps,
+  RowFilterFunction,
   RowsState,
 } from "./DatatableTypes";
 
@@ -59,7 +63,7 @@ export function useRowRenderer({
     left += col.width + marginWidth * (columnIndex === 0 ? 2 : 1);
   });
 
-  return <div>{elements}</div>;
+  return <>{elements}</>;
 }
 
 export function useHeaderRowRenderer({
@@ -67,11 +71,13 @@ export function useHeaderRowRenderer({
   visibleColumns,
   sorting,
   disableSort,
+  sort,
 }: {
   columns: DatatableColumn[];
   visibleColumns: string[];
   sorting?: RowsState["sorting"];
   disableSort?: boolean;
+  sort: HeaderRowProps["sort"];
 }) {
   const { t } = useTranslation();
   const elements = [...emptyArray] as ReactNode[];
@@ -108,6 +114,14 @@ export function useHeaderRowRenderer({
                 | "asc"
                 | undefined
             }
+            onClick={() =>
+              sort
+                ? sort({
+                    sortBy: colName,
+                    sortDirection: toggleSortDirection(sorting?.sortDirection),
+                  })
+                : undefined
+            }
           >
             {t(col.name as "_")}
           </TableSortLabel>
@@ -118,5 +132,53 @@ export function useHeaderRowRenderer({
     left += col.width + marginWidth * (colIndex === 0 ? 2 : 1);
   });
 
-  return <div>{elements}</div>;
+  return <>{elements}</>;
+}
+
+export function useGenericRowRenderer({
+  columns,
+  visibleColumns,
+  items,
+  changeFilter,
+}: {
+  columns: DatatableColumn[];
+  visibleColumns: string[];
+  items: { columnName: string; element: RowFilterFunction | null }[];
+  changeFilter: ChangeFilter;
+}) {
+  const elements = [...emptyArray] as ReactNode[];
+  let left = 10;
+
+  visibleColumns.forEach((colName, colIndex) => {
+    const col = columns.find((c) => c.name === colName);
+    const itm = items.find((i) => i.columnName === colName);
+    if (!col || !itm) return;
+
+    elements.push(
+      <div
+        key={`datatable_header_row_${col.name}`}
+        style={{
+          position: "absolute",
+          width: col.width,
+          left,
+          marginRight: marginWidth,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          ...(colIndex === 0 ? { marginLeft: marginWidth } : {}),
+        }}
+      >
+        {itm.element ? itm.element({ name: colName, changeFilter }) : null}
+      </div>
+    );
+
+    left += col.width + marginWidth * (colIndex === 0 ? 2 : 1);
+  });
+
+  return <>{elements}</>;
+}
+
+function toggleSortDirection(direction?: string) {
+  if (direction?.toUpperCase() === "ASC") return "DESC";
+  return "ASC";
 }

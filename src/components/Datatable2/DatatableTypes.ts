@@ -109,7 +109,13 @@ export type GridCellComponentProps<
   columns: DatatableColumn[];
 };
 
-type ChangeFilter = ({ name, value }: { name: string; value: unknown }) => void;
+export type ChangeFilter = ({
+  name,
+  value,
+}: {
+  name: string;
+  value: unknown;
+}) => void;
 
 export type RowFilterFunction = ({
   name,
@@ -135,6 +141,13 @@ export interface HeaderRowProps {
   rowFilter?: RowFilter;
   changeFilter: ChangeFilter;
   sorting?: RowsState["sorting"];
+  sort?: ({
+    sortBy,
+    sortDirection,
+  }: {
+    sortBy: string;
+    sortDirection: SortDirection;
+  }) => void;
   disableSort?: boolean;
 }
 
