@@ -10,13 +10,12 @@ export type FindingsProps = {
 
 export function Findings({ findings }: FindingsProps) {
   const { errors } = selectSeverities({ findings });
+  const o = groupBy(errors, "id");
   return (
     <ObjectTable
       {...{
-        o: groupBy(errors, "id"),
-        get attributes() {
-          return Object.keys(this.o);
-        },
+        o,
+        attributes: Object.keys(o),
         Cell: FeedbackCell,
         sx: { maxHeight: 300, overflowY: "auto" },
       }}
