@@ -26,6 +26,7 @@ import {
   DatatableProps,
   DatatableRow,
   DatatableSupportedTypes,
+  GetRowId,
   LoadRows,
   RowFilter,
   RowsState,
@@ -61,8 +62,8 @@ export function Datatable2<T extends DatatableRow>({
   maxResourceLimit = 100,
   manageColumns = true,
   cellVal = cellValDefault,
+  getRowId = getRowIdDefault,
   selectedRows,
-  // getRowId = getRowIdDefault,
   toggleRowSelection = noop,
   toggleAllRowsSelection = noop,
   // selectRowCellRenderer = selectRowCellRendererDefault,
@@ -492,8 +493,8 @@ export function Datatable2<T extends DatatableRow>({
                         tableWidth: columnsWidth,
                         showFilter,
                         rowFilter,
-                        selectedRows: selectedRows ?? new Set<string>(),
-                        toggleAllRowsSelection: () => undefined,
+                        selectedRows,
+                        toggleAllRowsSelection,
                         rows,
                         rowSort,
                         sorting,
@@ -519,10 +520,8 @@ export function Datatable2<T extends DatatableRow>({
                                 ref(instance);
                                 listRef.current = instance;
                               },
-                              headerHeight,
                               height,
                               width: horizontalScroll ? columnsWidth : width,
-                              onRowClick,
                               onItemsRendered: (props) => {
                                 onItemsRendered(props);
                                 handleRowsScroll({
@@ -550,6 +549,10 @@ export function Datatable2<T extends DatatableRow>({
                                     visibleColumns: visibleColumns.map(
                                       (c) => c.name
                                     ),
+                                    selectedRows,
+                                    toggleRowSelection,
+                                    getRowId,
+                                    onRowClick,
                                   }}
                                 />
                               );
@@ -619,26 +622,4 @@ const cellValDefault: CellValDefault = (
   key: string
 ) => row[key];
 
-// const selectRowCellRendererDefault: TableCellRenderer = ({
-//   columnData: { selectedRows, toggleRowSelection, getRowId },
-//   rowIndex,
-//   rowData,
-// }) => (
-//   <SelectRowCheckbox
-//     {...{ rowIndex, rowData, toggleRowSelection, selectedRows, getRowId }}
-//   />
-// );
-
-// const selectRowHeaderRendererDefault = (({
-//   columnData: { selectedRows, toggleAllRowsSelection, rows },
-// }: {
-//   columnData: Partial<SelectAllCheckboxProps>;
-// }) =>
-//   toggleAllRowsSelection &&
-//   rows &&
-//   selectedRows && (
-//     <SelectAllCheckbox {...{ selectedRows, toggleAllRowsSelection, rows }} />
-//   )) as TableHeaderRenderer;
-
-// //Trivial row identity is the row object itself as default ...
-// const getRowIdDefault: GetRowId = ({ row }) => row;
+const getRowIdDefault: GetRowId = ({ row }) => row;

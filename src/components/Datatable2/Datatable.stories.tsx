@@ -4,56 +4,6 @@ import { DatatableProps, DatatableRow } from "./DatatableTypes";
 import { TextField } from "@mui/material";
 import testRows from "./testRows.json";
 import { action } from "@storybook/addon-actions";
-const simulateRequestTime = 150; //ms
-const loadRows = (count: number) =>
-  (({ startIndex, stopIndex, filter, sorting }) => {
-    return new Promise((res) =>
-      setTimeout(() => {
-        let rows = testRows.filter((row) =>
-          filter?.name ? row.name.includes(filter.name as string) : true
-        );
-        if (sorting?.sortDirection) {
-          rows = rows.sort((a, b) => (a.name < b.name ? -1 : 1));
-        }
-        if (sorting?.sortDirection === "DESC") {
-          rows.reverse();
-        }
-        const n = stopIndex - startIndex + 1;
-        //repeat test rows for counts over 10000
-        res({
-          rows: rows.slice(
-            startIndex % 10000,
-            (startIndex % 10000) + Math.min(n, count)
-          ),
-          count: filter?.name ? rows.length : count,
-        });
-      }, simulateRequestTime)
-    );
-  }) as DatatableProps["loadRows"];
-
-type Args = DatatableProps;
-
-const textCompare = (a: string, b: string) =>
-  ("" + a ?? "").localeCompare(b ?? "", undefined, { numeric: true });
-
-const FilterText = ({ name, changeFilter }: DatatableHeaderRowFilterProps) => (
-  <TextField
-    size="small"
-    type="search"
-    key={name}
-    {...{
-      name,
-      onChange: ({ target }) => changeFilter(target),
-      placeholder: "filter ...",
-      autoComplete: "off",
-    }}
-  />
-);
-
-const dateTimeFormat = new Intl.DateTimeFormat("de-DE", {
-  dateStyle: "medium",
-  timeStyle: "medium",
-});
 
 export default {
   title: "Datatable2/Table",
@@ -105,6 +55,59 @@ export default {
     getRowId: ({ row: { id } }) => id,
   } as Args,
 };
+
+const simulateRequestTime = 150; //ms
+function loadRows(count: number) {
+  return (({ startIndex, stopIndex, filter, sorting }) => {
+    return new Promise((res) =>
+      setTimeout(() => {
+        let rows = testRows.filter((row) =>
+          filter?.name ? row.name.includes(filter.name as string) : true
+        );
+        if (sorting?.sortDirection) {
+          rows = rows.sort((a, b) => (a.name < b.name ? -1 : 1));
+        }
+        if (sorting?.sortDirection === "DESC") {
+          rows.reverse();
+        }
+        const n = stopIndex - startIndex + 1;
+        //repeat test rows for counts over 10000
+        res({
+          rows: rows.slice(
+            startIndex % 10000,
+            (startIndex % 10000) + Math.min(n, count)
+          ),
+          count: filter?.name ? rows.length : count,
+        });
+      }, simulateRequestTime)
+    );
+  }) as DatatableProps["loadRows"];
+}
+
+type Args = DatatableProps;
+
+function textCompare(a: string, b: string) {
+  return ("" + a ?? "").localeCompare(b ?? "", undefined, { numeric: true });
+}
+
+const FilterText = ({ name, changeFilter }: DatatableHeaderRowFilterProps) => (
+  <TextField
+    size="small"
+    type="search"
+    key={name}
+    {...{
+      name,
+      onChange: ({ target }) => changeFilter(target),
+      placeholder: "filter ...",
+      autoComplete: "off",
+    }}
+  />
+);
+
+const dateTimeFormat = new Intl.DateTimeFormat("de-DE", {
+  dateStyle: "medium",
+  timeStyle: "medium",
+});
 
 const _200_cols = new Array(200).fill(null).map((_, i) => i.toString());
 

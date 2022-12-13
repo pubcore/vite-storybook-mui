@@ -8,10 +8,15 @@ import {
   DatatableColumn,
   DatatableProps,
   DatatableRow,
+  DatatableSupportedTypes,
+  GetRowId,
   HeaderRowProps,
   RowFilterFunction,
+  Rows,
   RowsState,
 } from "./DatatableTypes";
+import SelectAllCheckbox from "./SelectAllCheckbox";
+import SelectRowCheckbox from "./SelectRowCheckbox";
 
 const emptyArray: unknown[] = [];
 const marginWidth = 10;
@@ -22,14 +27,42 @@ export function useRowRenderer({
   rowIndex,
   columns,
   visibleColumns,
+  selectedRows,
+  toggleRowSelection,
+  getRowId,
 }: {
   row?: DatatableRow;
   rowIndex: number;
   columns: DatatableColumn[];
   visibleColumns: string[];
+  selectedRows: DatatableProps["selectedRows"];
+  toggleRowSelection: DatatableProps["toggleRowSelection"];
+  getRowId: GetRowId;
 }) {
   const elements = [...emptyArray] as ReactNode[];
   let left = 10;
+
+  if (selectedRows && toggleRowSelection && row) {
+    elements.push(
+      <SelectRowCheckbox
+        {...{
+          rowIndex,
+          rowData: row,
+          toggleRowSelection,
+          selectedRows,
+          getRowId,
+          sx: {
+            position: "absolute",
+            left: left + 5,
+            maxHeight: 30,
+            maxWidth: 30,
+            marginRight: marginWidth,
+          },
+        }}
+      />
+    );
+    left += 40;
+  }
 
   visibleColumns.forEach((columnName, colIndex) => {
     const col = columns.find((c) => c.name === columnName);
@@ -72,21 +105,45 @@ export function useRowRenderer({
 export function useHeaderRowRenderer({
   columns,
   visibleColumns,
+  selectedRows,
+  toggleAllRowsSelection,
   sorting,
   disableSort,
+  rows,
   rowSort,
   sort,
 }: {
   columns: DatatableColumn[];
   visibleColumns: string[];
+  selectedRows: DatatableProps["selectedRows"];
+  toggleAllRowsSelection: DatatableProps["toggleAllRowsSelection"];
   sorting?: RowsState["sorting"];
   disableSort?: boolean;
+  rows?: Rows;
   rowSort: DatatableProps["rowSort"];
   sort: HeaderRowProps["sort"];
 }) {
   const { t } = useTranslation();
   const elements = [...emptyArray] as ReactNode[];
   let left = 10;
+
+  if (selectedRows && toggleAllRowsSelection && rows) {
+    elements.push(
+      <SelectAllCheckbox
+        {...{
+          selectedRows,
+          toggleAllRowsSelection,
+          rows,
+          sx: {
+            position: "absolute",
+            left,
+            marginRight: marginWidth,
+          },
+        }}
+      />
+    );
+    left += 40;
+  }
 
   const [lastSortedCol, setLastSortedCol] = useState<string | undefined>();
 

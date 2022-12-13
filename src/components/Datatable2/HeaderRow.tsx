@@ -19,14 +19,20 @@ export function HeaderRow({
   rowSort,
   sort,
   disableSort,
+  selectedRows,
+  toggleAllRowsSelection,
+  rows,
 }: HeaderRowProps & SelectAllCheckboxProps) {
   const elements = useHeaderRowRenderer({
     columns,
     visibleColumns,
     sorting,
     disableSort,
+    rows,
     rowSort,
     sort,
+    selectedRows,
+    toggleAllRowsSelection,
   });
 
   const filterElements = useGenericRowRenderer({

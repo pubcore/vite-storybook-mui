@@ -3,7 +3,7 @@ import { FixedSizeListProps, ListChildComponentProps } from "react-window";
 import { SelectAllCheckboxProps } from "./SelectAllCheckbox";
 import { SelectRowProps } from "./SelectRowCheckbox";
 
-export type Rows<T extends DatatableRow> = T[] | null;
+export type Rows<T extends DatatableRow = DatatableRow> = T[] | null;
 
 export type SortDirection = "ASC" | "DESC";
 
@@ -91,7 +91,7 @@ export interface DatatableProps<T extends DatatableRow = DatatableRow>
   selectedRows?: Set<ReturnType<GetRowId>>;
   toggleRowSelection?: (arg: SelectRowProps["toggleRowSelection"]) => void;
   toggleAllRowsSelection?: (
-    arg: SelectAllCheckboxProps["toggleAllRowsSelection"]
+    arg: ({ rows, checked }: { rows: Rows<T>; checked: boolean }) => void
   ) => void;
   // selectRowCellRenderer?: TableCellRenderer;
   // selectRowHeaderRenderer?: TableHeaderRenderer;
@@ -138,6 +138,7 @@ export interface HeaderRowProps {
   tableWidth: number;
   showFilter?: boolean;
   selectedRows?: DatatableProps["selectedRows"];
+  rows?: Rows;
   rowFilter?: RowFilter;
   changeFilter: ChangeFilter;
   sorting?: RowsState["sorting"];

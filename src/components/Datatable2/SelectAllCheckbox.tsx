@@ -1,31 +1,29 @@
 import React, { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { Tooltip, Checkbox } from "@mui/material";
-import type { GetRowId } from "./DatatableTypes";
+import { Tooltip, Checkbox, SxProps } from "@mui/material";
+import type { DatatableProps, GetRowId } from "./DatatableTypes";
 
 type Row = Record<string, unknown>;
 type Rows = Row[];
 
 export interface SelectAllCheckboxProps {
-  toggleAllRowsSelection: ({
-    rows,
-    checked,
-  }: {
-    rows: Rows;
-    checked: boolean;
-  }) => void;
+  toggleAllRowsSelection: DatatableProps["toggleAllRowsSelection"];
   rows: Rows;
   selectedRows: Set<ReturnType<GetRowId>>;
+  sx?: SxProps;
 }
 
 export default function SelectAllCheckbox({
   toggleAllRowsSelection,
   rows,
   selectedRows,
+  sx,
 }: SelectAllCheckboxProps) {
   const onChange = useCallback(
     ({ target: { checked } }: { target: { checked: boolean } }) => {
-      toggleAllRowsSelection({ rows, checked });
+      toggleAllRowsSelection &&
+        rows &&
+        toggleAllRowsSelection({ rows, checked });
     },
     [rows, toggleAllRowsSelection]
   );
@@ -43,6 +41,7 @@ export default function SelectAllCheckbox({
           id: "etdaaq",
           checked: selectedRows.size > 0,
           onChange,
+          sx,
         }}
       />
     </Tooltip>

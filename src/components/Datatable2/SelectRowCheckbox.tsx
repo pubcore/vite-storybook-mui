@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { Checkbox } from "@mui/material";
+import { Checkbox, SxProps } from "@mui/material";
 import type { GetRowId } from "./DatatableTypes";
 
 type Row = Record<string, unknown>;
@@ -16,6 +16,7 @@ export interface SelectRowProps {
   selectedRows: Set<ReturnType<GetRowId>>;
   rowData: Row;
   getRowId: GetRowId;
+  sx?: SxProps;
 }
 
 export default function SelectRowCheckbox({
@@ -24,6 +25,7 @@ export default function SelectRowCheckbox({
   selectedRows,
   rowData,
   getRowId,
+  sx,
 }: SelectRowProps) {
   const onChange = useCallback(
     ({ target: { checked } }: { target: { checked: boolean } }) => {
@@ -34,9 +36,11 @@ export default function SelectRowCheckbox({
   return (
     <Checkbox
       {...{
-        id: "olmekd#" + rowIndex,
+        id: "olmekd_" + rowIndex,
         checked: selectedRows.has(getRowId({ row: rowData })),
         onChange,
+        size: "small",
+        sx,
       }}
     />
   );
