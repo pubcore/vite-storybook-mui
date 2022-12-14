@@ -2,8 +2,9 @@ import { Datatable, DatatableProps, DatatableHeaderRowFilterProps } from "../";
 import { TextField } from "@mui/material";
 import testRows from "./testRows.json";
 import { action } from "@storybook/addon-actions";
+import { useEffect, useState } from "react";
 const simulateRequestTime = 150; //ms
-const loadRows = (count: number) =>
+const loadRows = (count: number, offset = 0) =>
   (({ startIndex, stopIndex, filter, sorting }) => {
     return new Promise((res) =>
       setTimeout(() => {
@@ -20,8 +21,8 @@ const loadRows = (count: number) =>
         //repeat test rows for counts over 10000
         res({
           rows: rows.slice(
-            startIndex % 10000,
-            (startIndex % 10000) + Math.min(n, count)
+            (startIndex + offset) % 10000,
+            ((startIndex + offset) % 10000) + Math.min(n, count)
           ),
           count: filter?.name ? rows.length : count,
         });
@@ -106,6 +107,35 @@ export const IndividualTitleComponent = () => (
   />
 );
 export const AllRowsLoaded = (args: Args) => <Datatable {...{ ...args }} />;
+
+//Component to simulate updating/reload of rows
+function LoadRows_Prop_Changes(args: Args) {
+  const [counter, setCounter] = useState(0);
+  useEffect(() => {
+    let isMounted = true;
+    const intervall = setInterval(() => {
+      isMounted && setCounter((s) => s + 1);
+    }, 1000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(intervall);
+    };
+  }, []);
+  return (
+    <Datatable
+      {...{
+        ...args,
+        loadRows: loadRows(1000, counter * 10),
+        title: `Rows changed ${counter} times`,
+      }}
+    />
+  );
+}
+export const SortOrFilterIsStillAppliedIfRowsHasChanged = (args: Args) => (
+  <LoadRows_Prop_Changes {...{ ...args }} />
+);
+
 export const SomeRowsLoadedNoServerSideFilterAvailable = (args: Args) => (
   <Datatable {...{ ...args, loadRows: loadRows(1000000) }} />
 );

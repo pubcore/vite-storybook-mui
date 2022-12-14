@@ -17,7 +17,7 @@ import {
   useTheme,
   Box,
 } from "@mui/material";
-import { ActionBar, ActionButton } from "../";
+import { ActionBar } from "../";
 import ColumnSelector from "./ColumnsSelector";
 import ColumnHead from "./ColumnHead";
 import SelectAllCheckbox from "./SelectAllCheckbox";
@@ -88,13 +88,21 @@ export default function Datatable({
   const { t } = useTranslation();
   const [rowdata, setRowdata] = useState<RowsState>({
     rows: null,
-    filteredRows: null,
     sorting: {},
     filter: {},
     serverMode: true,
     pageSize: propPageSize,
   });
-  const { rows, filteredRows, filter, sorting, serverMode } = rowdata;
+  const { rows, filter, sorting, serverMode } = rowdata;
+  const filteredRows = useMemo(
+    () =>
+      serverMode
+        ? null
+        : rows
+        ? rows.filter((row) => rowFilterMatch?.({ row, filter, cellVal }))
+        : null,
+    [cellVal, filter, rowFilterMatch, rows, serverMode]
+  );
   const count = (filteredRows || rows)?.length ?? 0;
   const [pagination, setPagination] = useState<{
     page: number;
@@ -227,8 +235,8 @@ export default function Datatable({
   }, [loadRows, pageSize, loadAllUpTo, minimumBatchSize, rowsProp, loadAll]);
 
   const isRowLoaded = useCallback(
-    ({ index }) => Boolean((filteredRows ?? rows ?? [])[index]),
-    [rows, filteredRows]
+    ({ index }) => Boolean((rows ?? [])[index]),
+    [rows]
   );
 
   //loadMoreRows is only called, if "isRowLoaded" is falsy for given row
@@ -261,9 +269,23 @@ export default function Datatable({
     [loadRows, filter, sorting]
   );
 
+  const sortedRows = useMemo(() => {
+    const { sortBy, sortDirection } = sorting;
+    const compare = (key: string) => (a: Row, b: Row) =>
+      rowSort?.[key]?.(cellVal(a, key), cellVal(b, key)) as number;
+    return !filteredRows
+      ? null
+      : !sortBy
+      ? filteredRows ?? rows ?? []
+      : ((r) =>
+          String(sortDirection).toUpperCase() === "DESC" ? r.reverse() : r)(
+          (filteredRows ?? rows ?? []).slice().sort(compare(sortBy))
+        );
+  }, [cellVal, filteredRows, rowSort, rows, sorting]);
+
   const rowGetter = useCallback(
-    ({ index }) => (filteredRows || rows)?.[index] || {},
-    [rows, filteredRows]
+    ({ index }) => (sortedRows || rows)?.[index] || {},
+    [rows, sortedRows]
   );
 
   const handleRowsScroll = useCallback(
@@ -319,21 +341,15 @@ export default function Datatable({
       const compare = (key: string) => (a: Row, b: Row) =>
         rowSort?.[key]?.(cellVal(a, key), cellVal(b, key)) as number;
 
-      setRowdata(({ rows, filteredRows, filter, serverMode, ...rest }) => {
+      setRowdata(({ rows, filter, serverMode, ...rest }) => {
         if (serverMode) {
           request({ filter, sorting: { sortBy, sortDirection } });
         }
-
         return {
           ...rest,
           rows,
           filter,
           serverMode,
-          filteredRows: serverMode
-            ? null
-            : ((r) => (sortDirection === "DESC" ? r.reverse() : r))(
-                (filteredRows ?? rows ?? []).slice().sort(compare(sortBy))
-              ),
           sorting: { sortBy, sortDirection },
         };
       });
@@ -377,17 +393,10 @@ export default function Datatable({
           sorting,
           serverMode,
           filter: newFilter,
-          filteredRows: serverMode
-            ? null
-            : rows
-            ? rows.filter((row) =>
-                rowFilterMatch?.({ row, filter: newFilter, cellVal })
-              )
-            : null,
         };
       });
     },
-    [rowFilterMatch, request, cellVal]
+    [rowFilterMatch, request]
   );
 
   const headerRowRenderer = useCallback(
@@ -682,15 +691,18 @@ const noRowsRendererDefault = () => (
 );
 
 const cellValDefault: CellValDefault = (row, key) => row[key];
+const emptyFunc = () => {};
 const selectRowCellRendererDefault: TableCellRenderer = ({
-  columnData: { selectedRows, toggleRowSelection, getRowId },
+  columnData: { selectedRows, toggleRowSelection = emptyFunc, getRowId },
   rowIndex,
   rowData,
-}) => (
-  <SelectRowCheckbox
-    {...{ rowIndex, rowData, toggleRowSelection, selectedRows, getRowId }}
-  />
-);
+}) => {
+  return (
+    <SelectRowCheckbox
+      {...{ rowIndex, rowData, toggleRowSelection, selectedRows, getRowId }}
+    />
+  );
+};
 
 const selectRowHeaderRendererDefault = (({
   columnData: { selectedRows, toggleAllRowsSelection, rows },

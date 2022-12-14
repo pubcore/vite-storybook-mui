@@ -14,7 +14,6 @@ export type Row = Record<string, unknown>;
 export type Rows = Row[] | null;
 export interface RowsState {
   rows: Rows;
-  filteredRows: Rows | null;
   sorting: { sortBy?: string; sortDirection?: SortDirection };
   filter: Record<string, unknown>;
   serverMode: boolean;
