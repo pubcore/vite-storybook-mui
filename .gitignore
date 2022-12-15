@@ -6,3 +6,4 @@ dist-ssr
 .env
 .eslintcache
 coverage
+/.idea

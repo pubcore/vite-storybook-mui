@@ -15,11 +15,13 @@ export interface AppDecoratorProps {
   children: ReactNode;
   createTheme: ({ darkMode }: { darkMode: boolean }) => Theme;
   useDarkMode?: () => boolean | null;
+  disabledStrictMode: boolean;
 }
 
 export function AppDecorator({
   children,
   createTheme,
+  disabledStrictMode,
   useDarkMode = useDarkModeDefault,
 }: AppDecoratorProps) {
   const darkModeBySwitch = useDarkMode();
@@ -68,7 +70,7 @@ export function AppDecorator({
     <ThemeProvider {...{ theme }}>
       <CssBaseline />
       <BrowserRouter>
-        <StrictMode>{children}</StrictMode>
+        {disabledStrictMode ? children : <StrictMode>{children}</StrictMode>}
       </BrowserRouter>
     </ThemeProvider>
   );
