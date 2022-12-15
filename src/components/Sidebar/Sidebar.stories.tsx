@@ -1,6 +1,6 @@
-import { Sidebar, SidbarProps } from "../";
+import { Sidebar, SidebarProps } from "../";
 import { items } from "./items";
-type Args = SidbarProps;
+type Args = SidebarProps;
 export default {
   title: "Sidebar",
   argTypes: {
