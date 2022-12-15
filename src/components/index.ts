@@ -36,7 +36,7 @@ export type { LogoutProps } from "./Logout";
 export { default as Logout } from "./Logout";
 export type { NotificationProps } from "./Notification";
 export { default as Notification } from "./Notification";
-export type { SidbarProps } from "./Sidebar";
+export type { SidebarProps } from "./Sidebar";
 export { default as Sidebar } from "./Sidebar";
 export type { ObjectTableProps } from "./Table/ObjectTable";
 export { default as ObjectTable } from "./Table/ObjectTable";

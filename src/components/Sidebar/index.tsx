@@ -1,4 +1,4 @@
-import { ReactNode, useCallback } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import {
   MenuItem,
   Tooltip,
@@ -10,13 +10,15 @@ import {
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router-dom";
+import { NavLinkItem } from "./NavLinkItem";
 
 export interface Item {
   name: string;
   icon?: ReactNode;
-  to: string;
+  to?: string;
+  subItems?: Item[];
 }
-export interface SidbarProps {
+export interface SidebarProps {
   items: Item[];
   isOpen: boolean;
   toggle: () => void;
@@ -25,24 +27,36 @@ export interface SidbarProps {
 const DRAWER_WIDTH = 240;
 const CLOSED_DRAWER_WIDTH = 55;
 
-export default function Sidebar({ items, isOpen, toggle, close }: SidbarProps) {
+export default function Sidebar({
+  items,
+  isOpen,
+  toggle,
+  close,
+}: SidebarProps) {
   const { breakpoints, transitions, palette } = useTheme();
   const isXSmall = useMediaQuery(breakpoints.down("xs"));
   const isSmall = useMediaQuery(breakpoints.down("sm"));
   const variant = isXSmall ? "temporary" : "permanent";
+  const [openItemNames, setOpenItemNames] = useState<string[]>([]);
   const { t } = useTranslation();
+
   const onItemClick = useCallback(() => {
     if (isSmall || isXSmall) {
       close();
     }
   }, [isXSmall, isSmall, close]);
+
   const onClose = useCallback(() => toggle(), [toggle]);
+
   const navLinkStyle = useCallback(
-    ({ isActive }) => {
+    ({ isActive, to }) => {
       const { secondary, text, background } = palette;
+
       return {
+        display: "inline-block",
+        width: "100%",
         textDecoration: "none",
-        ...(isActive
+        ...(isActive && to
           ? {
               color: text.primary,
               backgroundImage: `linear-gradient(to right, ${secondary.main} 20%, ${background.default} 75%)`,
@@ -51,6 +65,39 @@ export default function Sidebar({ items, isOpen, toggle, close }: SidbarProps) {
       };
     },
     [palette]
+  );
+
+  const handleItemToggle = useCallback((name: string) => {
+    setOpenItemNames((old) => {
+      if (old.includes(name)) {
+        return old.filter((val) => val !== name);
+      } else {
+        return [...old, name];
+      }
+    });
+  }, []);
+
+  const renderMenuItems = useCallback(
+    (menuItems: Item[], subItem?: boolean) => {
+      return menuItems.map((item) => {
+        const { name, to } = item;
+
+        return (
+          <NavLinkItem
+            subItem={subItem}
+            style={(args) => navLinkStyle({ ...args, to })}
+            isOpen={isOpen}
+            isItemOpen={openItemNames.includes(name)}
+            key={name}
+            item={item}
+            subItemsRenderer={renderMenuItems}
+            onClick={onItemClick}
+            onToggle={handleItemToggle}
+          />
+        );
+      });
+    },
+    [handleItemToggle, isOpen, navLinkStyle, onItemClick, openItemNames]
   );
 
   return (
@@ -87,31 +134,7 @@ export default function Sidebar({ items, isOpen, toggle, close }: SidbarProps) {
           width: isOpen ? DRAWER_WIDTH : CLOSED_DRAWER_WIDTH,
         }}
       >
-        {items.map(({ name, icon, to }) => {
-          //conditional wrap
-          const menuItem = (
-            <MenuItem tabIndex={0}>
-              {icon && <ListItemIcon sx={{ minWidth: 5 }}>{icon}</ListItemIcon>}
-              {isOpen ? t(name as "_") : ""}
-            </MenuItem>
-          );
-          return (
-            <NavLink
-              style={navLinkStyle}
-              key={name}
-              onClick={onItemClick}
-              {...{ to }}
-            >
-              {isOpen ? (
-                menuItem
-              ) : (
-                <Tooltip title={t(name as "_")} placement="right">
-                  {menuItem}
-                </Tooltip>
-              )}
-            </NavLink>
-          );
-        })}
+        {renderMenuItems(items)}
       </Box>
     </Drawer>
   );

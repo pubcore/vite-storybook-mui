@@ -1,4 +1,4 @@
-import { ReactNode, useMemo, StrictMode } from "react";
+import { ReactNode, useMemo } from "react";
 import {
   CssBaseline,
   useMediaQuery,
@@ -15,13 +15,11 @@ export interface AppDecoratorProps {
   children: ReactNode;
   createTheme: ({ darkMode }: { darkMode: boolean }) => Theme;
   useDarkMode?: () => boolean | null;
-  disabledStrictMode?: boolean;
 }
 
 export function AppDecorator({
   children,
   createTheme,
-  disabledStrictMode,
   useDarkMode = useDarkModeDefault,
 }: AppDecoratorProps) {
   const darkModeBySwitch = useDarkMode();
@@ -69,9 +67,7 @@ export function AppDecorator({
   return (
     <ThemeProvider {...{ theme }}>
       <CssBaseline />
-      <BrowserRouter>
-        {disabledStrictMode ? children : <StrictMode>{children}</StrictMode>}
-      </BrowserRouter>
+      <BrowserRouter>{children}</BrowserRouter>
     </ThemeProvider>
   );
 }
