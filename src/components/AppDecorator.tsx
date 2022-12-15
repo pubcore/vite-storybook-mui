@@ -15,7 +15,7 @@ export interface AppDecoratorProps {
   children: ReactNode;
   createTheme: ({ darkMode }: { darkMode: boolean }) => Theme;
   useDarkMode?: () => boolean | null;
-  disabledStrictMode: boolean;
+  disabledStrictMode?: boolean;
 }
 
 export function AppDecorator({
