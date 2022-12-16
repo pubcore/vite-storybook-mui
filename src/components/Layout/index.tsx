@@ -9,6 +9,7 @@ export interface PageProps {
   sidebar: ReactNode;
   notification: ReactNode;
   contentMaxWidth?: number;
+  hideFooter?: boolean;
 }
 
 export default function Page({
@@ -16,6 +17,7 @@ export default function Page({
   sidebar,
   notification,
   contentMaxWidth,
+  hideFooter,
 }: PageProps) {
   const { pathname } = useLocation();
   const { t } = useTranslation();
@@ -74,11 +76,13 @@ export default function Page({
             >
               <Outlet />
             </ErrorBoundary>
-            <Typography variant="subtitle2" color="textSecondary">
-              {t("footer_copyright", "{{date}}", {
-                date: new Date().getFullYear(),
-              })}
-            </Typography>
+            {!hideFooter && (
+              <Typography variant="subtitle2" color="textSecondary">
+                {t("footer_copyright", "{{date}}", {
+                  date: new Date().getFullYear(),
+                })}
+              </Typography>
+            )}
           </Box>
         </Box>
       </Box>
