@@ -574,10 +574,9 @@ export default function Datatable({
           >
             {({ onRowsRendered, registerChild }) => {
               _onRowsRendered.current = onRowsRendered;
-              const columnsWidth = visibleColumns.reduce(
-                (acc, { width }) => acc + width,
-                0
-              );
+              const columnsWidth =
+                60 +
+                visibleColumns.reduce((acc, { width }) => acc + width + 10, 0);
               return (
                 <AutoSizer disableHeight>
                   {({ width }) => {
