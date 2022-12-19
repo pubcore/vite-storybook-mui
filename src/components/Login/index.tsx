@@ -29,7 +29,7 @@ interface FormValues {
 
 export interface LoginProps {
   login: (values: FormValues) => Promise<{ textkey: string; severity: string }>;
-  registerUri: string;
+  registerUri?: string;
 }
 
 export default function Login({ login, registerUri }: LoginProps) {
@@ -65,8 +65,12 @@ export default function Login({ login, registerUri }: LoginProps) {
     >
       <Box component="legend" sx={{ paddingBottom: 2.5 }}>
         <h1>{t("login_please")}</h1>
-        {t("register_please", "No account?")}
-        &nbsp;<A href={registerUri}>{t("register")}</A>
+        {registerUri && (
+          <>
+            {t("register_please", "No account?")}
+            &nbsp;<A href={registerUri}>{t("register")}</A>
+          </>
+        )}
       </Box>
       <TextField
         {...{
