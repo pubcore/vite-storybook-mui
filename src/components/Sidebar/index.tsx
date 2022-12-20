@@ -1,15 +1,5 @@
 import { ReactNode, useCallback, useEffect, useState } from "react";
-import {
-  MenuItem,
-  Tooltip,
-  useMediaQuery,
-  Drawer,
-  Box,
-  ListItemIcon,
-  useTheme,
-} from "@mui/material";
-import { useTranslation } from "react-i18next";
-import { NavLink } from "react-router-dom";
+import { useMediaQuery, Drawer, Box, useTheme } from "@mui/material";
 import { NavLinkItem } from "./NavLinkItem";
 
 export interface Item {
@@ -17,6 +7,7 @@ export interface Item {
   icon?: ReactNode;
   to?: string;
   subItems?: Item[];
+  defaultOpen?: boolean;
 }
 export interface SidebarProps {
   items: Item[];
@@ -38,7 +29,16 @@ export default function Sidebar({
   const isSmall = useMediaQuery(breakpoints.down("sm"));
   const variant = isXSmall ? "temporary" : "permanent";
   const [openItemNames, setOpenItemNames] = useState<string[]>([]);
-  const { t } = useTranslation();
+
+  useEffect(() => {
+    const defaultOpenItemNames = items
+      .filter((item) => item.defaultOpen)
+      .map((item) => item.name);
+
+    if (defaultOpenItemNames.length) {
+      setOpenItemNames((old) => [...old, ...defaultOpenItemNames]);
+    }
+  }, [items]);
 
   const onItemClick = useCallback(() => {
     if (isSmall || isXSmall) {
