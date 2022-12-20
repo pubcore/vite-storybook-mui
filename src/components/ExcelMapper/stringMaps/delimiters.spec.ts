@@ -2,10 +2,10 @@ import { delimiters } from "./delimiters";
 import { numbers } from "./numbers";
 
 //delimiterToPipe
-const d2p = (s?: string | null) =>
+const d2p = (s?: string | null, isEnglishNumberFormat: boolean = false) =>
   delimiters(s, {
     to: "|",
-    numbers: (s) => numbers(s, { isEnglishNumberFormat: false }),
+    numbers: (s) => numbers(s, { isEnglishNumberFormat }),
   });
 
 //normalize delimiters
@@ -41,6 +41,9 @@ test("null value", () => {
 test("tab separated", () => {
   expect(d2p("one\ttwo\tthree")).toBe("one|two|three");
 });
+test("semicolon separated", () => {
+  expect(d2p("P210;P102")).toBe("P210|P102");
+});
 
 //numbers, if comma is used as delimiter, a white-space character must follow
 test("some numbers with comma", () => {
@@ -56,7 +59,8 @@ test("german number format with semicolon delimiter", () => {
   expect(d2p("200,45;12;1,0000001")).toBe("200.45|12|1.0000001");
 });
 test("numbers with thousand sep.", () => {
-  expect(d2p("0.5, 200,200, 12,300.4")).toBe("0.5| 200200| 12300.4");
+  //this case, it is required to
+  expect(d2p("0.5, 200,200, 12,300.4", true)).toBe("0.5| 200200| 12300.4");
 });
 test("numbers with thousand sep., german format", () => {
   //beware, remove whitespaces is extra step (trim)

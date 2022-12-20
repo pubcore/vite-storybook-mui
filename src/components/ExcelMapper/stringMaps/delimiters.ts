@@ -1,5 +1,4 @@
 import { parse } from "papaparse";
-import { numbers as numbersDefault } from "./numbers";
 
 //normalize delimiter, for cells having multiple values
 //eg. "one, two, three" => "one| two| three"
