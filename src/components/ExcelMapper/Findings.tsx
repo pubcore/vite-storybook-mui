@@ -34,6 +34,7 @@ function FeedbackCell({ column, row }: SimpleTableCellProps) {
             const comma = i > 0 ? ", " : "";
             switch (finding.id) {
               case "COLUMN_NOT_FOUND":
+              case "ONLY_ID_COLUMN_FOUND":
                 return comma + finding.payload.id;
               case "MAPPED_COLUMN_NOT_FOUND":
                 return comma + finding.payload.name;

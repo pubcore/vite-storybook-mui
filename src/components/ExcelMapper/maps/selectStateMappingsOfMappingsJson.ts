@@ -81,18 +81,29 @@ export const selectStateMappingsOfMappingsJson: (
       [[], []] as [StateMappings, Array<Finding>]
     );
 
+    //one key column + number of data-columns
     if (foundColumnsByTargetId.size <= 0) {
       result[1].push({ id: "NO_COLUMN_FOUND" });
     } else {
-      //check required target columns (if at least one column found in group)
-      targetColumns.forEach((target) => {
-        const { id, groupId = "*" } = target;
-        const noColumnsForThisGroup = !columnsFoundByGroupId.get(groupId);
-        foundColumnsByTargetId.get(id) ||
-          noColumnsForThisGroup ||
-          keyIds.indexOf(id) > 0 || //secondary keys are optional
-          result[1].push({ id: "COLUMN_NOT_FOUND", payload: target });
-      });
+      if (
+        foundColumnsByTargetId.size === 1 &&
+        foundColumnsByTargetId.get(keyIds[0] ?? "")
+      ) {
+        result[1].push({
+          id: "ONLY_ID_COLUMN_FOUND",
+          payload: { id: keyIds[0]! },
+        });
+      } else {
+        //check required target columns (if at least one column found in group)
+        targetColumns.forEach((target) => {
+          const { id, groupId = "*" } = target;
+          const noColumnsForThisGroup = !columnsFoundByGroupId.get(groupId);
+          foundColumnsByTargetId.get(id) ||
+            noColumnsForThisGroup ||
+            keyIds.indexOf(id) > 0 || //secondary keys are optional
+            result[1].push({ id: "COLUMN_NOT_FOUND", payload: target });
+        });
+      }
     }
 
     if (result[1].length <= 0) {

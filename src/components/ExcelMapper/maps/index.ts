@@ -36,6 +36,7 @@ export type Result = Readonly<[findings?: Finding[]]>;
 
 export type Finding =
   | { id: "COLUMN_NOT_FOUND"; payload: Target }
+  | { id: "ONLY_ID_COLUMN_FOUND"; payload: Target }
   | {
       id: "MAPPED_COLUMN_NOT_FOUND";
       payload: { name: string };
