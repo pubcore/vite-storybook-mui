@@ -1,6 +1,7 @@
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState, MouseEvent } from "react";
 import { useMediaQuery, Drawer, Box, useTheme } from "@mui/material";
 import { NavLinkItem } from "./NavLinkItem";
+import { NavButtonItem } from "./NavButtonItem";
 
 export interface Item {
   name: string;
@@ -8,6 +9,9 @@ export interface Item {
   to?: string;
   subItems?: Item[];
   defaultOpen?: boolean;
+  onClick?: (event: MouseEvent) => void;
+  isButton?: boolean;
+  disabled?: boolean;
 }
 export interface SidebarProps {
   items: Item[];
@@ -40,12 +44,6 @@ export default function Sidebar({
     }
   }, [items]);
 
-  const onItemClick = useCallback(() => {
-    if (isSmall || isXSmall) {
-      close();
-    }
-  }, [isXSmall, isSmall, close]);
-
   const onClose = useCallback(() => toggle(), [toggle]);
 
   const navLinkStyle = useCallback(
@@ -77,12 +75,25 @@ export default function Sidebar({
     });
   }, []);
 
+  const onItemClick = useCallback(
+    (event: MouseEvent, clickHandler?: (event: MouseEvent) => void) => {
+      if (isSmall || isXSmall) {
+        close();
+      }
+
+      if (clickHandler) {
+        clickHandler(event);
+      }
+    },
+    [isXSmall, isSmall, close]
+  );
+
   const renderMenuItems = useCallback(
     (menuItems: Item[], subItem?: boolean) => {
       return menuItems.map((item) => {
-        const { name, to } = item;
+        const { name, to, isButton } = item;
 
-        return (
+        return !isButton ? (
           <NavLinkItem
             subItem={subItem}
             style={(args) => navLinkStyle({ ...args, to })}
@@ -91,8 +102,15 @@ export default function Sidebar({
             key={name}
             item={item}
             subItemsRenderer={renderMenuItems}
-            onClick={onItemClick}
+            onClick={(event) => onItemClick(event, item.onClick)}
             onToggle={handleItemToggle}
+          />
+        ) : (
+          <NavButtonItem
+            item={item}
+            isOpen={isOpen}
+            subItem={subItem}
+            onClick={(event) => onItemClick(event, item.onClick)}
           />
         );
       });

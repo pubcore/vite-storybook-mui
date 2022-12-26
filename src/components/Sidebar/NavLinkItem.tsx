@@ -1,7 +1,6 @@
 import { Item } from "src/components/Sidebar/index";
 import {
   Box,
-  Button,
   Collapse,
   ListItemIcon,
   MenuItem,
