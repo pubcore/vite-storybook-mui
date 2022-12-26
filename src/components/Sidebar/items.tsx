@@ -18,6 +18,12 @@ export const items = [
     icon: <PermContactCalendarIcon titleAccess="contacts" />,
   },
   {
+    name: "button",
+    icon: <PermContactCalendarIcon titleAccess="contacts" />,
+    isButton: true,
+    disabled: true,
+  },
+  {
     name: "images",
     to: "/images",
     exact: true,
