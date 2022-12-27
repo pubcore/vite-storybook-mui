@@ -1,11 +1,4 @@
-import { useMemo } from "react";
-import {
-  Button,
-  ButtonProps,
-  ListItemIcon,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { Button, ButtonProps, ListItemIcon, Typography } from "@mui/material";
 import { Item } from "src/components/Sidebar/index";
 import { useTranslation } from "react-i18next";
 
@@ -17,16 +10,6 @@ interface Props extends ButtonProps {
 
 export function NavButtonItem({ item, isOpen, subItem, ...rest }: Props) {
   const { t } = useTranslation();
-  const { palette } = useTheme();
-
-  const navLinkStyle = useMemo(
-    () => ({
-      display: "inline-block",
-      width: "100%",
-      color: palette.text.secondary,
-    }),
-    [palette.text.secondary]
-  );
 
   return (
     <Button

@@ -18,6 +18,7 @@ export interface SidebarProps {
   isOpen: boolean;
   toggle: () => void;
   close: () => void;
+  width?: number;
 }
 const DRAWER_WIDTH = 240;
 const CLOSED_DRAWER_WIDTH = 55;
@@ -27,6 +28,7 @@ export default function Sidebar({
   isOpen,
   toggle,
   close,
+  width,
 }: SidebarProps) {
   const { breakpoints, transitions, palette } = useTheme();
   const isXSmall = useMediaQuery(breakpoints.down("xs"));
@@ -126,7 +128,7 @@ export default function Sidebar({
           height: { xs: "100vh", sm: 1 },
           overflowX: "hidden",
           width: isOpen
-            ? DRAWER_WIDTH
+            ? width ?? DRAWER_WIDTH
             : isSmall || isXSmall
             ? 0
             : CLOSED_DRAWER_WIDTH,
@@ -149,7 +151,7 @@ export default function Sidebar({
           flexDirection: "column",
           justifyContent: "flex-start",
           marginTop: { xs: 0, md: 1 },
-          width: isOpen ? DRAWER_WIDTH : CLOSED_DRAWER_WIDTH,
+          width: isOpen ? width ?? DRAWER_WIDTH : CLOSED_DRAWER_WIDTH,
         }}
       >
         {renderMenuItems(items)}
