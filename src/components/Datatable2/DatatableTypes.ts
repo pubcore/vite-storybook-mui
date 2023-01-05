@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import { FixedSizeListProps, ListChildComponentProps } from "react-window";
-import { SelectAllCheckboxProps } from "./SelectAllCheckbox";
 import { SelectRowProps } from "./SelectRowCheckbox";
 
 export type Rows<T extends DatatableRow = DatatableRow> = T[] | null;
@@ -51,11 +50,11 @@ export interface DatatableColumn {
 export type DatatableSupportedTypes = string | number | Date;
 
 export type DatatableRow<
-  T extends Record<string, DatatableSupportedTypes> = {}
-> = T & {
-  [key: string]: DatatableSupportedTypes;
-  name: string;
-};
+  T extends Record<string, DatatableSupportedTypes> = Record<
+    string,
+    DatatableSupportedTypes
+  >
+> = T & { name: string };
 
 export interface DatatableProps<T extends DatatableRow = DatatableRow>
   extends Partial<Omit<FixedSizeListProps<T>, "rowHeight">> {
@@ -151,6 +150,8 @@ export interface HeaderRowProps {
     sortDirection: SortDirection;
   }) => void;
   disableSort?: boolean;
+  toggleAllRowsSelection: DatatableProps["toggleAllRowsSelection"];
+  toggleRowSelection: DatatableProps["toggleRowSelection"];
 }
 
 export type CellRenderer = (props: {

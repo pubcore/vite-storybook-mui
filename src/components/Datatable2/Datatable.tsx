@@ -16,13 +16,13 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import InfiniteLoader from "react-window-infinite-loader";
-import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList, ListChildComponentProps } from "react-window";
 import initThroat from "throat";
 import ActionBar from "../ActionBar";
 import ColumnSelector from "./ColumnsSelector";
 import {
   CellValDefault,
+  DatatableColumn,
   DatatableProps,
   DatatableRow,
   DatatableSupportedTypes,
@@ -64,8 +64,8 @@ export function Datatable2<T extends DatatableRow>({
   cellVal = cellValDefault,
   getRowId = getRowIdDefault,
   selectedRows,
-  toggleRowSelection = noop,
-  toggleAllRowsSelection = noop,
+  toggleRowSelection,
+  toggleAllRowsSelection,
   // selectRowCellRenderer = selectRowCellRendererDefault,
   // selectRowHeaderRenderer = selectRowHeaderRendererDefault,
   minimumBatchSize = 30,
@@ -277,6 +277,7 @@ export function Datatable2<T extends DatatableRow>({
   );
 
   const listRef = useRef<FixedSizeList | null>(null);
+  // const infiniteLoaderRef = useRef<InfiniteLoader | null>(null);
 
   const handlePageChange = useCallback(
     (_e: ChangeEvent<unknown>, page: number) => {
@@ -379,53 +380,27 @@ export function Datatable2<T extends DatatableRow>({
     [rowFilterMatch, request, cellVal]
   );
 
-  const sort = useCallback(
-    ({
-      sortBy,
-      sortDirection,
-    }: {
-      sortBy: string;
-      sortDirection: SortDirection;
-    }) => {
-      if (serverMode ? !rowSortServer?.includes(sortBy) : !rowSort?.[sortBy]) {
-        return;
-      }
-
-      const compare =
-        (key: string) => (a: DatatableRow<T>, b: DatatableRow<T>) =>
-          rowSort?.[key]?.(cellVal(a, key), cellVal(b, key)) as number;
-
-      setRowdata(({ rows, filteredRows, filter, serverMode, ...rest }) => {
-        if (serverMode) {
-          request({
-            filter,
-            sorting: { sortBy, sortDirection },
-          });
-        }
-
-        const newFilteredRows = serverMode
-          ? null
-          : ((r) => (sortDirection === "DESC" ? r.reverse() : r))(
-              (filteredRows ?? rows ?? []).slice().sort(compare(sortBy))
-            );
-
-        return {
-          ...rest,
-          rows,
-          filter,
-          serverMode,
-          filteredRows: newFilteredRows,
-          sorting: { sortBy, sortDirection },
-        };
-      });
-    },
-    [serverMode, rowSortServer, rowSort, cellVal, request]
-  );
-
+  // without margins
   const columnsWidth = visibleColumns.reduce(
     (acc, { width }) => acc + width,
     0
   );
+
+  const finalColumns = (
+    columns
+      ? [{ name: "_select_row_checkbox", width: 40 }].concat(columns)
+      : emptyArray
+  ) as DatatableColumn[];
+
+  // with margins
+  const fullTableWidth = columns
+    ? getFullTableWidth({
+        columns: finalColumns,
+        visibleColumns: visibleColumns.map((vc) => vc.name),
+        toggleAllRowsSelection,
+        toggleRowSelection,
+      })
+    : 0;
 
   return (
     <Paper
@@ -433,20 +408,6 @@ export function Datatable2<T extends DatatableRow>({
         height: 1,
         display: "flex",
         flexDirection: "column",
-        "& .ReactVirtualized__Table__row": {
-          borderBottom: `1px solid ${palette.divider}`,
-          ...(onRowClick ? { cursor: "pointer" } : {}),
-        },
-        "& .ReactVirtualized__Table__row:hover": {
-          backgroundColor: palette.action.hover,
-        },
-        "& .ReactVirtualized__Table__headerRow": {
-          textTransform: "none",
-        },
-        "& .ReactVirtualized__Table__sortableHeaderIcon": {
-          width: "none",
-          height: "none",
-        },
       }}
     >
       {rows === null ? (
@@ -478,103 +439,119 @@ export function Datatable2<T extends DatatableRow>({
           )}
         </ActionBar>
       )}
-      <div style={{ flexGrow: 1 }}>
+      <div
+        className="datatable_inner_container"
+        style={{
+          width: "100%",
+          overflowX: "auto",
+          overflowY: "hidden",
+          flexGrow: 1,
+          display: "block",
+        }}
+      >
         {rows &&
           (rows.length > 0 && columns ? (
             <>
-              <AutoSizer disableHeight>
-                {({ width }) => (
-                  <>
-                    <HeaderRow
-                      {...{
-                        columns,
-                        visibleColumns: visibleColumns.map((c) => c.name),
-                        changeFilter,
-                        tableWidth: columnsWidth,
-                        showFilter,
-                        rowFilter,
-                        selectedRows,
-                        toggleAllRowsSelection,
-                        rows,
-                        rowSort,
-                        sorting,
-                        sort,
-                      }}
-                    />
-                    <InfiniteLoader
-                      minimumBatchSize={minimumBatchSize}
-                      threshold={40}
-                      loadMoreItems={loadMoreRowsTest}
-                      isItemLoaded={isRowLoaded}
-                      itemCount={count}
-                    >
-                      {({ onItemsRendered, ref }) => {
-                        const horizontalScroll =
-                          width > 0 && columnsWidth / width > 1.1
-                            ? true
-                            : false;
-                        const table = (
-                          <FixedSizeList
-                            {...{
-                              ref: (instance) => {
-                                ref(instance);
-                                listRef.current = instance;
-                              },
-                              height,
-                              width: horizontalScroll ? columnsWidth : width,
-                              onItemsRendered: (props) => {
-                                onItemsRendered(props);
-                                handleRowsScroll({
-                                  startIndex: props.visibleStartIndex,
-                                  stopIndex: props.visibleStopIndex,
-                                });
-                              },
-                              itemCount: count,
-                              itemSize: rowHeight,
-                              columnCount: visibleColumns.length,
-                              sortBy: sorting.sortBy,
-                              sortDirection:
-                                sorting.sortDirection as SortDirection,
-                              ...rest,
-                            }}
-                          >
-                            {(props: ListChildComponentProps<T>) => {
-                              return (
-                                <RowRenderer<T>
-                                  {...{
-                                    ...props,
-                                    filteredRows,
-                                    rows,
-                                    columns,
-                                    visibleColumns: visibleColumns.map(
-                                      (c) => c.name
-                                    ),
-                                    selectedRows,
-                                    toggleRowSelection,
-                                    getRowId,
-                                    onRowClick,
-                                  }}
-                                />
-                              );
-                            }}
-                          </FixedSizeList>
-                        );
-                        return (
-                          <div ref={containerRef}>
-                            {horizontalScroll ? (
-                              <div style={{ width, overflowX: "scroll" }}>
-                                {table}
-                              </div>
-                            ) : (
-                              table
-                            )}
+              <HeaderRow
+                {...{
+                  rows,
+                  selectedRows: selectedRows ?? new Set<string>(),
+                  rowSort,
+                  rowFilter,
+                  changeFilter,
+                  columns,
+                  visibleColumns: visibleColumns.map((c) => c.name),
+                  tableWidth: fullTableWidth,
+                  toggleRowSelection,
+                  toggleAllRowsSelection,
+                  showFilter,
+                  sorting,
+                }}
+              />
+              <div
+                className="infinite_loader_container"
+                style={{
+                  position: "relative",
+                  width: fullTableWidth,
+                  minWidth: "100%",
+                }}
+              >
+                <InfiniteLoader
+                  minimumBatchSize={minimumBatchSize}
+                  threshold={40}
+                  loadMoreItems={loadMoreRowsTest}
+                  isItemLoaded={isRowLoaded}
+                  itemCount={count}
+                >
+                  {({ onItemsRendered, ref }) => {
+                    const width = fullTableWidth;
+                    const horizontalScroll =
+                      width > 0 && fullTableWidth / width > 1.1 ? true : false;
+                    const table = (
+                      <FixedSizeList
+                        {...{
+                          ref: (instance) => {
+                            ref(instance);
+                            listRef.current = instance;
+                          },
+                          height,
+                          width: "100%",
+                          style: {
+                            overflowX: "hidden",
+                            overflowY: "auto",
+                          },
+                          // width: horizontalScroll ? columnsWidth : width,
+                          onItemsRendered: (props) => {
+                            onItemsRendered(props);
+                            handleRowsScroll({
+                              startIndex: props.visibleStartIndex,
+                              stopIndex: props.visibleStopIndex,
+                            });
+                          },
+                          itemCount: count,
+                          itemSize: rowHeight,
+                          columnCount: visibleColumns.length,
+                          sortBy: sorting.sortBy,
+                          sortDirection: sorting.sortDirection as SortDirection,
+                          ...rest,
+                        }}
+                      >
+                        {(props: ListChildComponentProps<T>) => {
+                          return (
+                            <RowRenderer<T>
+                              {...{
+                                ...props,
+                                filteredRows,
+                                rows,
+                                columns,
+                                visibleColumns: visibleColumns.map(
+                                  (c) => c.name
+                                ),
+                                selectedRows,
+                                toggleRowSelection,
+                                toggleAllRowsSelection,
+                                getRowId,
+                                onRowClick,
+                              }}
+                            />
+                          );
+                        }}
+                      </FixedSizeList>
+                    );
+                    return (
+                      <div ref={containerRef}>
+                        {horizontalScroll ? (
+                          <div style={{ width, overflowX: "scroll" }}>
+                            {table}
                           </div>
-                        );
-                      }}
-                    </InfiniteLoader>
-                  </>
-                )}
-              </AutoSizer>
+                        ) : (
+                          table
+                        )}
+                      </div>
+                    );
+                  }}
+                </InfiniteLoader>
+              </div>
             </>
           ) : (
             noRowsRenderer()
@@ -598,6 +575,29 @@ export function Datatable2<T extends DatatableRow>({
         />
       </Box>
     </Paper>
+  );
+}
+
+/** Returns the full width of all visible columns, including their margins */
+function getFullTableWidth({
+  columns,
+  visibleColumns,
+  toggleRowSelection,
+  toggleAllRowsSelection,
+}: {
+  columns: DatatableColumn[];
+  visibleColumns: string[];
+  toggleRowSelection: DatatableProps["toggleRowSelection"];
+  toggleAllRowsSelection: DatatableProps["toggleAllRowsSelection"];
+}) {
+  return (
+    visibleColumns.reduce(
+      (a, c, i) =>
+        a +
+        columns.find((col) => col.name === c)!.width +
+        (i === 0 ? 2 : 1) * 10,
+      0
+    ) + (toggleRowSelection || toggleAllRowsSelection ? 40 : 0)
   );
 }
 

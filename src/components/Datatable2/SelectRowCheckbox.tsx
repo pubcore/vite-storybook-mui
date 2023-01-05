@@ -39,7 +39,6 @@ export default function SelectRowCheckbox({
         id: "olmekd_" + rowIndex,
         checked: selectedRows.has(getRowId({ row: rowData })),
         onChange,
-        size: "small",
         sx,
       }}
     />
