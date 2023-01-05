@@ -1,6 +1,5 @@
-import { TableSortLabel } from "@mui/material";
-import { noop } from "lodash-es";
-import { ReactNode, useState } from "react";
+import { styled, TableSortLabel } from "@mui/material";
+import { CSSProperties, ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   CellRenderer,
@@ -8,7 +7,6 @@ import {
   DatatableColumn,
   DatatableProps,
   DatatableRow,
-  DatatableSupportedTypes,
   GetRowId,
   HeaderRowProps,
   RowFilterFunction,
@@ -40,7 +38,6 @@ export function useRowRenderer({
   getRowId: GetRowId;
 }) {
   const elements = [...emptyArray] as ReactNode[];
-  let left = 10;
 
   if (selectedRows && toggleRowSelection && row) {
     elements.push(
@@ -51,17 +48,14 @@ export function useRowRenderer({
           toggleRowSelection,
           selectedRows,
           getRowId,
-          sx: {
-            position: "absolute",
-            left: left + 5,
-            maxHeight: 30,
-            maxWidth: 30,
-            marginRight: marginWidth,
+          style: {
+            // position: "absolute",
+            // left: left + 5,
+            flex: "0 1 30px",
           },
         }}
       />
     );
-    left += 40;
   }
 
   visibleColumns.forEach((columnName, colIndex) => {
@@ -70,32 +64,35 @@ export function useRowRenderer({
     const renderer: CellRenderer =
       col?.cellRenderer ?? (({ cellData }) => String(cellData));
 
-    if (!col || !val) return;
+    if (!col) return;
+
+    const Cell = StyledCell({ flex: `0 1 ${col.width}px` });
 
     elements.push(
-      <div
+      <Cell
         key={`datatable_row_${rowIndex}_column_${columnName}`}
         style={{
-          position: "absolute",
-          width: col.width,
-          left,
-          marginRight: marginWidth,
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
+          minWidth: col.width,
           marginLeft: colIndex === 0 ? marginWidth : "initial",
         }}
-        title={String(val)}
+        title={val ? String(val) : undefined}
       >
-        {renderer({
-          cellData: val ? String(val) : undefined,
-          rowIndex,
-          columnIndex: colIndex,
-        })}
-      </div>
+        {val ? (
+          renderer({
+            cellData: String(val),
+            rowIndex,
+            columnIndex: colIndex,
+          })
+        ) : (
+          <div
+            style={{
+              marginRight: marginWidth,
+              marginLeft: colIndex === 0 ? marginWidth : "initial",
+            }}
+          ></div>
+        )}
+      </Cell>
     );
-
-    left += col.width + marginWidth * (colIndex === 0 ? 2 : 1);
   });
 
   return <>{elements}</>;
@@ -107,6 +104,7 @@ export function useHeaderRowRenderer({
   visibleColumns,
   selectedRows,
   toggleAllRowsSelection,
+  toggleRowSelection,
   sorting,
   disableSort,
   rows,
@@ -117,6 +115,7 @@ export function useHeaderRowRenderer({
   visibleColumns: string[];
   selectedRows: DatatableProps["selectedRows"];
   toggleAllRowsSelection: DatatableProps["toggleAllRowsSelection"];
+  toggleRowSelection: DatatableProps["toggleRowSelection"];
   sorting?: RowsState["sorting"];
   disableSort?: boolean;
   rows?: Rows;
@@ -124,26 +123,22 @@ export function useHeaderRowRenderer({
   sort: HeaderRowProps["sort"];
 }) {
   const { t } = useTranslation();
-  const elements = [...emptyArray] as ReactNode[];
-  let left = 10;
-
-  if (selectedRows && toggleAllRowsSelection && rows) {
-    elements.push(
+  const elements = [
+    selectedRows && toggleAllRowsSelection && rows ? (
       <SelectAllCheckbox
         {...{
           selectedRows,
           toggleAllRowsSelection,
           rows,
-          sx: {
-            position: "absolute",
-            left,
-            marginRight: marginWidth,
+          style: {
+            flex: "0 1 40px",
           },
         }}
       />
-    );
-    left += 40;
-  }
+    ) : toggleRowSelection ? (
+      <div style={{ minWidth: 40, minHeight: 1 }} />
+    ) : null,
+  ] as ReactNode[];
 
   const [lastSortedCol, setLastSortedCol] = useState<string | undefined>();
 
@@ -151,20 +146,15 @@ export function useHeaderRowRenderer({
     const col = columns.find((c) => c.name === colName);
     if (!col) return;
 
+    const Cell = StyledCell({ flex: `0 1 ${col.width}px` });
     const dataKey = col.dataKey ?? col.name;
 
     elements.push(
-      <div
+      <Cell
         key={`datatable_header_row_column_${colName}`}
         style={{
-          position: "absolute",
-          width: col.width,
-          left,
-          marginRight: marginWidth,
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
           marginLeft: colIndex === 0 ? marginWidth : "initial",
+          minWidth: col.width,
         }}
       >
         {disableSort === true ? (
@@ -195,10 +185,8 @@ export function useHeaderRowRenderer({
             {t(col.name as "_")}
           </TableSortLabel>
         )}
-      </div>
+      </Cell>
     );
-
-    left += col.width + marginWidth * (colIndex === 0 ? 2 : 1);
   });
 
   return <>{elements}</>;
@@ -208,44 +196,49 @@ export function useHeaderRowRenderer({
 export function useGenericRowRenderer({
   columns,
   visibleColumns,
-  items,
+  rows,
   changeFilter,
 }: {
   columns: DatatableColumn[];
   visibleColumns: string[];
-  items: { columnName: string; element: RowFilterFunction | null }[];
+  rows: { columnName: string; element: RowFilterFunction | null }[];
   changeFilter: ChangeFilter;
 }) {
   const elements = [...emptyArray] as ReactNode[];
-  let left = 10;
 
   visibleColumns.forEach((colName, colIndex) => {
     const col = columns.find((c) => c.name === colName);
-    const itm = items.find((i) => i.columnName === colName);
+    const itm = rows.find((i) => i.columnName === colName);
+
     if (!col || !itm) return;
 
+    const Cell = StyledCell({ flex: `0 1 ${col.width}px` });
+
     elements.push(
-      <div
+      <Cell
         key={`datatable_generic_row_column_${colName}`}
         style={{
-          position: "absolute",
-          width: col.width,
-          left,
-          marginRight: marginWidth,
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
           marginLeft: colIndex === 0 ? marginWidth : "initial",
+          minWidth: col.width,
         }}
       >
         {itm.element ? itm.element({ name: colName, changeFilter }) : null}
-      </div>
+      </Cell>
     );
-
-    left += col.width + marginWidth * (colIndex === 0 ? 2 : 1);
   });
 
-  return <>{elements}</>;
+  return elements;
+}
+
+function StyledCell(additionalStyle: CSSProperties) {
+  return styled("div")({
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    marginRight: marginWidth,
+    minHeight: 1, // otherwise empty cells are rendered with 0 width
+    ...additionalStyle,
+  });
 }
 
 function toggleSortDirection(direction?: string) {

@@ -1,5 +1,6 @@
-import { Box } from "@mui/material";
+import { styled, useTheme } from "@mui/material/styles";
 import { noop } from "lodash-es";
+import { CSSProperties } from "react";
 import { ListChildComponentProps } from "react-window";
 import {
   DatatableColumn,
@@ -21,6 +22,7 @@ export function RowRenderer<
   columns,
   visibleColumns,
   selectedRows,
+  toggleAllRowsSelection,
   toggleRowSelection,
   getRowId,
   onRowClick,
@@ -30,6 +32,7 @@ export function RowRenderer<
   columns: DatatableColumn[];
   visibleColumns: string[];
   selectedRows: DatatableProps["selectedRows"];
+  toggleAllRowsSelection: DatatableProps["toggleAllRowsSelection"];
   toggleRowSelection: DatatableProps["toggleRowSelection"];
   getRowId: GetRowId;
   onRowClick: DatatableProps["onRowClick"];
@@ -46,20 +49,27 @@ export function RowRenderer<
     getRowId,
   });
 
+  const RowComp = StyledRowComp({
+    style: { ...style, cursor: onRowClick ? "pointer" : "initial" },
+  });
+
   return row ? (
-    <Box
-      sx={{
-        ...style,
-        height: 30,
-        borderBottom: "1px solid rgba(255, 255, 255, 0.12)",
-        ...(onRowClick ? { cursor: "pointer" } : {}),
-        "&:hover": {
-          backgroundColor: "rgba(255, 255, 255, 0.08)",
-        },
-      }}
-      onClick={onRowClick ?? noop}
-    >
+    <RowComp onClick={onRowClick ? () => onRowClick({ rowData: row }) : noop}>
       {rowElements}
-    </Box>
+    </RowComp>
   ) : null;
+}
+
+function StyledRowComp({ style }: { style: CSSProperties }) {
+  const { palette } = useTheme();
+  return styled("div")({
+    display: "flex",
+    alignItems: "center",
+    height: 30,
+    borderBottom: `1px solid ${palette.divider}`,
+    "&:hover": {
+      backgroundColor: "rgba(255, 255, 255, 0.08)",
+    },
+    ...style,
+  });
 }

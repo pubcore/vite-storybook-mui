@@ -1,5 +1,5 @@
 import type { HeaderRowProps } from "./DatatableTypes";
-import SelectAllCheckbox, { SelectAllCheckboxProps } from "./SelectAllCheckbox";
+import { SelectAllCheckboxProps } from "./SelectAllCheckbox";
 import { useGenericRowRenderer, useHeaderRowRenderer } from "./useRowRenderer";
 
 const defaultStyle = {
@@ -21,8 +21,9 @@ export function HeaderRow({
   disableSort,
   selectedRows,
   toggleAllRowsSelection,
+  toggleRowSelection,
   rows,
-}: HeaderRowProps & SelectAllCheckboxProps) {
+}: HeaderRowProps) {
   const elements = useHeaderRowRenderer({
     columns,
     visibleColumns,
@@ -33,13 +34,14 @@ export function HeaderRow({
     sort,
     selectedRows,
     toggleAllRowsSelection,
+    toggleRowSelection,
   });
 
   const filterElements = useGenericRowRenderer({
     columns,
     visibleColumns,
     changeFilter,
-    items: rowFilter
+    rows: rowFilter
       ? visibleColumns.map((columnName) => ({
           columnName,
           element: rowFilter?.[columnName] ?? null,
@@ -47,8 +49,11 @@ export function HeaderRow({
       : [],
   });
 
+  if (toggleRowSelection || toggleAllRowsSelection)
+    filterElements.unshift(<div style={{ minWidth: 40, minHeight: 1 }} />);
+
   return visibleColumns.length > 0 ? (
-    <div style={{ marginBottom: 10 }}>
+    <div style={{ marginBottom: 10, width }}>
       <div
         className="datatable_header_row"
         role="row"
@@ -61,7 +66,7 @@ export function HeaderRow({
       </div>
       {showFilter && (
         <div
-          className="datatable_header_row"
+          className="datatable_filter_row"
           role="row"
           style={{
             width,
