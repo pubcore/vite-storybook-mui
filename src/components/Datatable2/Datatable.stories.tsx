@@ -4,6 +4,7 @@ import { DatatableProps, DatatableRow } from "./DatatableTypes";
 import { TextField } from "@mui/material";
 import testRows from "./testRows.json";
 import { action } from "@storybook/addon-actions";
+import { useGenericRowRenderer } from "./useRowRenderer";
 
 export default {
   title: "Datatable2/Table",
@@ -178,16 +179,29 @@ export const RowSelectionWithLocalStorage = (args: Args) => (
     }}
   />
 );
-export const _200_Columns = (args: Args) => (
-  <Datatable2
-    {...{
-      ...args,
-      columns: _200_cols.map((v) => ({ name: `c${v}`, width: 50 })),
-      rows: _200_cols.map((v) => ({
-        [`c${v}`]: String(Math.floor(Math.random() * 10) + 1),
-      })),
-      selectedRows: new Set(["c0", "c1"]),
-      toggleRowSelection: action("toggleRowSelection"),
-    }}
-  />
-);
+export const _200_Columns = (args: Args) => {
+  const rows: DatatableRow[] = _200_cols.map((v) => {
+    const obj = _200_cols.reduce((a, c) => {
+      a[`c${c}`] = String(Math.floor(Math.random() * 10) + 1);
+      return a;
+    }, {} as Record<string, string>);
+    obj.name = `c${v}`;
+    return obj;
+  });
+  return (
+    <Datatable2
+      {...{
+        ...args,
+        columns: _200_cols.map((v) => ({ name: `c${v}`, width: 50 })),
+        // rows: _200_cols.map((v) => ({
+        //   [`c${v}`]: String(Math.floor(Math.random() * 10) + 1),
+        // })),
+        rows,
+        selectedRows: new Set(["c0", "c1"]),
+        toggleRowSelection: action("toggleRowSelection"),
+        rowFilter: undefined,
+        toggleAllRowsSelection: action("toggleAllRowsSelection"),
+      }}
+    />
+  );
+};

@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
 import {
   FixedSizeList,
@@ -10,6 +10,7 @@ import {
   ListChildComponentProps,
   GridChildComponentProps,
 } from "react-window";
+import InfiniteLoader from "react-window-infinite-loader";
 import { DatatableColumn, DatatableRow } from "./DatatableTypes";
 
 const listArgs = {
@@ -23,7 +24,7 @@ const gridArgs = {
 };
 
 export default {
-  title: "Datatable2/React Window Default",
+  title: "Datatable2/React Window",
 };
 
 const ListRow = ({ index, style, data }: ListChildComponentProps<string[]>) => {
@@ -269,3 +270,88 @@ export const VariableGridAutosizer = () => {
     </Box>
   );
 };
+
+export const HeaderTest = () => {
+  const innerRef = useRef<HTMLDivElement>();
+
+  useEffect(() => {
+    console.log("inner style", innerRef.current?.style);
+  }, [innerRef]);
+
+  const texts = [
+    "Lorem eiusmod cillum nostrud nulla cillum. Exercitation elit quis id cillum fugiat consectetur elit ea excepteur ut ad. Laboris veniam minim do velit duis.",
+    "Irure et quis aute occaecat. Cupidatat aute nostrud enim est sit esse commodo mollit sunt pariatur deserunt et ea. Commodo proident sunt est eu consequat proident officia enim consectetur. Commodo elit sunt aliquip aliqua labore tempor duis aute. Amet sint ea deserunt non in minim do aliquip exercitation ex. Culpa ipsum ad officia qui aliqua aliquip aliqua.",
+    "Ea sit magna deserunt laboris commodo laborum enim culpa laborum. Aliqua ipsum duis in esse consectetur esse dolor ex. Exercitation occaecat do elit ea sint consectetur sint sint quis aliqua ipsum aliquip magna sint. Sit dolore non officia culpa excepteur minim occaecat aliqua culpa proident adipisicing officia laboris.",
+    "Aliqua laborum elit laborum dolor proident in occaecat minim occaecat veniam. Anim irure non magna anim in aliqua irure reprehenderit quis commodo id quis cupidatat. Ad mollit sit fugiat officia eiusmod tempor qui ea sit duis.",
+    "Cupidatat aliqua deserunt culpa minim occaecat aliquip. Cillum voluptate ut dolore aliqua ad qui pariatur culpa amet. Officia laborum ea proident excepteur pariatur magna pariatur enim occaecat. Veniam esse Lorem ipsum do deserunt enim aute. Consectetur labore non aute laboris excepteur laborum qui aute pariatur sint et voluptate. Consequat Lorem ipsum laboris esse aute est. Eu magna ipsum eu minim ad laborum.",
+    "Consequat culpa esse labore nostrud veniam aliquip fugiat laboris non aliqua fugiat voluptate. Incididunt eiusmod sunt ad laboris sint exercitation pariatur. Deserunt aute nisi est nostrud consequat. Est laborum sunt consequat aliquip magna duis sint commodo occaecat excepteur. Magna culpa consequat minim exercitation eiusmod in ipsum. Enim sit esse ea deserunt eu. Lorem labore officia cupidatat velit laborum fugiat commodo sit.",
+    "Ullamco adipisicing aute labore laborum voluptate fugiat culpa. Cillum occaecat sint anim in ea in eiusmod ea qui fugiat. Aliqua enim irure labore ipsum ipsum veniam aliqua dolor consectetur tempor qui in. Eiusmod duis velit cupidatat ex veniam laborum cillum aute laboris do. Cillum deserunt dolor esse ut tempor quis consectetur excepteur id minim dolor voluptate. Ipsum fugiat qui consectetur do.",
+  ];
+
+  return (
+    <InfiniteLoader
+      minimumBatchSize={20}
+      threshold={40}
+      isItemLoaded={() => true}
+      loadMoreItems={() => Promise.resolve()}
+      itemCount={50}
+    >
+      {({ onItemsRendered, ref }) => (
+        <div style={{ overflow: "auto" }}>
+          <FixedSizeList
+            {...{
+              height: 400,
+              width: 600,
+              itemCount: 100,
+              itemSize: 30,
+              children: (props) => (
+                <HeaderTestListRow
+                  {...{ ...props, index: props.index - 1, texts }}
+                />
+              ),
+              innerRef,
+              ref,
+              onItemsRendered,
+            }}
+          />
+        </div>
+      )}
+    </InfiniteLoader>
+  );
+};
+
+function HeaderTestHeaderRow({ style }: ListChildComponentProps) {
+  return (
+    <div
+      {...{
+        style: {
+          ...style,
+          position: "sticky",
+        },
+      }}
+    >
+      012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    </div>
+  );
+}
+
+function HeaderTestListRow({
+  style,
+  index,
+  texts,
+}: ListChildComponentProps & { texts: string[] }) {
+  return (
+    <div
+      {...{
+        style: {
+          ...style,
+          textOverflow: "ellipsis",
+          overflow: "none",
+          whiteSpace: "nowrap",
+        },
+      }}
+    >
+      {`${index} - ${texts?.[index % texts.length]}`}
+    </div>
+  );
+}
