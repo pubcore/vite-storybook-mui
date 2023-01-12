@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   IconButton,
   Tooltip,
@@ -43,6 +43,7 @@ export default function ColumnSelector({
   const closeColSelector = useCallback(() => setIsOpen(false), [setIsOpen]);
   const showColSelector = useCallback(() => setIsOpen(true), [setIsOpen]);
   const { t } = useTranslation();
+  const columnNames = useRef<string[]>(columnsSequence);
 
   const switchColumn = useCallback(
     ({ currentTarget: { name } }, checked) =>
@@ -93,23 +94,20 @@ export default function ColumnSelector({
 
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
-  const labels: Map<string, string> = useMemo(
-    () =>
-      [...columnsSequence]
-        .sort()
-        .reduce(
-          (acc, col) =>
-            acc.set(
-              col,
-              String(
-                columns?.find((c) => c.name === col)?.label ??
-                  t(col.replaceAll(".", "_") as "_")
-              )
-            ),
-          new Map<string, string>()
-        ) ?? new Map<string, string>(),
-    [columns, columnsSequence, t]
-  );
+  const labels: Map<string, string> = useMemo(() => {
+    const lookup = new Map<string, string>();
+    return (
+      columnNames.current.reduce((acc, col) => {
+        const label = String(
+          columns?.find((c) => c.name === col)?.label ??
+            t(col.replaceAll(".", "_"))
+        );
+        acc.set(col, lookup.get(label) ? `${label} (${col})` : label);
+        lookup.set(label, col);
+        return acc;
+      }, new Map<string, string>()) ?? new Map<string, string>()
+    );
+  }, [columns, t]);
 
   const [activePopover, setActivePopover] = useState("");
 

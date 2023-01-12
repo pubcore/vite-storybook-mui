@@ -38,6 +38,11 @@ export default {
         name: "three",
         width: 60,
       },
+      {
+        name: "four",
+        width: 60,
+        label: "Drei", //duplicate label should lead to "Drei (four)"
+      },
     ],
   },
 };
