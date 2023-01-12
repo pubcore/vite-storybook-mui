@@ -185,12 +185,32 @@ export const ManagedColumnsSavedToLocalStorage = (args: Args) => (
   <Datatable
     {...{
       ...args,
-      selectedRows: new Set([0, 1]),
-      toggleRowSelection: action("toggleRowSelection"),
       storageId: "sb-datatable-1",
+      columns: [
+        { name: "id", width: 40 },
+        { name: "name", width: 150 },
+      ],
     }}
   />
 );
+//If static "columns" changes, potential selected columns must change
+export const ManagedColumnsSavedToLocalStorageAndColumnsChange = (
+  args: Args
+) => (
+  <Datatable
+    {...{
+      ...args,
+      //Must have same storage-id like previous story
+      storageId: "sb-datatable-1",
+      //One column removed, and one added, compared to previuos story
+      columns: [
+        { name: "id", width: 40 },
+        { name: "city", width: 150 },
+      ],
+    }}
+  />
+);
+
 export const _200_Columns = (args: Args) => (
   <Datatable
     {...{

@@ -359,6 +359,10 @@ export default function Datatable({
 
   useColumnsStorage({
     storageId,
+    staticColumns: useMemo(
+      () => columns?.map(({ name }) => name) ?? [],
+      [columns]
+    ),
     selectedColumns,
     columnsSequence,
     setSelectedColumns,

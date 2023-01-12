@@ -19,7 +19,7 @@
     "watch": "vite build --watch",
     "serve": "vite preview",
     "prepare": "patch-package && husky install && npm run build",
-    "storybook": "start-storybook -p 6006 -c .storybook",
+    "storybook": "NODE_OPTIONS=--openssl-legacy-provider start-storybook -p 6006 -c .storybook",
     "build-storybook": "build-storybook",
     "lint": "tsc --noEmit && eslint .",
     "test": "jest"
