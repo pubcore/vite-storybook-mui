@@ -552,7 +552,7 @@ export default function Datatable({
                 {t("download_csv")}
               </LoadingButton>
             )}
-            {manageColumns && count > 0 && (
+            {manageColumns && count > 0 && initialSequence && (
               <ColumnSelector
                 {...{
                   columns,

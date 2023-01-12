@@ -17,7 +17,7 @@ export function useColumnsStorage({
   selectedColumns: string[];
   columnsSequence: string[];
   setSelectedColumns: (arg: (selected: string[]) => string[]) => void;
-  setColumnsSequence: (arg: string[]) => void;
+  setColumnsSequence: (arg: (selected: string[]) => string[]) => void;
 }) {
   const localStorageKey = storageId ? `table_${storageId}_columns` : "";
 
@@ -50,22 +50,24 @@ export function useColumnsStorage({
           );
         };
 
-        //are there columns, which has been removed from static columns
-        //this columns should be ignored to support e.g. rename of col names
+        //columns, which has been removed (or added) from static "columns" should
+        //be removed from (or added to) "selected" to support e.g. column rename
         const colsToIgnore = locStatic.filter(
           (col) => !staticColumns.includes(col)
         );
         const colsToAdd = staticColumns.filter(
           (col) => !locStatic.includes(col) && !locSelected.includes(col)
         );
-
+        let resetSequence = false;
         locSelected?.length > 0 &&
           setSelectedColumns((selected) => {
             if (locStatic.length <= 0) {
               saveStaticCols();
+              resetSequence = true;
               return selected;
             } else if (colsToIgnore.length > 0 || colsToAdd.length > 0) {
               saveStaticCols();
+              resetSequence = true;
               return Array.from(
                 new Set(
                   locSelected
@@ -76,7 +78,17 @@ export function useColumnsStorage({
             }
             return locSelected;
           });
-        locSequence?.length > 0 && setColumnsSequence(locSequence);
+
+        locSequence?.length > 0 &&
+          setColumnsSequence((seq) => {
+            if (resetSequence) {
+              return staticColumns.concat(
+                seq.filter((col) => !staticColumns.includes(col))
+              );
+            } else {
+              return locSequence;
+            }
+          });
       }
     } catch (err) {
       console.warn(err);

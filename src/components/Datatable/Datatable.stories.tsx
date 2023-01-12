@@ -200,12 +200,12 @@ export const ManagedColumnsSavedToLocalStorageAndColumnsChange = (
   <Datatable
     {...{
       ...args,
-      //Must have same storage-id like previous story
+      //To simulate test scenario, must have same storage-id like previous story
       storageId: "sb-datatable-1",
       //One column removed, and one added, compared to previuos story
       columns: [
+        { name: "date", width: 150 },
         { name: "id", width: 40 },
-        { name: "city", width: 150 },
       ],
     }}
   />
