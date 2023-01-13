@@ -6,9 +6,6 @@
   "module": "./dist/index.es.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    "./styles.css": {
-      "default": "./dist/style.css"
-    },
     ".": {
       "import": "./dist/index.es.js"
     }
