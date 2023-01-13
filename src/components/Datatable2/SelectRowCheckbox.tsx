@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { Checkbox, SxProps } from "@mui/material";
-import type { GetRowId } from "./DatatableTypes";
+import type { DatatableRow, GetRowId } from "./DatatableTypes";
 
 type Row = Record<string, unknown>;
 
@@ -10,11 +10,11 @@ export interface SelectRowProps {
     row,
     checked,
   }: {
-    row: Row;
+    row: DatatableRow;
     checked: boolean;
   }) => void;
   selectedRows: Set<ReturnType<GetRowId>>;
-  rowData: Row;
+  rowData: DatatableRow;
   getRowId: GetRowId;
   sx?: SxProps;
 }

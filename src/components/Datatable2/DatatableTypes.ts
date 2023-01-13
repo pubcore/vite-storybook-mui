@@ -88,7 +88,7 @@ export interface DatatableProps<T extends DatatableRow = DatatableRow>
   cellVal?: CellValDefault;
   getRowId?: GetRowId;
   selectedRows?: Set<ReturnType<GetRowId>>;
-  toggleRowSelection?: (arg: SelectRowProps["toggleRowSelection"]) => void;
+  toggleRowSelection?: SelectRowProps["toggleRowSelection"];
   toggleAllRowsSelection?: (
     arg: ({ rows, checked }: { rows: Rows<T>; checked: boolean }) => void
   ) => void;

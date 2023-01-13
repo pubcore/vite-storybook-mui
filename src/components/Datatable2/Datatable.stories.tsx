@@ -1,7 +1,7 @@
 import { DatatableHeaderRowFilterProps } from "../";
 import { Datatable2 } from "./Datatable";
 import { DatatableProps, DatatableRow } from "./DatatableTypes";
-import { TextField } from "@mui/material";
+import { Paper, TextField } from "@mui/material";
 import testRows from "./testRows.json";
 import { action } from "@storybook/addon-actions";
 import { useGenericRowRenderer } from "./useRowRenderer";
@@ -20,7 +20,7 @@ export default {
     },
     rowSortServer: [],
     columns: [
-      { name: "id", width: 40 },
+      { name: "id", width: 50 },
       { name: "name", width: 150 },
       { name: "email", width: 250 },
       { name: "city", width: 150 },
@@ -203,5 +203,42 @@ export const _200_Columns = (args: Args) => {
         toggleAllRowsSelection: action("toggleAllRowsSelection"),
       }}
     />
+  );
+};
+
+export const HeightTestAndLongHeader = (args: Args) => {
+  return (
+    <div style={{ position: "absolute", height: "100%", width: "100%" }}>
+      <Datatable2
+        {...{
+          ...args,
+          columns: [
+            { name: "verylongcolumnname", width: 50 },
+            { name: "name", width: 1000 },
+            ...args.columns!.slice(2),
+          ],
+          loadRows: async ({ startIndex, stopIndex }) => {
+            const n = stopIndex - startIndex + 1;
+            return {
+              rows: testRows
+                .slice(
+                  startIndex % 10000,
+                  (startIndex % 10000) + Math.min(n, 500)
+                )
+                .map((r) => ({
+                  ...r,
+                  name: r.name === "id" ? "verylongcolumnname" : r.name,
+                })),
+              count: testRows.length,
+            };
+          },
+          rowFilter: undefined,
+          rowSort: undefined,
+          selectedRows: new Set<string>(),
+          toggleRowSelection: action("toggleRowSelection"),
+          toggleAllRowsSelection: action("toggleAllRowsSelection"),
+        }}
+      />
+    </div>
   );
 };

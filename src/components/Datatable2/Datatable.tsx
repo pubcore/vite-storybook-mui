@@ -288,7 +288,7 @@ export function Datatable2<T extends DatatableRow>({
     [pageSize]
   );
 
-  const height = rowHeight * pageSize;
+  const minHeight = rowHeight * pageSize;
   const pageCount = Math.ceil(count / pageSize);
 
   const { visibleColumns } = useVisibleColumns({
@@ -408,6 +408,9 @@ export function Datatable2<T extends DatatableRow>({
         height: 1,
         display: "flex",
         flexDirection: "column",
+        "& .datatable-row": {
+          borderBottom: `1px solid ${palette.divider}`,
+        },
       }}
     >
       {rows === null ? (
@@ -420,7 +423,7 @@ export function Datatable2<T extends DatatableRow>({
         <ActionBar elevation={1}>
           {typeof title == "string" ? (
             <>
-              <h3>{title}</h3> &nbsp;
+              <h3>{title}</h3>
             </>
           ) : (
             <>{isValidElement(title) ? title : null}</>
@@ -494,9 +497,10 @@ export function Datatable2<T extends DatatableRow>({
                             ref(instance);
                             listRef.current = instance;
                           },
-                          height,
+                          height: window.innerHeight,
                           width: "100%",
                           style: {
+                            minHeight,
                             overflowX: "hidden",
                             overflowY: "auto",
                           },
