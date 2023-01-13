@@ -24,7 +24,7 @@ export function HeaderRow({
   toggleRowSelection,
   rows,
 }: HeaderRowProps) {
-  const elements = useHeaderRowRenderer({
+  const headerElements = useHeaderRowRenderer({
     columns,
     visibleColumns,
     sorting,
@@ -49,8 +49,8 @@ export function HeaderRow({
       : [],
   });
 
-  if (toggleRowSelection || toggleAllRowsSelection)
-    filterElements.unshift(<div style={{ minWidth: 40, minHeight: 1 }} />);
+  if (selectedRows && (toggleRowSelection || toggleAllRowsSelection))
+    filterElements.unshift(<div style={{ minWidth: 42, minHeight: 1 }} />);
 
   return visibleColumns.length > 0 ? (
     <div style={{ marginBottom: 10, width }}>
@@ -62,7 +62,7 @@ export function HeaderRow({
           ...defaultStyle,
         }}
       >
-        {elements}
+        {headerElements}
       </div>
       {showFilter && (
         <div

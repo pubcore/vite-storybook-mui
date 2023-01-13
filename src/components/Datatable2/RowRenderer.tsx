@@ -54,19 +54,20 @@ export function RowRenderer<
   });
 
   return row ? (
-    <RowComp onClick={onRowClick ? () => onRowClick({ rowData: row }) : noop}>
+    <RowComp
+      className="datatable-row"
+      onClick={onRowClick ? () => onRowClick({ rowData: row }) : noop}
+    >
       {rowElements}
     </RowComp>
   ) : null;
 }
 
 function StyledRowComp({ style }: { style: CSSProperties }) {
-  const { palette } = useTheme();
   return styled("div")({
     display: "flex",
     alignItems: "center",
     height: 30,
-    borderBottom: `1px solid ${palette.divider}`,
     "&:hover": {
       backgroundColor: "rgba(255, 255, 255, 0.08)",
     },

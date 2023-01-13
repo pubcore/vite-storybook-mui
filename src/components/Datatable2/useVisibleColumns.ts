@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { DatatableColumn } from "./DatatableTypes";
+import type { DatatableColumn, DatatableRow } from "./DatatableTypes";
 
 export function useVisibleColumns({
   columns = [],
@@ -43,7 +43,7 @@ export function useVisibleColumns({
   };
 }
 
-function defaultCellRenderer({ cellData }: TableCellProps) {
+function defaultCellRenderer({ cellData }: { cellData: DatatableRow }) {
   try {
     if (typeof cellData === "undefined") return "";
     return typeof cellData === "object"

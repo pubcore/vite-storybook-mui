@@ -124,19 +124,21 @@ export function useHeaderRowRenderer({
 }) {
   const { t } = useTranslation();
   const elements = [
-    selectedRows && toggleAllRowsSelection && rows ? (
-      <SelectAllCheckbox
-        {...{
-          selectedRows,
-          toggleAllRowsSelection,
-          rows,
-          style: {
-            flex: "0 1 40px",
-          },
-        }}
-      />
-    ) : toggleRowSelection ? (
-      <div style={{ minWidth: 40, minHeight: 1 }} />
+    selectedRows && (toggleRowSelection || toggleAllRowsSelection) ? (
+      rows ? (
+        <SelectAllCheckbox
+          {...{
+            selectedRows,
+            toggleAllRowsSelection,
+            rows,
+            style: {
+              flex: "0 1 42px",
+            },
+          }}
+        />
+      ) : (
+        <div style={{ minWidth: 42, minHeight: 1 }} />
+      )
     ) : null,
   ] as ReactNode[];
 
@@ -154,11 +156,14 @@ export function useHeaderRowRenderer({
         key={`datatable_header_row_column_${colName}`}
         style={{
           marginLeft: colIndex === 0 ? marginWidth : "initial",
+          position: "relative",
+          whiteSpace: "nowrap",
           minWidth: col.width,
+          maxWidth: col.width,
         }}
       >
         {disableSort === true ? (
-          <div>{t(col.name as "_")}</div>
+          <>{t(col.name as "_")}</>
         ) : (
           <TableSortLabel
             disabled={!rowSort?.[dataKey]}
@@ -182,7 +187,15 @@ export function useHeaderRowRenderer({
               }
             }}
           >
-            {t(col.name as "_")}
+            <span
+              style={{
+                textOverflow: "ellipsis",
+                overflow: "hidden",
+                fontWeight: "bold",
+              }}
+            >
+              {t(col.name as "_")}
+            </span>
           </TableSortLabel>
         )}
       </Cell>
