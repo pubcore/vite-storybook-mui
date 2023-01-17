@@ -242,3 +242,26 @@ export const HeightTestAndLongHeader = (args: Args) => {
     </div>
   );
 };
+
+export const StaticRowsAndFilter = () => {
+  const data = new Array(5).fill(null).map((_, i) => i.toString());
+  return (
+    <Datatable2<{ name: string; foo: string }>
+      {...{
+        columns: data.map((n) => ({ name: "col" + n, width: 150 })),
+        rows: data.map((n) => ({
+          name: "col" + n,
+          col0: "row" + n,
+          foo: "foo" + n,
+        })),
+        rowFilter: {
+          col0: (props) => FilterText(props),
+        },
+        rowFilterHideUpTo: 2,
+        rowSort: {
+          col0: textCompare,
+        },
+      }}
+    />
+  );
+};
