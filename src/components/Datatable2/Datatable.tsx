@@ -8,6 +8,7 @@ import {
 import {
   ChangeEvent,
   isValidElement,
+  ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -256,11 +257,6 @@ export function Datatable2<T extends DatatableRow>({
     [loadMoreRows]
   );
 
-  const rowGetter = useCallback(
-    ({ index }: { index: number }) => (filteredRows || rows)?.[index] || {},
-    [rows, filteredRows]
-  );
-
   // const _onRowsRendered = useRef<(...params: unknown[]) => void>();
   const handleRowsScroll = useCallback(
     (props: Record<"startIndex" | "stopIndex", number>) => {
@@ -350,7 +346,7 @@ export function Datatable2<T extends DatatableRow>({
 
   const changeFilter = useCallback(
     async ({ name, value }: { name: string; value: unknown }) => {
-      setRowdata(({ filter, rows, serverMode, sorting, ...rest }) => {
+      setRowdata(({ filter = {}, rows, serverMode, sorting, ...rest }) => {
         const newFilter = {
           ...filter,
           [name]: value === "" ? undefined : value,
@@ -401,6 +397,42 @@ export function Datatable2<T extends DatatableRow>({
         toggleRowSelection,
       })
     : 0;
+
+  const headerRow = useMemo<ReactNode>(
+    () =>
+      columns ? (
+        <HeaderRow
+          {...{
+            rows,
+            selectedRows,
+            rowSort,
+            rowFilter,
+            changeFilter,
+            columns,
+            visibleColumns: visibleColumns.map((c) => c.name),
+            tableWidth: fullTableWidth,
+            toggleRowSelection,
+            toggleAllRowsSelection,
+            showFilter,
+            sorting,
+          }}
+        />
+      ) : null,
+    [
+      changeFilter,
+      columns,
+      fullTableWidth,
+      rowFilter,
+      rowSort,
+      rows,
+      selectedRows,
+      showFilter,
+      sorting,
+      toggleAllRowsSelection,
+      toggleRowSelection,
+      visibleColumns,
+    ]
+  );
 
   return (
     <Paper
@@ -455,22 +487,7 @@ export function Datatable2<T extends DatatableRow>({
         {rows &&
           (rows.length > 0 && columns ? (
             <>
-              <HeaderRow
-                {...{
-                  rows,
-                  selectedRows: selectedRows ?? new Set<string>(),
-                  rowSort,
-                  rowFilter,
-                  changeFilter,
-                  columns,
-                  visibleColumns: visibleColumns.map((c) => c.name),
-                  tableWidth: fullTableWidth,
-                  toggleRowSelection,
-                  toggleAllRowsSelection,
-                  showFilter,
-                  sorting,
-                }}
-              />
+              {headerRow}
               <div
                 className="infinite_loader_container"
                 style={{

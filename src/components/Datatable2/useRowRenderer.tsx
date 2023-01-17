@@ -136,9 +136,9 @@ export function useHeaderRowRenderer({
             },
           }}
         />
-      ) : (
+      ) : selectedRows ? (
         <div style={{ minWidth: 42, minHeight: 1 }} />
-      )
+      ) : null
     ) : null,
   ] as ReactNode[];
 
