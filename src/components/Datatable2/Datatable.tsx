@@ -398,6 +398,40 @@ export function Datatable2<T extends DatatableRow>({
       })
     : 0;
 
+  const sort = useCallback(
+    ({
+      sortBy,
+      sortDirection,
+    }: {
+      sortBy: string;
+      sortDirection: SortDirection;
+    }) => {
+      if (serverMode ? !rowSortServer?.includes(sortBy) : !rowSort?.[sortBy])
+        return;
+
+      const compare = (key: string) => (a: DatatableRow, b: DatatableRow) =>
+        rowSort?.[key]?.(cellVal(a, key), cellVal(b, key)) as number;
+
+      setRowdata(({ rows, filteredRows, filter, serverMode, ...rest }) => {
+        if (serverMode) request({ filter, sorting: { sortBy, sortDirection } });
+
+        return {
+          ...rest,
+          rows,
+          filter,
+          serverMode,
+          filteredRows: serverMode
+            ? null
+            : ((r) => (sortDirection === "DESC" ? r.reverse() : r))(
+                (filteredRows ?? rows ?? []).slice().sort(compare(sortBy))
+              ),
+          sorting: { sortBy, sortDirection },
+        };
+      });
+    },
+    [rowSort, serverMode, rowSortServer, request, cellVal]
+  );
+
   const headerRow = useMemo<ReactNode>(
     () =>
       columns ? (
@@ -415,6 +449,7 @@ export function Datatable2<T extends DatatableRow>({
             toggleAllRowsSelection,
             showFilter,
             sorting,
+            sort,
           }}
         />
       ) : null,
@@ -431,6 +466,7 @@ export function Datatable2<T extends DatatableRow>({
       toggleAllRowsSelection,
       toggleRowSelection,
       visibleColumns,
+      sort,
     ]
   );
 

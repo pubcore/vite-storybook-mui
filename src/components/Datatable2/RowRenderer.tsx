@@ -58,9 +58,6 @@ export function RowRenderer<
       className="datatable-row"
       onClick={onRowClick ? () => onRowClick({ rowData: row }) : noop}
     >
-      {/* {toggleAllRowsSelection && !toggleRowSelection && selectedRows ? (
-        <div style={{ minWidth: 42, minHeight: 1 }} />
-      ) : null} */}
       {rowElements}
     </RowComp>
   ) : null;

@@ -186,6 +186,10 @@ export function useHeaderRowRenderer({
                 setLastSortedCol(colName);
               }
             }}
+            sx={{
+              maxWidth: col.width,
+            }}
+            title={t(col.name as "_")}
           >
             <span
               style={{

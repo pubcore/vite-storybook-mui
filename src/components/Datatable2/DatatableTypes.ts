@@ -69,7 +69,7 @@ export interface DatatableProps<T extends DatatableRow = DatatableRow>
   headerHeight?: number;
   onRowClick?: ({ rowData }: { rowData: T }) => void;
   loadAllUpTo?: number;
-  rowSort?: Record<string, ((a: never, b: never) => number) | null>;
+  rowSort?: Record<string, ((a: unknown, b: unknown) => number) | null>;
   rowSortServer?: string[];
   rowFilter?: RowFilter;
   rowFilterServer?: string[];
