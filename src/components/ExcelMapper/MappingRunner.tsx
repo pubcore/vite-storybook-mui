@@ -26,9 +26,11 @@ export interface MappingRunnerProps {
   saveTargetTable: ({
     rows,
     workbookFileName,
+    workbook,
   }: {
     rows: TargetRow[];
-    workbookFileName?: string;
+    workbookFileName: string;
+    workbook: WorkBook;
   }) => void;
   workbook?: WorkBook;
   workbookFileName?: string;
@@ -87,7 +89,7 @@ export function MappingRunner(props: MappingRunnerProps) {
   );
 
   function handleSave() {
-    saveTargetTable({ rows, workbookFileName: fileName });
+    saveTargetTable({ rows, workbookFileName: fileName, workbook });
   }
 
   const [, findings] = workbook

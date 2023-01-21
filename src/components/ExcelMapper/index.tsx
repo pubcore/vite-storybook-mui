@@ -21,9 +21,11 @@ export interface ExcelMapperProps {
   saveTargetTable?: ({
     rows,
     workbookFileName,
+    workbook,
   }: {
     rows: TargetRow[];
-    workbookFileName?: string;
+    workbookFileName: string;
+    workbook: WorkBook;
   }) => void;
   cancel?: () => void;
   options?: {
