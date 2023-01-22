@@ -155,25 +155,36 @@ export function MappingRunner({
   );
   const [inProgress, setInProgress] = useState(false);
 
-  const handleSave = useCallback(async () => {
-    try {
-      setInProgress(true);
-      const step = await saveTargetTable({
-        rows,
-        workbookFileName: fileName,
-        workbook,
-      });
-      if (!!step) {
-        setActiveStep(step);
+  const handleSave = useCallback(
+    async (e, _rows?: typeof rows) => {
+      try {
+        setInProgress(true);
+        const step = await saveTargetTable({
+          rows: _rows ?? rows,
+          workbookFileName: fileName,
+          workbook,
+        });
+        if (!!step) {
+          setActiveStep(step);
+        }
+      } finally {
+        setInProgress(false);
       }
-    } finally {
-      setInProgress(false);
-    }
-  }, [fileName, rows, saveTargetTable, workbook]);
+    },
+    [fileName, rows, saveTargetTable, workbook]
+  );
 
   const handleAdditionStepNext = useCallback(async () => {
-    await handleSave();
-  }, [handleSave]);
+    await handleSave(
+      undefined,
+      selectTargetRows({
+        workbook,
+        mappings: { ...mappingsJson, mappings: mappings.mappings },
+        //force re-calculation of system maps
+        systemMappings: { ...systemMappings },
+      })
+    );
+  }, [handleSave, mappings.mappings, mappingsJson, systemMappings, workbook]);
 
   const handleCancel = useCallback(async () => {
     cancel && (await cancel());
