@@ -46,7 +46,7 @@ export interface MappingRunnerProps {
     rows: TargetRow[];
     workbookFileName: string;
     workbook: WorkBook;
-  }) => void | number | undefined | Promise<number | undefined>;
+  }) => void | number | undefined | Promise<number | undefined | void>;
   additionalSteps?: {
     steps: string[];
     renderStep: (props: ExcelMapperStepProps) => ReactNode;
