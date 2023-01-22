@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { Snackbar, Alert, AlertColor } from "@mui/material";
+import { Snackbar, Alert, AlertColor, Portal } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 export interface Message {
@@ -25,16 +25,18 @@ export default function Notification({ message, notified }: NotificationProps) {
   const { t } = useTranslation();
 
   return (
-    <Snackbar
-      {...{
-        anchorOrigin: { vertical: "top", horizontal: "right" },
-        open: Boolean(textkey),
-        autoHideDuration,
-        onClose,
-        id: "llxiek-" + severity,
-      }}
-    >
-      <Alert {...{ onClose, severity }}>{t(textkey as "_", args)}</Alert>
-    </Snackbar>
+    <Portal>
+      <Snackbar
+        {...{
+          anchorOrigin: { vertical: "top", horizontal: "right" },
+          open: Boolean(textkey),
+          autoHideDuration,
+          onClose,
+          id: "llxiek-" + severity,
+        }}
+      >
+        <Alert {...{ onClose, severity }}>{t(textkey as "_", args)}</Alert>
+      </Snackbar>
+    </Portal>
   );
 }
