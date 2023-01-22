@@ -57,6 +57,7 @@ export type { FileUploadProps } from "./FileUpload";
 export type { TooltipOnOverflowProps } from "./Tooltip/TooltipOnOverflow";
 export { default as TooltipOnOverflow } from "./Tooltip/TooltipOnOverflow";
 export type { ExcelMapperProps } from "./ExcelMapper";
+export type { ExcelMapperStepProps } from "./ExcelMapper/MappingRunner";
 export { default as ExcelMapper } from "./ExcelMapper";
 export type { StatusProps } from "./Status";
 export { default as Status } from "./Status";

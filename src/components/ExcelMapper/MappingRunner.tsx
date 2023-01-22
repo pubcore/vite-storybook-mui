@@ -1,4 +1,13 @@
-import { useCallback, useState } from "react";
+import {
+  ForwardedRef,
+  forwardRef,
+  ReactNode,
+  RefObject,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   FileUpload,
   FileUploadProps,
@@ -19,10 +28,16 @@ import { selectSeverities, SystemMap } from "./maps";
 import { Findings } from "./Findings";
 import { selectMappings } from "./maps/selectMappings";
 import ObjectTable from "../Table/ObjectTable";
+import { LoadingButton } from "@mui/lab";
 
 export interface MappingRunnerProps {
   mappings: MappingsJson;
   systemMappings?: Record<string, SystemMap[]>;
+  /**
+   * If there are errors a user can solve, a workflow-step number can be
+   * returned the runner should go to. If a falsy value is returned => no errors
+   * Property "additionalSteps" has to be used to render corresponding step
+   */
   saveTargetTable: ({
     rows,
     workbookFileName,
@@ -31,11 +46,22 @@ export interface MappingRunnerProps {
     rows: TargetRow[];
     workbookFileName: string;
     workbook: WorkBook;
-  }) => void;
+  }) => void | number | Promise<number>;
+  additionalSteps?: {
+    steps: string[];
+    renderStep: (props: ExcelMapperStepProps) => ReactNode;
+  };
   workbook?: WorkBook;
   workbookFileName?: string;
   cancel?: () => void;
 }
+
+export type ExcelMapperStepProps = {
+  step: number;
+  cancel: () => void | Promise<void>;
+  next: () => void | Promise<void>;
+  buttonsContainerRef: RefObject<HTMLDivElement>;
+};
 
 type SelectedWorkbook =
   | {
@@ -44,17 +70,25 @@ type SelectedWorkbook =
     }
   | Record<string, never>;
 
-export function MappingRunner(props: MappingRunnerProps) {
-  const {
-    mappings: mappingsJson,
-    saveTargetTable,
-    workbook: workbookDefault,
-    workbookFileName,
-    cancel,
-    systemMappings,
-  } = props;
+export function MappingRunner({
+  mappings: mappingsJson,
+  saveTargetTable,
+  workbook: workbookDefault,
+  workbookFileName,
+  cancel,
+  systemMappings,
+  additionalSteps,
+}: MappingRunnerProps) {
   const { t } = useTranslation();
-  const steps = [t("select_file"), t("review_mapping_result"), t("save")];
+  const steps = useMemo(
+    () => [
+      t("select_file"),
+      t("review_mapping_result"),
+      ...(additionalSteps?.steps ?? []),
+      t("save"),
+    ],
+    [additionalSteps?.steps, t]
+  );
   const { targetColumns } = mappingsJson;
   const [{ workbook, fileName }, setWorkbook] = useState<SelectedWorkbook>(
     workbookDefault && workbookFileName
@@ -65,9 +99,13 @@ export function MappingRunner(props: MappingRunnerProps) {
       : {}
   );
 
-  const mappings = workbook
-    ? selectMappings({ workbook, mappings: mappingsJson })
-    : mappingsJson;
+  const mappings = useMemo(
+    () =>
+      workbook
+        ? selectMappings({ workbook, mappings: mappingsJson })
+        : mappingsJson,
+    [mappingsJson, workbook]
+  );
 
   const [activeStep, setActiveStep] = useState<number>(
     workbookDefault && workbookFileName ? 1 : 0
@@ -88,31 +126,66 @@ export function MappingRunner(props: MappingRunnerProps) {
     []
   );
 
-  function handleSave() {
-    saveTargetTable({ rows, workbookFileName: fileName, workbook });
-  }
-
-  const [, findings] = workbook
-    ? selectStateMappingsOfMappingsJson(
-        {
-          workbook,
-          targetColumns,
-          keyIds: mappings.keyIds,
-        },
-        mappings.mappings
-      )
-    : [];
+  const [, findings] = useMemo(
+    () =>
+      workbook
+        ? selectStateMappingsOfMappingsJson(
+            {
+              workbook,
+              targetColumns,
+              keyIds: mappings.keyIds,
+            },
+            mappings.mappings
+          )
+        : [],
+    [mappings.keyIds, mappings.mappings, targetColumns, workbook]
+  );
 
   const { errors } = selectSeverities({ findings });
-  const rows =
-    workbook && !errors
-      ? selectTargetRows({
-          workbook,
-          mappings: { ...mappingsJson, mappings: mappings.mappings },
-          systemMappings,
-        })
-      : [];
+  const rows = useMemo(
+    () =>
+      workbook && !errors
+        ? selectTargetRows({
+            workbook,
+            mappings: { ...mappingsJson, mappings: mappings.mappings },
+            systemMappings,
+          })
+        : [],
+    [errors, mappings.mappings, mappingsJson, systemMappings, workbook]
+  );
+  const [inProgress, setInProgress] = useState(false);
 
+  const handleSave = useCallback(async () => {
+    try {
+      setInProgress(true);
+      const step = await saveTargetTable({
+        rows,
+        workbookFileName: fileName,
+        workbook,
+      });
+      if (!!step) {
+        setActiveStep(step);
+      }
+    } finally {
+      setInProgress(false);
+    }
+  }, [fileName, rows, saveTargetTable, workbook]);
+
+  const handleAdditionStepNext = useCallback(async () => {
+    await handleSave();
+  }, [handleSave]);
+
+  const handleCancel = useCallback(async () => {
+    cancel && (await cancel());
+  }, [cancel]);
+
+  const buttonsContainerRef = useRef<HTMLDivElement>(null);
+  const stepHeader = (
+    <>
+      <WorkbookTeaser {...{ workbook, fileName }} />
+      <Divider sx={{ my: 1 }} />
+    </>
+  );
   const step = (() => {
     switch (activeStep) {
       case 0:
@@ -127,8 +200,7 @@ export function MappingRunner(props: MappingRunnerProps) {
       case 1: {
         return (
           <>
-            <WorkbookTeaser {...{ workbook, fileName }} />
-            <Divider sx={{ my: 1 }} />
+            {stepHeader}
             {errors ? (
               <>
                 <Status
@@ -162,12 +234,48 @@ export function MappingRunner(props: MappingRunnerProps) {
         );
       }
       default:
-        return null;
+        return additionalSteps?.renderStep ? (
+          <>
+            {stepHeader}
+            {additionalSteps.renderStep({
+              step: activeStep,
+              cancel: handleCancel,
+              buttonsContainerRef,
+              next: handleAdditionStepNext,
+            })}
+          </>
+        ) : null;
     }
   })();
+
+  const actionButtons = (
+    <>
+      {cancel && (
+        <ActionButton variant="outlined" onClick={() => cancel()}>
+          {t("cancel")}
+        </ActionButton>
+      )}
+      &nbsp;
+      <LoadingButton
+        loading={inProgress}
+        disabled={Boolean(errors)}
+        onClick={handleSave}
+        variant="contained"
+      >
+        {t("save")}
+      </LoadingButton>
+    </>
+  );
+
   const actions = (() => {
-    switch (activeStep) {
-      case 0:
+    switch (
+      activeStep <= 0
+        ? "first"
+        : activeStep >= steps.length - 2 //2, because last step "save" is skiped
+        ? "last"
+        : "between"
+    ) {
+      case "first":
         return (
           <Toolbar
             variant="dense"
@@ -181,34 +289,49 @@ export function MappingRunner(props: MappingRunnerProps) {
             )}
           </Toolbar>
         );
-      case 1:
+      case "between":
         return (
-          <>
-            <Toolbar
-              variant="dense"
-              sx={{ justifyContent: "space-between", alignItems: "end" }}
+          <Toolbar
+            variant="dense"
+            sx={{ justifyContent: "space-between", alignItems: "end" }}
+          >
+            <ActionButton
+              variant="outlined"
+              onClick={() => {
+                activeStep === 1
+                  ? setWorkbook({})
+                  : setActiveStep(activeStep - 1);
+              }}
             >
-              <ActionButton
-                variant="outlined"
-                onClick={() => {
-                  setWorkbook({});
-                }}
-              >
-                {t("back")}
-              </ActionButton>
-              <div>
-                {cancel && (
-                  <ActionButton variant="outlined" onClick={() => cancel()}>
-                    {t("cancel")}
-                  </ActionButton>
-                )}
-                &nbsp;
-                <ActionButton disabled={Boolean(errors)} onClick={handleSave}>
-                  {t("save")}
-                </ActionButton>
-              </div>
-            </Toolbar>
-          </>
+              {t("back")}
+            </ActionButton>
+            <div ref={buttonsContainerRef}>
+              {(steps.length <= 3 || [0, 1].includes(activeStep)) &&
+                actionButtons}
+            </div>
+          </Toolbar>
+        );
+      case "last":
+        return (
+          <Toolbar
+            variant="dense"
+            sx={{ justifyContent: "space-between", alignItems: "end" }}
+          >
+            <ActionButton
+              variant="outlined"
+              onClick={() => {
+                activeStep === 1
+                  ? setWorkbook({})
+                  : setActiveStep(activeStep - 1);
+              }}
+            >
+              {t("back")}
+            </ActionButton>
+            <div ref={buttonsContainerRef}>
+              {(steps.length <= 3 || [0, 1].includes(activeStep)) &&
+                actionButtons}
+            </div>
+          </Toolbar>
         );
       default:
         return null;

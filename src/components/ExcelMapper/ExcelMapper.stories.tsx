@@ -11,6 +11,11 @@ import {
 } from "../../../test/testWorkbook";
 import { ExcelMapperProps } from ".";
 import { action } from "@storybook/addon-actions";
+import { Button, Portal } from "@mui/material";
+import { ExcelMapperStepProps } from "./MappingRunner";
+import { Box } from "@mui/system";
+import { LoadingButton } from "@mui/lab";
+import { useState } from "react";
 
 export default {
   title: "ExcelMapper/ExcelMapper",
@@ -23,7 +28,7 @@ export default {
 
 type Args = ExcelMapperProps;
 
-const saveTargetTable = action("saveTargetTable");
+const saveTargetTable = action("saveTargetTable", {});
 
 export const Default = (args: Args) => (
     <ExcelMapper {...{ ...args, mappings: { ...mappings, mappings: [] } }} />
@@ -117,4 +122,71 @@ export const Default = (args: Args) => (
         },
       }}
     />
+  ),
+  RunWithAdditionalWorkflowStep = (args: Args) => (
+    <ExcelMapper
+      {...{
+        ...args,
+        workbook: workbook2,
+        workbookFileName: fileName2,
+        saveTargetTable: async function () {
+          //processing of save ...
+          //...
+          //we assume, save failed, user must do something in step 3:
+          return 2;
+        },
+        options: {
+          runner: {
+            additionalSteps: {
+              steps: ["ADDITIONAL STEP"],
+              renderStep: (props) => <AdditionlRunnerStep {...props} />,
+            },
+          },
+        },
+      }}
+    />
   );
+
+function AdditionlRunnerStep({
+  buttonsContainerRef,
+  next,
+  cancel,
+  step,
+}: ExcelMapperStepProps) {
+  const [loading, setLoading] = useState(false);
+  return (
+    <>
+      <Box display="flex" justifyContent="space-around">
+        This is an additional step ({step}) example dummy
+      </Box>
+
+      <Portal container={buttonsContainerRef.current}>
+        <Button
+          variant="outlined"
+          onClick={() => {
+            cancel();
+          }}
+        >
+          cancel
+        </Button>
+        &nbsp;
+        <LoadingButton
+          variant="contained"
+          loading={loading}
+          onClick={async () => {
+            setLoading(true);
+            await new Promise<void>((res) => {
+              setTimeout(() => {
+                setLoading(false);
+                res();
+              }, 1000);
+            });
+            next();
+          }}
+        >
+          additional step save
+        </LoadingButton>
+      </Portal>
+    </>
+  );
+}

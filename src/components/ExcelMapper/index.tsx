@@ -1,8 +1,7 @@
 import { DatatableProps } from "../";
 import { WorkBook } from "xlsx";
 import { MappingsJson } from "./MappingsJson";
-import { TargetRow } from "./maps/selectTargetRows";
-import { MappingRunner } from "./MappingRunner";
+import { MappingRunner, MappingRunnerProps } from "./MappingRunner";
 import { MappingEditor } from "./MappingEditor";
 import { SystemMap } from "./maps";
 
@@ -18,18 +17,11 @@ export interface ExcelMapperProps {
    */
   systemMappings?: Record<string, SystemMap[]>;
   save?: ({ mappings }: { mappings: MappingsJson }) => void;
-  saveTargetTable?: ({
-    rows,
-    workbookFileName,
-    workbook,
-  }: {
-    rows: TargetRow[];
-    workbookFileName: string;
-    workbook: WorkBook;
-  }) => void;
-  cancel?: () => void;
+  saveTargetTable?: MappingRunnerProps["saveTargetTable"];
+  cancel?: () => void | Promise<void>;
   options?: {
     mapper?: { datatable?: DatatableProps };
+    runner?: Pick<MappingRunnerProps, "additionalSteps">;
     previewTargetTable?: boolean;
   };
 }
@@ -42,6 +34,7 @@ export default function ExcelMapper(props: ExcelMapperProps) {
     workbookFileName,
     cancel,
     systemMappings,
+    options,
   } = props;
 
   if (saveTargetTable) {
@@ -54,6 +47,7 @@ export default function ExcelMapper(props: ExcelMapperProps) {
           workbookFileName,
           cancel,
           systemMappings,
+          ...(options?.runner ?? {}),
         }}
       />
     );
