@@ -106,6 +106,20 @@ export const IndividualTitleComponent = () => (
     }
   />
 );
+export const SomeStaticRowsWithoutTitle = (args: Args) => (
+  <Datatable
+    columns={[
+      { name: "number", width: 80 },
+      { name: "isPrime", width: 80 },
+    ]}
+    rows={[
+      { number: 1, isPrime: false },
+      { number: 2, isPrime: true },
+      { number: 3, isPrime: true },
+      { number: 4, isPrime: false },
+    ]}
+  />
+);
 export const AllRowsLoaded = (args: Args) => <Datatable {...{ ...args }} />;
 
 //Component to simulate updating/reload of rows

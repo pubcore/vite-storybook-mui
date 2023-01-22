@@ -99,7 +99,9 @@ export default function Datatable({
       serverMode
         ? null
         : rows
-        ? rows.filter((row) => rowFilterMatch?.({ row, filter, cellVal }))
+        ? rows.filter((row) =>
+            rowFilterMatch ? rowFilterMatch({ row, filter, cellVal }) : true
+          )
         : null,
     [cellVal, filter, rowFilterMatch, rows, serverMode]
   );
