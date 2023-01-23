@@ -1,15 +1,14 @@
-import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import {
-  InfiniteLoader,
-  Table,
-  AutoSizer,
-  Column,
-  TableHeaderRenderer,
-  SortDirectionType,
-  IndexRange,
-  TableCellRenderer,
-} from "react-virtualized";
-import "react-virtualized/styles.css";
+  useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  ChangeEvent,
+  ReactNode,
+} from "react";
+import { FixedSizeList, ListChildComponentProps } from "react-window";
+import InfiniteLoader from "react-window-infinite-loader";
 import {
   Pagination,
   CircularProgress,
@@ -17,17 +16,12 @@ import {
   useTheme,
   Box,
 } from "@mui/material";
-import { ActionBar } from "../";
+import { ActionBar } from "..";
 import ColumnSelector from "./ColumnsSelector";
-import ColumnHead from "./ColumnHead";
-import SelectAllCheckbox from "./SelectAllCheckbox";
-import type { SelectAllCheckboxProps } from "./SelectAllCheckbox";
-import SelectRowCheckbox from "./SelectRowCheckbox";
-import HeaderRow from "./HeaderRow";
+import { HeaderRow } from "./HeaderRow";
 import { useTranslation } from "react-i18next";
 import { debounce } from "lodash-es";
 import initThroat from "throat";
-import { autoWidth } from "./autoWidth";
 import { useVisibleColumns } from "./useVisibleColumns";
 import { useColumnsStorage } from "./useColumnsStorage";
 import type {
@@ -35,18 +29,27 @@ import type {
   DatatableProps,
   GetRowId,
   LoadRows,
-  Row,
+  DatatableRow,
   RowsState,
+  SortDirection,
+  DatatableColumn,
 } from "./DatatableTypes";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import React from "react";
 import { Parser } from "@json2csv/plainjs";
 import { saveAs } from "file-saver";
 import { LoadingButton } from "@mui/lab";
+import { RowRenderer } from "./RowRenderer";
 
 const throat = initThroat(10);
 
-export default function Datatable({
+const emptyArray: unknown[] = [];
+
+/**
+ * Infinitely scrolling and paginated table that is filterable, sortable and supports async and static data loading
+ * @template T Datatable row type (object with string index signature and a `name` property)
+ */
+export function Datatable<T extends DatatableRow = DatatableRow>({
   title,
   //https://github.com/bvaughn/react-virtualized/blob/master/docs/Column.md
   columns,
@@ -75,21 +78,16 @@ export default function Datatable({
   getRowId = getRowIdDefault,
   toggleRowSelection,
   toggleAllRowsSelection,
-  selectRowCellRenderer = selectRowCellRendererDefault,
-  selectRowHeaderRenderer = selectRowHeaderRendererDefault,
   minimumBatchSize = 30,
   storageId,
-  availableWidth = 1000,
-  setAvailableWidth = null,
-  maxWidth = 3000,
-  minWidth = 1000,
   ...rest
-}: DatatableProps) {
+}: DatatableProps<T>) {
   const { t } = useTranslation();
-  const [rowdata, setRowdata] = useState<RowsState>({
+  const [rowdata, setRowdata] = useState<RowsState<T>>({
     rows: null,
     sorting: {},
     filter: {},
+    filteredRows: null,
     serverMode: true,
     pageSize: propPageSize,
   });
@@ -119,7 +117,7 @@ export default function Datatable({
   const [availableHeight, setHeight] = useState(
     minPageSize * rowHeight + headerHeight
   );
-  const containerRef = useCallback((node) => {
+  const containerRef = useCallback((node: HTMLDivElement) => {
     if (node) {
       setHeight(node.getBoundingClientRect().height);
     }
@@ -138,6 +136,8 @@ export default function Datatable({
       minPageSize
     );
 
+  const minHeight = rowHeight * pageSize;
+
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
     columns?.map(({ name }) => name) ?? []
   );
@@ -147,7 +147,7 @@ export default function Datatable({
 
   const [initialSequence, setInitialSequence] = useState<string[] | null>(null);
 
-  const loadRows = useMemo<LoadRows>(() => {
+  const loadRows = useMemo<LoadRows<T>>(() => {
     //if "'loadRows' and 'rows' are undefined, default to empty array"
     return rowsProp
       ? ({ startIndex, stopIndex }: Parameters<LoadRows>[0]) =>
@@ -159,7 +159,7 @@ export default function Datatable({
   }, [loadRowsProp, rowsProp]);
 
   const loadAll = useCallback(
-    async (count) => {
+    async (count: number) => {
       const batchCount = Math.ceil(count / maxResourceLimit);
       return (
         await Promise.all(
@@ -172,7 +172,7 @@ export default function Datatable({
             )
           )
         )
-      ).reduce<Row[]>((acc, { rows }) => acc.concat(rows), []);
+      ).reduce<T[]>((acc, { rows }) => acc.concat(rows), []);
     },
     [loadRows, maxResourceLimit]
   );
@@ -187,7 +187,7 @@ export default function Datatable({
         stopIndex: minimumBatchSize - 1,
       });
 
-      let all: { rows: Row[]; count: number } | undefined;
+      let all: { rows: T[]; count: number } | undefined;
       if (
         rowsProp ||
         (firstPage.count <= loadAllUpTo && firstPage.count > pageSize)
@@ -237,13 +237,13 @@ export default function Datatable({
   }, [loadRows, pageSize, loadAllUpTo, minimumBatchSize, rowsProp, loadAll]);
 
   const isRowLoaded = useCallback(
-    ({ index }) => Boolean((rows ?? [])[index]),
+    (index: number) => Boolean((rows ?? [])[index]),
     [rows]
   );
 
   //loadMoreRows is only called, if "isRowLoaded" is falsy for given row
   const loadMoreRows = useCallback(
-    async ({ startIndex, stopIndex }) => {
+    async (startIndex: number, stopIndex: number) => {
       if (!loadRows) {
         throw TypeError("loadRows is falsy");
       }
@@ -253,7 +253,7 @@ export default function Datatable({
         stopIndex,
         filter,
         sorting,
-      })) as { rows: Row[] };
+      })) as { rows: T[] };
 
       setRowdata(({ rows, ...rest }) =>
         rows
@@ -273,7 +273,7 @@ export default function Datatable({
 
   const sortedRows = useMemo(() => {
     const { sortBy, sortDirection } = sorting;
-    const compare = (key: string) => (a: Row, b: Row) =>
+    const compare = (key: string) => (a: T, b: T) =>
       rowSort?.[key]?.(cellVal(a, key), cellVal(b, key)) as number;
     return !filteredRows
       ? null
@@ -285,28 +285,31 @@ export default function Datatable({
         );
   }, [cellVal, filteredRows, rowSort, rows, sorting]);
 
-  const rowGetter = useCallback(
-    ({ index }) => (sortedRows || rows)?.[index] || {},
+  const rowGetter = useCallback<({ index }: { index: number }) => T>(
+    ({ index }) => (sortedRows || rows)?.[index] || ({} as T),
     [rows, sortedRows]
   );
 
   const handleRowsScroll = useCallback(
-    (props) => {
+    (props: Record<"startIndex" | "stopIndex", number>) => {
       setPagination((s) => ({
         ...s,
         page: Math.ceil(props.stopIndex / pageSize),
         scrollToIndex: undefined,
       }));
-      if (_onRowsRendered.current) {
-        _onRowsRendered.current(props);
-      }
+      // if (_onRowsRendered.current) {
+      //   _onRowsRendered.current(props);
+      // }
     },
     [pageSize]
   );
 
+  const listRef = useRef<FixedSizeList | null>(null);
+
   const handlePageChange = useCallback(
-    (event, page) => {
+    (_e: ChangeEvent<unknown>, page: number) => {
       const scrollToIndex = (page - 1) * pageSize;
+      listRef.current?.scrollToItem(scrollToIndex, "start");
       return setPagination((s) => ({ ...s, page, scrollToIndex }));
     },
     [pageSize]
@@ -335,12 +338,18 @@ export default function Datatable({
   );
 
   const sort = useCallback(
-    ({ sortBy, sortDirection }) => {
+    ({
+      sortBy,
+      sortDirection,
+    }: {
+      sortBy: string;
+      sortDirection: SortDirection;
+    }) => {
       if (serverMode ? !rowSortServer?.includes(sortBy) : !rowSort?.[sortBy]) {
         return;
       }
 
-      const compare = (key: string) => (a: Row, b: Row) =>
+      const compare = (key: string) => (a: T, b: T) =>
         rowSort?.[key]?.(cellVal(a, key), cellVal(b, key)) as number;
 
       setRowdata(({ rows, filter, serverMode, ...rest }) => {
@@ -381,7 +390,7 @@ export default function Datatable({
   });
 
   const changeFilter = useCallback(
-    async ({ name, value }) => {
+    async ({ name, value }: { name: string; value: unknown }) => {
       setRowdata(({ filter = {}, rows, serverMode, sorting, ...rest }) => {
         const newFilter = {
           ...filter,
@@ -405,58 +414,63 @@ export default function Datatable({
     [rowFilterMatch, request]
   );
 
-  const headerRowRenderer = useCallback(
-    ({ className, style, columns: headColumns }) => {
-      return (
+  const finalColumns = (
+    columns
+      ? [{ name: "_select_row_checkbox", width: 42 }].concat(columns)
+      : emptyArray
+  ) as DatatableColumn[];
+
+  // with margins
+  const fullTableWidth = columns
+    ? getFullTableWidth({
+        columns: finalColumns,
+        visibleColumns: visibleColumns.map((vc) => vc.name),
+        toggleAllRowsSelection,
+        toggleRowSelection,
+      })
+    : 0;
+
+  const headerRow = useMemo<ReactNode>(
+    () =>
+      columns ? (
         <HeaderRow
           {...{
-            columns: headColumns,
-            style,
-            className,
-            visibleColumns,
-            showFilter,
-            serverMode,
+            rows,
             selectedRows,
+            rowSort,
             rowFilter,
-            rowFilterServer,
             changeFilter,
+            columns,
+            visibleColumns: visibleColumns.map((c) => c.name),
+            tableWidth: fullTableWidth,
+            toggleRowSelection,
+            toggleAllRowsSelection,
+            showFilter,
+            sorting,
+            sort,
           }}
         />
-      );
-    },
+      ) : null,
     [
+      changeFilter,
+      columns,
+      fullTableWidth,
       rowFilter,
-      serverMode,
-      rowFilterServer,
-      visibleColumns,
+      rowSort,
+      rows,
       selectedRows,
       showFilter,
-      changeFilter,
+      sorting,
+      toggleAllRowsSelection,
+      toggleRowSelection,
+      visibleColumns,
+      sort,
     ]
   );
 
   const height = rowHeight * pageSize + headerHeight;
   const pageCount = Math.ceil(count / pageSize);
-  const _onRowsRendered = useRef<(params: IndexRange) => void>();
-
-  //increase available width, if possible
-  useEffect(() => {
-    if (!setAvailableWidth) return;
-
-    const tableWidth = autoWidth({
-      minWidth,
-      maxWidth,
-      visibleColumns,
-    });
-
-    tableWidth != availableWidth && setAvailableWidth(tableWidth);
-  }, [availableWidth, setAvailableWidth, minWidth, maxWidth, visibleColumns]);
-
-  // reset width if component is unmounted
-  useEffect(() => {
-    if (!setAvailableWidth) return;
-    return () => setAvailableWidth(minWidth);
-  }, [setAvailableWidth, minWidth]);
+  // const _onRowsRendered = useRef<(params: IndexRange) => void>();
 
   const { palette } = useTheme();
 
@@ -473,9 +487,9 @@ export default function Datatable({
   const handleDownloadCsv = useCallback(async () => {
     try {
       setIsLoadingDownloadCsv(true);
-      let rows: Row[] = [];
+      let rows: T[] = [];
       for (let i = 0; i < count; i++) {
-        if (!isRowLoaded({ index: i })) {
+        if (!isRowLoaded(i)) {
           rows = await loadAll(count);
           break;
         } else {
@@ -512,20 +526,6 @@ export default function Datatable({
         height: 1,
         display: "flex",
         flexDirection: "column",
-        "& .ReactVirtualized__Table__row": {
-          borderBottom: `1px solid ${palette.divider}`,
-          ...(onRowClick ? { cursor: "pointer" } : {}),
-        },
-        "& .ReactVirtualized__Table__row:hover": {
-          backgroundColor: palette.action.hover,
-        },
-        "& .ReactVirtualized__Table__headerRow": {
-          textTransform: "none",
-        },
-        "& .ReactVirtualized__Table__sortableHeaderIcon": {
-          width: "none",
-          height: "none",
-        },
       }}
     >
       {rows === null ? (
@@ -569,96 +569,103 @@ export default function Datatable({
           </Box>
         </ActionBar>
       )}
-      <div style={{ flexGrow: 1 }} ref={containerRef}>
-        {rows && (
-          <InfiniteLoader
-            minimumBatchSize={minimumBatchSize}
-            threshold={40}
-            isRowLoaded={isRowLoaded}
-            loadMoreRows={loadMoreRows}
-            rowCount={count}
-          >
-            {({ onRowsRendered, registerChild }) => {
-              _onRowsRendered.current = onRowsRendered;
-              const columnsWidth =
-                60 +
-                visibleColumns.reduce((acc, { width }) => acc + width + 10, 0);
-              return (
-                <AutoSizer disableHeight>
-                  {({ width }) => {
+      <div
+        className="datatable_inner_container"
+        style={{
+          width: "100%",
+          overflowX: "auto",
+          overflowY: "hidden",
+          flexGrow: 1,
+          display: "block",
+        }}
+      >
+        {rows &&
+          (rows.length > 0 && columns ? (
+            <>
+              {headerRow}
+              <div
+                className="infinite_loader_container"
+                style={{
+                  position: "relative",
+                  width: fullTableWidth,
+                  minWidth: "100%",
+                }}
+              >
+                <InfiniteLoader
+                  minimumBatchSize={minimumBatchSize}
+                  threshold={40}
+                  isItemLoaded={isRowLoaded}
+                  loadMoreItems={loadMoreRows}
+                  itemCount={count}
+                >
+                  {({ onItemsRendered, ref }) => {
+                    const width = fullTableWidth;
                     const horizontalScroll =
-                      width > 0 && columnsWidth / width > 1.1 ? true : false;
+                      width > 0 && fullTableWidth / width > 1.1 ? true : false;
                     const table = (
-                      <Table
+                      <FixedSizeList
                         {...{
-                          headerHeight,
-                          height,
-                          rowGetter,
-                          rowHeight,
-                          width: horizontalScroll ? columnsWidth : width,
-                          noRowsRenderer,
-                          headerRowRenderer,
-                          onRowClick,
-                          onRowsRendered: handleRowsScroll,
-                          ref: registerChild,
-                          rowCount: count,
-                          scrollToIndex: pagination.scrollToIndex,
-                          scrollToAlignment: "start",
-                          sort: sort,
+                          ref: (instance) => {
+                            ref(instance);
+                            listRef.current = instance;
+                          },
+                          height: window.innerHeight,
+                          width: "100%",
+                          style: {
+                            minHeight,
+                            overflowX: "hidden",
+                            overflowY: "auto",
+                          },
+                          // width: horizontalScroll ? columnsWidth : width,
+                          onItemsRendered: (props) => {
+                            onItemsRendered(props);
+                            handleRowsScroll({
+                              startIndex: props.visibleStartIndex,
+                              stopIndex: props.visibleStopIndex,
+                            });
+                          },
+                          itemCount: count,
+                          itemSize: rowHeight,
+                          columnCount: visibleColumns.length,
                           sortBy: sorting.sortBy,
-                          sortDirection:
-                            sorting.sortDirection as SortDirectionType,
+                          sortDirection: sorting.sortDirection as SortDirection,
                           ...rest,
                         }}
                       >
-                        {(selectedRows
-                          ? [
-                              <Column
-                                columnData={{
-                                  selectedRows,
-                                  toggleRowSelection,
-                                  toggleAllRowsSelection,
-                                  rowCount: count,
-                                  rows,
-                                  getRowId,
-                                }}
-                                key="_rowSelection"
-                                cellRenderer={selectRowCellRenderer}
-                                dataKey="_rowSelection"
-                                width={40}
-                                headerRenderer={selectRowHeaderRenderer}
-                                disableSort={true}
-                              />,
-                            ]
-                          : []
-                        ).concat(
-                          visibleColumns.map(
-                            ({ name, dataKey, label, ...rest }) => (
-                              <Column
-                                key={name}
-                                {...{
-                                  dataKey: dataKey ?? name,
-                                  label: label ?? t(name as "_"),
-                                  headerRenderer: ColumnHead,
-                                  ...rest,
-                                }}
-                              />
-                            )
-                          )
-                        )}
-                      </Table>
+                        {(props: ListChildComponentProps<T>) => {
+                          return RowRenderer<T>({
+                            ...props,
+                            rows,
+                            rowHeight,
+                            columns,
+                            visibleColumns: visibleColumns.map((c) => c.name),
+                            selectedRows,
+                            toggleRowSelection,
+                            toggleAllRowsSelection,
+                            getRowId,
+                            onRowClick,
+                          });
+                        }}
+                      </FixedSizeList>
                     );
-                    return horizontalScroll ? (
-                      <div style={{ width, overflowX: "scroll" }}>{table}</div>
-                    ) : (
-                      table
+                    return (
+                      <div ref={containerRef}>
+                        {horizontalScroll ? (
+                          <div style={{ width, overflowX: "scroll" }}>
+                            {table}
+                          </div>
+                        ) : (
+                          table
+                        )}
+                      </div>
                     );
                   }}
-                </AutoSizer>
-              );
-            }}
-          </InfiniteLoader>
-        )}
+                </InfiniteLoader>
+              </div>
+            </>
+          ) : (
+            noRowsRenderer()
+          ))}
       </div>
       <Box
         sx={{
@@ -697,28 +704,51 @@ const noRowsRendererDefault = () => (
 
 const cellValDefault: CellValDefault = (row, key) => row[key];
 const emptyFunc = () => {};
-const selectRowCellRendererDefault: TableCellRenderer = ({
-  columnData: { selectedRows, toggleRowSelection = emptyFunc, getRowId },
-  rowIndex,
-  rowData,
-}) => {
-  return (
-    <SelectRowCheckbox
-      {...{ rowIndex, rowData, toggleRowSelection, selectedRows, getRowId }}
-    />
-  );
-};
+// const selectRowCellRendererDefault: TableCellRenderer = ({
+//   columnData: { selectedRows, toggleRowSelection = emptyFunc, getRowId },
+//   rowIndex,
+//   rowData,
+// }) => {
+//   return (
+//     <SelectRowCheckbox
+//       {...{ rowIndex, rowData, toggleRowSelection, selectedRows, getRowId }}
+//     />
+//   );
+// };
 
-const selectRowHeaderRendererDefault = (({
-  columnData: { selectedRows, toggleAllRowsSelection, rows },
-}: {
-  columnData: Partial<SelectAllCheckboxProps>;
-}) =>
-  toggleAllRowsSelection &&
-  rows &&
-  selectedRows && (
-    <SelectAllCheckbox {...{ selectedRows, toggleAllRowsSelection, rows }} />
-  )) as TableHeaderRenderer;
+// const selectRowHeaderRendererDefault = (({
+//   columnData: { selectedRows, toggleAllRowsSelection, rows },
+// }: {
+//   columnData: Partial<SelectAllCheckboxProps>;
+// }) =>
+//   toggleAllRowsSelection &&
+//   rows &&
+//   selectedRows && (
+//     <SelectAllCheckbox {...{ selectedRows, toggleAllRowsSelection, rows }} />
+//   )) as TableHeaderRenderer;
 
 //Trivial row identity is the row object itself as default ...
 const getRowIdDefault: GetRowId = ({ row }) => row;
+
+/** Returns the full width of all visible columns, including their margins */
+function getFullTableWidth({
+  columns,
+  visibleColumns,
+  toggleRowSelection,
+  toggleAllRowsSelection,
+}: {
+  columns: DatatableColumn[];
+  visibleColumns: string[];
+  toggleRowSelection: DatatableProps["toggleRowSelection"];
+  toggleAllRowsSelection: DatatableProps["toggleAllRowsSelection"];
+}) {
+  return (
+    visibleColumns.reduce(
+      (a, c, i) =>
+        a +
+        columns.find((col) => col.name === c)!.width +
+        (i === 0 ? 2 : 1) * 10,
+      0
+    ) + (toggleRowSelection || toggleAllRowsSelection ? 42 : 0)
+  );
+}

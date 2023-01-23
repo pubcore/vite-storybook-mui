@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Tooltip, Checkbox } from "@mui/material";
-import type { GetRowId } from "./DatatableTypes";
+import type { DatatableProps, GetRowId } from "./DatatableTypes";
 
 type Row = Record<string, unknown>;
 type Rows = Row[];
@@ -24,7 +24,7 @@ export default function SelectAllCheckbox({
   selectedRows,
 }: SelectAllCheckboxProps) {
   const onChange = useCallback(
-    ({ target: { checked } }) => {
+    ({ target: { checked } }: { target: { checked: boolean } }) => {
       toggleAllRowsSelection({ rows, checked });
     },
     [rows, toggleAllRowsSelection]

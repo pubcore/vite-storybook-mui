@@ -1,6 +1,5 @@
 import { useMemo } from "react";
-import type { TableCellProps } from "react-virtualized";
-import type { ColumnType } from "./DatatableTypes";
+import type { DatatableColumn, DatatableRow } from "./DatatableTypes";
 
 export function useVisibleColumns({
   columns = [],
@@ -10,7 +9,7 @@ export function useVisibleColumns({
   rowSort,
   selectedColumns,
 }: UseVisiblColumnsArgs) {
-  const visibleColumns: ColumnType[] = useMemo(() => {
+  const visibleColumns: DatatableColumn[] = useMemo(() => {
     const columnsMap = columns.reduce(
       (acc, { name, ...rest }) => acc.set(name, rest),
       new Map()
@@ -44,7 +43,7 @@ export function useVisibleColumns({
   };
 }
 
-function defaultCellRenderer({ cellData }: TableCellProps) {
+function defaultCellRenderer({ cellData }: { cellData: DatatableRow }) {
   try {
     if (typeof cellData === "undefined") return "";
     return typeof cellData === "object"
@@ -57,7 +56,7 @@ function defaultCellRenderer({ cellData }: TableCellProps) {
 }
 
 export interface UseVisiblColumnsArgs {
-  columns?: ColumnType[];
+  columns?: DatatableColumn[];
   columnsSequence: string[];
   serverMode: boolean;
   rowSortServer?: string[];

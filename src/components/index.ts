@@ -49,7 +49,7 @@ export type { TabPanelProps } from "./Tabs";
 export { default as TabPanel } from "./Tabs";
 export type { UserMenuProps } from "./UserMenu";
 export { default as UserMenu } from "./UserMenu";
-export { default as Datatable } from "./Datatable";
+export { Datatable } from "./Datatable";
 export type { DatatableProps } from "./Datatable/DatatableTypes";
 export type { HeaderRowFilterProps as DatatableHeaderRowFilterProps } from "./Datatable/DatatableTypes";
 export { default as FileUpload, acceptExcel } from "./FileUpload";
