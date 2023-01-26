@@ -9,7 +9,7 @@ import {
 } from "./DatatableTypes";
 import SelectRowCheckbox from "./SelectRowCheckbox";
 
-const marginWidth = 10;
+export const marginWidth = 10;
 
 type RowRendererProps<T extends DatatableRow> = ListChildComponentProps &
   Required<Pick<DatatableProps<T>, "rows" | "rowHeight" | "columns">> & {
@@ -119,7 +119,7 @@ const StyledRow = styled("div")(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.divider}`,
 }));
 
-const StyledCell = styled("div")({
+export const StyledCell = styled("div")({
   overflow: "hidden",
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",
