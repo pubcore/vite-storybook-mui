@@ -48,7 +48,7 @@ const GridCell = ({
   columnIndex,
   rowIndex,
   columns,
-}: GridChildComponentProps<DatatableRow<GridCellObj>[]> & {
+}: GridChildComponentProps<GridCellObj[]> & {
   columns: DatatableColumn[];
 }) => {
   const colName = columns[columnIndex]?.name;
@@ -96,7 +96,7 @@ export const GridWithFixedSize = () => {
     ];
   }, []);
 
-  const getRows = useCallback<() => DatatableRow<GridCellObj>[]>(() => {
+  const getRows = useCallback<() => GridCellObj[]>(() => {
     return Array.from(Array(50)).map(() => ({
       name: faker.name.fullName(),
       job: faker.name.jobTitle(),
@@ -145,7 +145,7 @@ export const GridWithVariableSize = () => {
     ];
   }, []);
 
-  const getRows = useCallback<() => DatatableRow<GridCellObj>[]>(() => {
+  const getRows = useCallback<() => GridCellObj[]>(() => {
     return Array.from(Array(300)).map(() => ({
       name: faker.name.fullName(),
       job: faker.name.jobTitle(),
@@ -194,7 +194,7 @@ export const VariableGridAutosizer = () => {
     ];
   }, []);
 
-  const getRows = useCallback<() => DatatableRow<GridCellObj>[]>(() => {
+  const getRows = useCallback<() => GridCellObj[]>(() => {
     return Array.from(Array(300)).map(() => ({
       name: faker.name.fullName(),
       job: faker.name.jobTitle(),

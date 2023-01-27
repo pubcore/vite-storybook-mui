@@ -7,7 +7,7 @@ import {
   DatatableRow,
   GetRowId,
 } from "./DatatableTypes";
-import SelectRowCheckbox from "./SelectRowCheckbox";
+import { SelectRowCheckbox } from "./SelectRowCheckbox";
 
 export const marginWidth = 10;
 

@@ -9,13 +9,7 @@ import {
 } from "react";
 import { FixedSizeList, ListChildComponentProps } from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
-import {
-  Pagination,
-  CircularProgress,
-  Paper,
-  useTheme,
-  Box,
-} from "@mui/material";
+import { Pagination, CircularProgress, Paper, Box } from "@mui/material";
 import { ActionBar } from "..";
 import ColumnSelector from "./ColumnsSelector";
 import { HeaderRow } from "./HeaderRow";
@@ -291,10 +285,10 @@ export function Datatable<T extends DatatableRow = DatatableRow>({
   );
 
   const handleRowsScroll = useCallback(
-    (props: Record<"startIndex" | "stopIndex", number>) => {
+    ({ startIndex, stopIndex }: Record<"startIndex" | "stopIndex", number>) => {
       setPagination((s) => ({
         ...s,
-        page: Math.ceil(props.stopIndex / pageSize),
+        page: Math.ceil(stopIndex / pageSize),
         scrollToIndex: undefined,
       }));
       // if (_onRowsRendered.current) {
@@ -309,8 +303,8 @@ export function Datatable<T extends DatatableRow = DatatableRow>({
   const handlePageChange = useCallback(
     (_e: ChangeEvent<unknown>, page: number) => {
       const scrollToIndex = (page - 1) * pageSize;
+      setPagination((s) => ({ ...s, page, scrollToIndex }));
       listRef.current?.scrollToItem(scrollToIndex, "start");
-      return setPagination((s) => ({ ...s, page, scrollToIndex }));
     },
     [pageSize]
   );
@@ -438,6 +432,7 @@ export function Datatable<T extends DatatableRow = DatatableRow>({
             rows,
             selectedRows,
             rowSort,
+            disableSort: rowSort === undefined,
             rowFilter,
             changeFilter,
             columns,
@@ -470,9 +465,6 @@ export function Datatable<T extends DatatableRow = DatatableRow>({
 
   const height = rowHeight * pageSize + headerHeight;
   const pageCount = Math.ceil(count / pageSize);
-  // const _onRowsRendered = useRef<(params: IndexRange) => void>();
-
-  const { palette } = useTheme();
 
   const defaultSelected = columns?.map((c) => c.name);
 
@@ -522,6 +514,7 @@ export function Datatable<T extends DatatableRow = DatatableRow>({
 
   return (
     <Paper
+      ref={containerRef}
       sx={{
         height: 1,
         display: "flex",
@@ -609,7 +602,7 @@ export function Datatable<T extends DatatableRow = DatatableRow>({
                             ref(instance);
                             listRef.current = instance;
                           },
-                          height: window.innerHeight,
+                          height,
                           width: "100%",
                           style: {
                             minHeight,
@@ -626,14 +619,11 @@ export function Datatable<T extends DatatableRow = DatatableRow>({
                           },
                           itemCount: count,
                           itemSize: rowHeight,
-                          columnCount: visibleColumns.length,
-                          sortBy: sorting.sortBy,
-                          sortDirection: sorting.sortDirection as SortDirection,
                           ...rest,
                         }}
                       >
-                        {(props: ListChildComponentProps<T>) => {
-                          return RowRenderer<T>({
+                        {(props: ListChildComponentProps<T>) =>
+                          RowRenderer<T>({
                             ...props,
                             rows,
                             rowHeight,
@@ -644,20 +634,14 @@ export function Datatable<T extends DatatableRow = DatatableRow>({
                             toggleAllRowsSelection,
                             getRowId,
                             onRowClick,
-                          });
-                        }}
+                          })
+                        }
                       </FixedSizeList>
                     );
-                    return (
-                      <div ref={containerRef}>
-                        {horizontalScroll ? (
-                          <div style={{ width, overflowX: "scroll" }}>
-                            {table}
-                          </div>
-                        ) : (
-                          table
-                        )}
-                      </div>
+                    return horizontalScroll ? (
+                      <div style={{ width, overflowX: "scroll" }}>{table}</div>
+                    ) : (
+                      table
                     );
                   }}
                 </InfiniteLoader>
@@ -703,29 +687,6 @@ const noRowsRendererDefault = () => (
 );
 
 const cellValDefault: CellValDefault = (row, key) => row[key];
-const emptyFunc = () => {};
-// const selectRowCellRendererDefault: TableCellRenderer = ({
-//   columnData: { selectedRows, toggleRowSelection = emptyFunc, getRowId },
-//   rowIndex,
-//   rowData,
-// }) => {
-//   return (
-//     <SelectRowCheckbox
-//       {...{ rowIndex, rowData, toggleRowSelection, selectedRows, getRowId }}
-//     />
-//   );
-// };
-
-// const selectRowHeaderRendererDefault = (({
-//   columnData: { selectedRows, toggleAllRowsSelection, rows },
-// }: {
-//   columnData: Partial<SelectAllCheckboxProps>;
-// }) =>
-//   toggleAllRowsSelection &&
-//   rows &&
-//   selectedRows && (
-//     <SelectAllCheckbox {...{ selectedRows, toggleAllRowsSelection, rows }} />
-//   )) as TableHeaderRenderer;
 
 //Trivial row identity is the row object itself as default ...
 const getRowIdDefault: GetRowId = ({ row }) => row;

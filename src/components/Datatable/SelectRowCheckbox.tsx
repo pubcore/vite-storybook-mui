@@ -18,7 +18,7 @@ export interface SelectRowProps {
   getRowId: GetRowId;
 }
 
-export default function SelectRowCheckbox({
+export function SelectRowCheckbox({
   rowIndex,
   toggleRowSelection,
   selectedRows,
@@ -26,7 +26,7 @@ export default function SelectRowCheckbox({
   getRowId,
 }: SelectRowProps) {
   const onChange = useCallback(
-    ({ target: { checked } }) => {
+    ({ target: { checked } }: { target: { checked: boolean } }) => {
       toggleRowSelection({ row: rowData, checked });
     },
     [toggleRowSelection, rowData]

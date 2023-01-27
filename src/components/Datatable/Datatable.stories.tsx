@@ -258,7 +258,7 @@ export const DownloadCsv = (args: Args) => (
   />
 );
 
-export const HeightTestAndLongHeader = (args: Args) => {
+export const FullHeightAndLongHeader = (args: Args) => {
   return (
     <div style={{ position: "absolute", height: "100%", width: "100%" }}>
       <Datatable

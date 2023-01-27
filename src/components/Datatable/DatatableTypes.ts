@@ -43,6 +43,7 @@ export type LoadRows<T extends DatatableRow = DatatableRow> = ({
 export interface DatatableColumn {
   name: string;
   dataKey?: string;
+  label?: string;
   width: number;
   flexGrow?: number;
   flexShrink?: number;

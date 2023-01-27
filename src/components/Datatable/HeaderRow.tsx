@@ -3,7 +3,7 @@ import { ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { HeaderRowProps } from "./DatatableTypes";
 import { marginWidth, StyledCell } from "./RowRenderer";
-import SelectAllCheckbox from "./SelectAllCheckbox";
+import { SelectAllCheckbox } from "./SelectAllCheckbox";
 
 const defaultStyle = {
   display: "flex",
@@ -69,7 +69,15 @@ export function HeaderRow({
         }}
       >
         {disableSort === true ? (
-          <>{t(col.name as "_")}</>
+          <div
+            style={{
+              maxWidth: col.width,
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+            }}
+          >
+            {t(col.name as "_")}
+          </div>
         ) : (
           <TableSortLabel
             disabled={!rowSort?.[dataKey]}

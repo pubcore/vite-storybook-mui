@@ -34,8 +34,8 @@ export function AppDecorator({
           styleOverrides: {
             input: {
               "&:-webkit-autofill": {
-                "-webkit-box-shadow": `0 0 0 100px ${_bgColor} inset`,
-                "-webkit-text-fill-color":
+                WebkitBoxShadow: `0 0 0 100px ${_bgColor} inset`,
+                WebkitTextFillColor:
                   outerTheme.palette.getContrastText(_bgColor),
               },
             },

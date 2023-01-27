@@ -46,7 +46,10 @@ export default function ColumnSelector({
   const columnNames = useRef<string[]>(columnsSequence);
 
   const switchColumn = useCallback(
-    ({ currentTarget: { name } }, checked) =>
+    (
+      { currentTarget: { name } }: { currentTarget: { name: string } },
+      checked: boolean
+    ) =>
       setSelected(
         checked
           ? selected.includes(name)
@@ -58,12 +61,13 @@ export default function ColumnSelector({
   );
   const [filter, setFilter] = useState("");
   const onFilterChange = useCallback(
-    ({ currentTarget: { value } }) => setFilter(value),
+    ({ currentTarget: { value } }: { currentTarget: { value: string } }) =>
+      setFilter(value),
     []
   );
 
   const stepRight = useCallback(
-    ({ currentTarget: { name } }) => {
+    ({ currentTarget: { name } }: { currentTarget: { name: string } }) => {
       const current = columnsSequence.indexOf(name);
       if (current >= columnsSequence.length - 1) {
         return columnsSequence;
@@ -75,7 +79,7 @@ export default function ColumnSelector({
     [columnsSequence, setSequence]
   );
   const stepLeft = useCallback(
-    ({ currentTarget: { name } }) => {
+    ({ currentTarget: { name } }: { currentTarget: { name: string } }) => {
       const current = columnsSequence.indexOf(name);
       if (current <= 0) {
         return columnsSequence;
