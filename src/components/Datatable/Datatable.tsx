@@ -7,7 +7,11 @@ import {
   ChangeEvent,
   ReactNode,
 } from "react";
-import { FixedSizeList, ListChildComponentProps } from "react-window";
+import {
+  FixedSizeList,
+  ListChildComponentProps,
+  ListOnScrollProps,
+} from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
 import { Pagination, CircularProgress, Paper, Box } from "@mui/material";
 import { ActionBar } from "..";
@@ -285,17 +289,16 @@ export function Datatable<T extends DatatableRow = DatatableRow>({
   );
 
   const handleRowsScroll = useCallback(
-    ({ startIndex, stopIndex }: Record<"startIndex" | "stopIndex", number>) => {
+    ({ scrollOffset }: ListOnScrollProps) => {
+      const startIndex = Math.floor(scrollOffset / rowHeight);
+      const stopIndex = startIndex + pageSize;
       setPagination((s) => ({
         ...s,
         page: Math.ceil(stopIndex / pageSize),
         scrollToIndex: undefined,
       }));
-      // if (_onRowsRendered.current) {
-      //   _onRowsRendered.current(props);
-      // }
     },
-    [pageSize]
+    [pageSize, rowHeight]
   );
 
   const listRef = useRef<FixedSizeList | null>(null);
@@ -514,7 +517,6 @@ export function Datatable<T extends DatatableRow = DatatableRow>({
 
   return (
     <Paper
-      ref={containerRef}
       sx={{
         height: 1,
         display: "flex",
@@ -563,7 +565,6 @@ export function Datatable<T extends DatatableRow = DatatableRow>({
         </ActionBar>
       )}
       <div
-        className="datatable_inner_container"
         style={{
           width: "100%",
           overflowX: "auto",
@@ -578,6 +579,7 @@ export function Datatable<T extends DatatableRow = DatatableRow>({
               {headerRow}
               <div
                 className="infinite_loader_container"
+                ref={containerRef}
                 style={{
                   position: "relative",
                   width: fullTableWidth,
@@ -609,14 +611,8 @@ export function Datatable<T extends DatatableRow = DatatableRow>({
                             overflowX: "hidden",
                             overflowY: "auto",
                           },
-                          // width: horizontalScroll ? columnsWidth : width,
-                          onItemsRendered: (props) => {
-                            onItemsRendered(props);
-                            handleRowsScroll({
-                              startIndex: props.visibleStartIndex,
-                              stopIndex: props.visibleStopIndex,
-                            });
-                          },
+                          onItemsRendered,
+                          onScroll: handleRowsScroll,
                           itemCount: count,
                           itemSize: rowHeight,
                           ...rest,
