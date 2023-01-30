@@ -466,7 +466,7 @@ export function Datatable<T extends DatatableRow = DatatableRow>({
     ]
   );
 
-  const height = rowHeight * pageSize + headerHeight;
+  const listHeight = rowHeight * pageSize;
   const pageCount = Math.ceil(count / pageSize);
 
   const defaultSelected = columns?.map((c) => c.name);
@@ -604,7 +604,7 @@ export function Datatable<T extends DatatableRow = DatatableRow>({
                             ref(instance);
                             listRef.current = instance;
                           },
-                          height,
+                          height: listHeight,
                           width: "100%",
                           style: {
                             minHeight,
