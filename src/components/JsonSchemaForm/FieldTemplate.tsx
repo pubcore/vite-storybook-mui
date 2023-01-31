@@ -1,4 +1,4 @@
-import type { FieldTemplateProps } from "@rjsf/core";
+import type { FieldTemplateProps } from "@rjsf/utils";
 import {
   FormControl,
   FormHelperText,

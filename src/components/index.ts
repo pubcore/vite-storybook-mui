@@ -49,7 +49,7 @@ export type { TabPanelProps } from "./Tabs";
 export { default as TabPanel } from "./Tabs";
 export type { UserMenuProps } from "./UserMenu";
 export { default as UserMenu } from "./UserMenu";
-export { default as Datatable } from "./Datatable";
+export { Datatable } from "./Datatable";
 export type { DatatableProps } from "./Datatable/DatatableTypes";
 export type { HeaderRowFilterProps as DatatableHeaderRowFilterProps } from "./Datatable/DatatableTypes";
 export { default as FileUpload, acceptExcel } from "./FileUpload";
@@ -64,16 +64,11 @@ export { default as Status } from "./Status";
 export { Dialog } from "./Dialog/Dialog";
 export { Workflow } from "./Workflow/Workflow";
 export type { WorkflowProps } from "./Workflow/Workflow";
+
 export { JsonSchemaForm } from "./JsonSchemaForm";
 export * as Fields from "./JsonSchemaForm/fields";
 export type { JSONSchema7 } from "json-schema";
-export type {
-  Field,
-  UiSchema,
-  ISubmitEvent,
-  WidgetProps,
-  FieldProps,
-} from "@rjsf/core";
+export type { Field, UiSchema, WidgetProps, FieldProps } from "@rjsf/utils";
 
 declare module "i18next" {
   interface CustomTypeOptions {

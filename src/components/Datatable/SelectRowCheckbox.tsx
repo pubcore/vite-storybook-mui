@@ -6,7 +6,7 @@ type Row = Record<string, unknown>;
 
 export interface SelectRowProps {
   rowIndex: number;
-  toggleRowSelection: ({
+  toggleRowSelection?: ({
     row,
     checked,
   }: {
@@ -18,7 +18,7 @@ export interface SelectRowProps {
   getRowId: GetRowId;
 }
 
-export default function SelectRowCheckbox({
+export function SelectRowCheckbox({
   rowIndex,
   toggleRowSelection,
   selectedRows,
@@ -26,8 +26,8 @@ export default function SelectRowCheckbox({
   getRowId,
 }: SelectRowProps) {
   const onChange = useCallback(
-    ({ target: { checked } }) => {
-      toggleRowSelection({ row: rowData, checked });
+    ({ target: { checked } }: { target: { checked: boolean } }) => {
+      toggleRowSelection && toggleRowSelection({ row: rowData, checked });
     },
     [toggleRowSelection, rowData]
   );

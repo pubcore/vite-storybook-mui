@@ -1,27 +1,24 @@
-import type { ReactNode } from "react";
-import type {
-  ColumnProps,
-  TableProps,
-  TableCellRenderer,
-  TableHeaderRenderer,
-  TableHeaderRowProps,
-} from "react-virtualized";
-import type { SortDirection } from "@mui/material";
-import type { SelectRowProps } from "./SelectRowCheckbox";
-import type { SelectAllCheckboxProps } from "./SelectAllCheckbox";
+import { ReactNode } from "react";
+import { ListChildComponentProps } from "react-window";
+import { SelectAllCheckboxProps } from "./SelectAllCheckbox";
+import { SelectRowProps } from "./SelectRowCheckbox";
 
-export type Row = Record<string, unknown>;
-export type Rows = Row[] | null;
-export interface RowsState {
-  rows: Rows;
+export type SortDirection = "ASC" | "DESC";
+
+export type RowsState<T extends DatatableRow = DatatableRow> = {
+  rows: T[] | null;
   sorting: { sortBy?: string; sortDirection?: SortDirection };
   filter: Record<string, unknown>;
   serverMode: boolean;
-  pageSize: number | undefined;
-}
-export type GetRowId = ({ row }: { row: Row }) => Row | string | number;
+};
 
-export type LoadRows = ({
+export type GetRowId = <T extends DatatableRow = DatatableRow>({
+  row,
+}: {
+  row: T;
+}) => T | string | number;
+
+export type LoadRows<T extends DatatableRow = DatatableRow> = ({
   startIndex,
   stopIndex,
   filter,
@@ -31,64 +28,62 @@ export type LoadRows = ({
   stopIndex: number;
   filter?: Record<string, unknown>;
   sorting?: Record<string, unknown>;
-}) => Promise<{ rows: Row[]; count: number }>;
+}) => Promise<{ rows: T[]; count: number } | null>;
 
-export type ColumnType = Omit<ColumnProps, "dataKey"> & {
+export type DatatableColumn = {
   name: string;
   dataKey?: string;
+  label?: string;
+  width: number;
+  flexGrow?: number;
+  flexShrink?: number;
+  cellRenderer?: DatatableCellRenderer;
 };
-export interface DatatableProps extends Omit<TableProps, "rowHeight"> {
+
+export type DatatableSupportedTypes = unknown;
+
+export type DatatableRow = Record<string | number, unknown>;
+
+export type DatatableProps<T extends DatatableRow = DatatableRow> = {
   title?: ReactNode;
-  columns?: ColumnType[];
-  /**
-   * To be used, if all rows exists in memory. If set, "loadRows" is ignored
-   */
-  rows?: Row[];
-  /**
-   * Callback to fetch rows during pagination. It is ignored if "rows" is given
-   */
-  loadRows?: LoadRows;
+  columns?: DatatableColumn[];
+  rows?: T[];
+  loadRows?: LoadRows<T>;
   pageSize?: number;
-  /**
-   * Minimum number or rows to show, including empty rows
-   */
   minPageSize?: number;
-  /**
-   * A fixed row height is required to support pagination with infinit scroll
-   */
   rowHeight?: number;
-  noRowsRenderer?: () => JSX.Element;
-  /**
-   * If set, and total count of resource's items is not higher, all items
-   * will be requested (in batches) in order to support client-site filter
-   * and sort.
-   */
+  noRowsRenderer?: () => ReactNode;
+  headerHeight?: number;
+  onRowClick?: ({ rowData }: { rowData: T }) => void;
   loadAllUpTo?: number;
+  rowSort?: Partial<Record<keyof T, ((a: any, b: any) => number) | null>>;
   /**
-   * The maximum number of items resource can serve by one request
+   * To define which columns have support of server-side sort.
+   * If "loadAllUpTo" threshold is exceeded, only this columns will be sortable.
    */
-  maxResourceLimit?: number;
-  rowSort?: Record<string, ((a: unknown, b: unknown) => number) | null>;
+  rowSortServer?: (keyof T)[];
+  rowFilter?: RowFilter<T>;
   /**
-   * Name of Columns supporting server-side sorting
+   * To define which columns have support of server-side filtering.
+   * If "loadAllUpTo" threshold is exceeded, only this columns will show filter
    */
-  rowSortServer?: string[];
-  rowFilter?: HeaderRowProps["rowFilter"];
-  /**
-   * Name of columns supporting serve-side filtering.
-   */
-  rowFilterServer?: string[];
+  rowFilterServer?: (keyof T)[];
   rowFilterMatch?: ({
     row,
     filter,
     cellVal,
   }: {
-    row: Row;
+    row: T;
     filter: Record<string, unknown>;
     cellVal: unknown;
   }) => boolean;
   rowFilterHideUpTo?: number;
+  maxResourceLimit?: number;
   manageColumns?: boolean;
+  /**
+   * Required to save state of "manageColumns" to local storage.
+   */
+  storageId?: string;
   downloadCsv?: boolean;
   downloadCsvFilename?: string;
   /**
@@ -100,36 +95,72 @@ export interface DatatableProps extends Omit<TableProps, "rowHeight"> {
   cellVal?: CellValDefault;
   getRowId?: GetRowId;
   selectedRows?: Set<ReturnType<GetRowId>>;
-  toggleRowSelection?: (arg: SelectRowProps["toggleRowSelection"]) => void;
-  toggleAllRowsSelection?: (
-    arg: SelectAllCheckboxProps["toggleAllRowsSelection"]
-  ) => void;
-  selectRowCellRenderer?: TableCellRenderer;
-  selectRowHeaderRenderer?: TableHeaderRenderer;
+  toggleRowSelection?: SelectRowProps["toggleRowSelection"];
+  toggleAllRowsSelection?: SelectAllCheckboxProps["toggleAllRowsSelection"];
   minimumBatchSize?: number;
-  storageId?: string;
-  availableWidth?: number;
-  setAvailableWidth?: ((availableWidth: number) => void) | null;
-  maxWidth?: number;
-  minWidth?: number;
-}
+};
 
-export interface HeaderRowProps
-  extends Omit<TableHeaderRowProps, "width" | "height" | "scrollbarWidth"> {
-  visibleColumns: ColumnType[];
+export type GridCellComponentProps<T extends DatatableRow> =
+  ListChildComponentProps<T[]>;
+
+export type ChangeFilter = ({
+  name,
+  value,
+}: {
+  name: string;
+  value: unknown;
+}) => void;
+
+export type RowFilterFunction = ({
+  name,
+  changeFilter,
+}: {
+  name: string;
+  changeFilter: ChangeFilter;
+}) => ReactNode;
+
+export type RowFilter<T extends DatatableRow> = HeaderRowProps<T>["rowFilter"];
+
+export type HeaderRowFilterProps = {
+  name: string;
+  changeFilter: ChangeFilter;
+};
+
+export type HeaderRowProps<T extends DatatableRow> = {
+  columns: DatatableColumn[];
+  visibleColumns: string[];
+  tableWidth: number;
   showFilter?: boolean;
-  selectedRows?: DatatableProps["selectedRows"];
+  selectedRows?: DatatableProps<T>["selectedRows"];
+  rows?: T[] | null;
   rowFilter?: Record<
     string,
     (({ name, changeFilter }: HeaderRowFilterProps) => ReactNode) | null
   >;
   changeFilter: ChangeFilter;
-}
+  sorting?: RowsState<T>["sorting"];
+  rowSort: DatatableProps<T>["rowSort"];
+  sort?: ({
+    sortBy,
+    sortDirection,
+  }: {
+    sortBy: string;
+    sortDirection: SortDirection;
+  }) => void;
+  disableSort?: boolean;
+  toggleAllRowsSelection: DatatableProps<T>["toggleAllRowsSelection"];
+  toggleRowSelection: DatatableProps<T>["toggleRowSelection"];
+};
 
-type ChangeFilter = ({ name, value }: { name: string; value: unknown }) => void;
+export type DatatableCellRenderer<T = any> = (props: {
+  columnName: string;
+  columnIndex: number;
+  rowIndex: number;
+  rowData: T;
+  cellData?: any;
+}) => ReactNode;
 
-export interface HeaderRowFilterProps {
-  name: string;
-  changeFilter: ChangeFilter;
-}
-export type CellValDefault = (row: Row, key: string) => unknown;
+export type CellValDefault = <T extends DatatableRow = DatatableRow>(
+  row: T,
+  key: string
+) => unknown;

@@ -1,7 +1,15 @@
-import { ReactNode, useCallback, useEffect, useState, MouseEvent } from "react";
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+  MouseEvent,
+  CSSProperties,
+} from "react";
 import { useMediaQuery, Drawer, Box, useTheme } from "@mui/material";
 import { NavLinkItem } from "./NavLinkItem";
 import { NavButtonItem } from "./NavButtonItem";
+import { LinkProps } from "react-router-dom";
 
 export interface Item {
   name: string;
@@ -49,7 +57,7 @@ export default function Sidebar({
   const onClose = useCallback(() => toggle(), [toggle]);
 
   const navLinkStyle = useCallback(
-    ({ isActive, to }) => {
+    ({ isActive, to }: { isActive: boolean; to?: LinkProps["to"] }) => {
       const { secondary, text, background } = palette;
 
       return {

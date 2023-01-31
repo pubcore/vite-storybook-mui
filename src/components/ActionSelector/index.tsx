@@ -1,4 +1,10 @@
-import { ReactNode, useCallback, useState } from "react";
+import {
+  EventHandler,
+  MouseEventHandler,
+  ReactNode,
+  useCallback,
+  useState,
+} from "react";
 import { Popover, Button, Tooltip, Box } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
@@ -11,11 +17,14 @@ export default function ActionSelector({
   label,
   children,
 }: ActionSelectorProps) {
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const onClose = useCallback(() => setAnchorEl(null), [setAnchorEl]);
-  const showPopover = useCallback(({ currentTarget }) => {
-    setAnchorEl(currentTarget);
-  }, []);
+  const showPopover: MouseEventHandler<HTMLButtonElement> = useCallback(
+    ({ currentTarget }) => {
+      setAnchorEl(currentTarget);
+    },
+    []
+  );
   const open = Boolean(anchorEl);
   const { t } = useTranslation();
   return (

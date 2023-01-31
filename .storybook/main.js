@@ -1,9 +1,9 @@
 //const viteProjectConfig = require("../vite.config.ts");
 
 module.exports = {
-  framework: "@storybook/react",
-  core: {
-    builder: "@storybook/builder-vite",
+  framework: {
+    name: "@storybook/react-vite",
+    options: {},
   },
   stories: ["../src/components/**/*.stories.tsx"],
   typescript: {
@@ -14,7 +14,6 @@ module.exports = {
     //https://storybook.js.org/docs/react/configure/overview#on-demand-story-loading
     storyStoreV7: true,
     postcss: false,
-    emotionAlias: false,
   },
   addons: [
     "@storybook/addon-links",

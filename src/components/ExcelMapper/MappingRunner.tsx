@@ -115,7 +115,7 @@ export function MappingRunner({
     setActiveStep(0);
   }
 
-  const handleFile: FileUploadProps["handleFile"] = useCallback(
+  const handleFile = useCallback<NonNullable<FileUploadProps["handleFile"]>>(
     async ({ formData }) => {
       const file = formData.get("file") as File;
       const data = await file?.arrayBuffer();
@@ -156,7 +156,7 @@ export function MappingRunner({
   const [inProgress, setInProgress] = useState(false);
 
   const handleSave = useCallback(
-    async (e, _rows?: typeof rows) => {
+    async (e: any, _rows?: typeof rows) => {
       try {
         setInProgress(true);
         const step = await saveTargetTable({

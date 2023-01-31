@@ -1,16 +1,19 @@
 import { useMemo } from "react";
-import type { TableCellProps } from "react-virtualized";
-import type { ColumnType } from "./DatatableTypes";
+import type {
+  DatatableColumn,
+  DatatableProps,
+  DatatableRow,
+} from "./DatatableTypes";
 
-export function useVisibleColumns({
+export function useVisibleColumns<T extends DatatableRow = DatatableRow>({
   columns = [],
   columnsSequence,
   serverMode,
   rowSortServer,
   rowSort,
   selectedColumns,
-}: UseVisiblColumnsArgs) {
-  const visibleColumns: ColumnType[] = useMemo(() => {
+}: UseVisiblColumnsArgs<T>) {
+  const visibleColumns: DatatableColumn[] = useMemo(() => {
     const columnsMap = columns.reduce(
       (acc, { name, ...rest }) => acc.set(name, rest),
       new Map()
@@ -44,7 +47,7 @@ export function useVisibleColumns({
   };
 }
 
-function defaultCellRenderer({ cellData }: TableCellProps) {
+function defaultCellRenderer({ cellData }: { cellData: DatatableRow }) {
   try {
     if (typeof cellData === "undefined") return "";
     return typeof cellData === "object"
@@ -56,11 +59,8 @@ function defaultCellRenderer({ cellData }: TableCellProps) {
   }
 }
 
-export interface UseVisiblColumnsArgs {
-  columns?: ColumnType[];
+export type UseVisiblColumnsArgs<T extends DatatableRow> = {
   columnsSequence: string[];
   serverMode: boolean;
-  rowSortServer?: string[];
-  rowSort?: Record<string, unknown>;
   selectedColumns: string[];
-}
+} & Pick<DatatableProps<T>, "columns" | "rowSortServer" | "rowSort">;

@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Tooltip, Checkbox } from "@mui/material";
 import type { GetRowId } from "./DatatableTypes";
@@ -18,13 +18,13 @@ export interface SelectAllCheckboxProps {
   selectedRows: Set<ReturnType<GetRowId>>;
 }
 
-export default function SelectAllCheckbox({
+export function SelectAllCheckbox({
   toggleAllRowsSelection,
   rows,
   selectedRows,
 }: SelectAllCheckboxProps) {
   const onChange = useCallback(
-    ({ target: { checked } }) => {
+    ({ target: { checked } }: { target: { checked: boolean } }) => {
       toggleAllRowsSelection({ rows, checked });
     },
     [rows, toggleAllRowsSelection]

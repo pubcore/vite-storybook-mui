@@ -36,7 +36,7 @@ export function MappingEditor(props: MappingEditorProps) {
   const [state, dispatch] = useReducer(reducer, props, init);
   const { workbook, workbookFileName, mappings: mappingsDraft, step } = state;
 
-  const handleFile: FileUploadProps["handleFile"] = useCallback(
+  const handleFile = useCallback<NonNullable<FileUploadProps["handleFile"]>>(
     async ({ formData }) => {
       const file = formData.get("file") as File;
       const data = await file?.arrayBuffer();

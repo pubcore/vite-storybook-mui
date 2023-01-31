@@ -1,8 +1,9 @@
 import { JsonSchemaForm } from "./";
 import type { JSONSchema7 } from "json-schema";
-import { UiSchema } from "@rjsf/core";
+import { UiSchema } from "@rjsf/utils";
 import schemaJson from "./exampleSchema.json";
 import uiSchemaJson from "./exampleUiSchema.json";
+import validator from "@rjsf/validator-ajv8";
 
 export default {
   title: "JSON Schema Form/Full Form",
@@ -60,12 +61,13 @@ export const PredefinedValues = () => {
   };
 
   return (
-    <JsonSchemaForm<PredefFormData>
+    <JsonSchemaForm
       {...{
         onSubmit: ({ formData }) => console.info("Form submitted:", formData),
         schema,
         uiSchema,
         formData,
+        validator,
       }}
     />
   );
@@ -100,5 +102,5 @@ export const SomeDefaultFields = () => {
     },
   };
 
-  return <JsonSchemaForm {...{ schema }} />;
+  return <JsonSchemaForm {...{ schema, validator }} />;
 };

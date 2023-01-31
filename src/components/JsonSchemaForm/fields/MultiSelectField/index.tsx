@@ -6,7 +6,7 @@ import {
   Select,
   SelectChangeEvent,
 } from "@mui/material";
-import { FieldProps } from "@rjsf/core";
+import { FieldProps } from "@rjsf/utils";
 import { useCallback } from "react";
 import { CustomItemsSection } from "./CustomItemsSection";
 
@@ -37,12 +37,13 @@ export function MultiSelectField(props: FieldProps) {
     [custom, onChange, predefItems]
   );
 
-  const setCustomItems = useCallback(
-    (items) => {
-      onChange({ predefined, custom: items });
-    },
-    [onChange, predefined]
-  );
+  const setCustomItems: (a: Parameters<typeof onChange>[0]) => void =
+    useCallback(
+      (items) => {
+        onChange({ predefined, custom: items });
+      },
+      [onChange, predefined]
+    );
 
   const renderItems = useCallback(() => {
     return predefined.concat(custom).join(", ");

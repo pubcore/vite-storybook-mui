@@ -25,7 +25,7 @@ One opinion about this: https://overreacted.io/npm-audit-broken-by-design/
 ```
 git clone git@github.com:pubcore/vite-storybook-mui.git && \
 cd ./vite-storybook-mui && \
-npm i --legacy-peer-deps --ignore-scripts; npm i --force && \
+npm i && \
 npm run storybook
 ```
 
@@ -41,7 +41,7 @@ execute commands below.
 npx degit pubcore/vite-storybook-mui «your-project»
 cd «your-project»
 git init && \
-npm i --legacy-peer-deps --ignore-scripts; npm i --force && \
+npm i && \
 git add . && git commit -m "init" && \
 npm run storybook
 ```

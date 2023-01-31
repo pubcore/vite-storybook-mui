@@ -8,34 +8,34 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { ObjectFieldTemplateProps } from "@rjsf/core";
+import { ObjectFieldTemplateProps, getTemplate } from "@rjsf/utils";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { A, ActionButton, JSONSchema7 } from "..";
 
 export function ObjectFieldTemplate({
-  DescriptionField,
   description,
-  TitleField,
   title,
   properties,
   required,
   uiSchema,
   idSchema,
   schema,
+  registry,
 }: ObjectFieldTemplateProps) {
   const { breakpoints } = useTheme();
   const isMobile = !useMediaQuery(breakpoints.up("sm"));
   const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
+  const TitleField = getTemplate("TitleFieldTemplate", registry);
+  const DescriptionField = getTemplate("DescriptionFieldTemplate", registry);
 
   let headers = [];
-  if (uiSchema["ui:title"] || title) {
+  if (uiSchema?.["ui:title"] || title) {
     headers.push(
       <TitleField
         id={`${idSchema.$id}-title`}
-        title={title}
-        required={required}
         key={`${idSchema.$id}-title-${title}`}
+        {...{ title, required, schema, registry }}
       />
     );
   }
@@ -43,8 +43,8 @@ export function ObjectFieldTemplate({
     headers.push(
       <DescriptionField
         id={`${idSchema.$id}-description`}
-        description={description}
         key={`${idSchema.$id}-description-${description}`}
+        {...{ schema, registry, description }}
       />
     );
   }

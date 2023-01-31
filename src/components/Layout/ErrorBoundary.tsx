@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
+import React, { ReactNode } from "react";
 
 interface Props {
   postError?: (error: any, info: any) => void;
   errorText: string;
+  children: ReactNode;
 }
 
 interface State {

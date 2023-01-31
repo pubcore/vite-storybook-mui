@@ -1,5 +1,5 @@
-import Form from "@rjsf/material-ui/v5";
-import type { AjvError, FormProps } from "@rjsf/core";
+import Form from "@rjsf/mui";
+import type { FormProps } from "@rjsf/core";
 import { MultiSelectField } from "./fields";
 import { ArrayFieldTemplate } from "./ArrayFieldTemplate";
 import { ObjectFieldTemplate } from "./ObjectFieldTemplate";
@@ -13,8 +13,10 @@ const defaultFields: FormProps<unknown>["fields"] = {
 
 export function JsonSchemaForm<T = any>(props: FormProps<T>) {
   const { t } = useTranslation();
-  const transformErrors = useCallback(
-    (errors: AjvError[]): AjvError[] => {
+  const transformErrors = useCallback<
+    NonNullable<FormProps["transformErrors"]>
+  >(
+    (errors) => {
       return errors.map((e) => ({
         ...e,
         message: t(`form_error_${e.name}` as "_"),

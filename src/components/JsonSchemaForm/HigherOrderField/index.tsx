@@ -1,26 +1,15 @@
-import { Field, FieldProps, ObjectFieldTemplateProps, utils } from "@rjsf/core";
+import {
+  Field,
+  FieldProps,
+  ObjectFieldTemplateProps,
+  ADDITIONAL_PROPERTY_FLAG,
+  getTemplate,
+} from "@rjsf/utils";
 import { FunctionComponent, JSXElementConstructor, ReactElement } from "react";
 import { noop } from "lodash-es";
 import { ObjectFieldTemplate } from "../ObjectFieldTemplate";
 
-type Claim = {
-  [key: string]:
-    | string
-    | Record<"predefined" | "custom", string[]>
-    | Record<"uri", string>[]
-    | undefined;
-  name: string;
-  answer?: "yes" | "no" | "unknown";
-  items?: {
-    predefined: Array<string>;
-    custom: Array<string>;
-  };
-  evidence?: {
-    uri: string;
-  }[];
-};
-
-export function HigherOrderField(props: FieldProps<Claim>) {
+export function HigherOrderField(props: FieldProps) {
   const {
     name,
     schema,
@@ -33,17 +22,16 @@ export function HigherOrderField(props: FieldProps<Claim>) {
   } = props;
 
   const onChange = (propName: string, val: unknown) => {
-    const newClaim = { ...formData, [propName]: val } as Claim;
-    outerOnChange(newClaim, errorSchema);
+    outerOnChange({ ...formData, [propName]: val }, errorSchema);
   };
 
   const description =
-    uiSchema["ui:description"] ||
+    uiSchema?.["ui:description"] ||
     props.schema.description ||
     schema.description;
-  const errors = errorSchema.__errors;
+  const errors = errorSchema?.__errors;
 
-  const uiSchemaHideError = uiSchema["ui:hideError"];
+  const uiSchemaHideError = uiSchema?.["ui:hideError"];
   // Set hideError to the value provided in the uiSchema, otherwise stick with the prop to propagate to children
   const hideError =
     uiSchemaHideError === undefined
@@ -54,14 +42,15 @@ export function HigherOrderField(props: FieldProps<Claim>) {
   if (wasPropertyKeyModified) {
     label = name;
   } else {
-    label = uiSchema["ui:title"] || props.schema.title || schema.title || name;
+    label =
+      uiSchema?.["ui:title"] || props.schema.title || schema.title || name;
   }
 
-  const disabled = Boolean(props.disabled || uiSchema["ui:disabled"]);
+  const disabled = Boolean(props.disabled || uiSchema?.["ui:disabled"]);
 
   const readonly = Boolean(
     props.readonly ||
-      uiSchema["ui:readonly"] ||
+      uiSchema?.["ui:readonly"] ||
       props?.schema?.readOnly ||
       schema.readOnly
   );
@@ -70,7 +59,7 @@ export function HigherOrderField(props: FieldProps<Claim>) {
   if (!hideError && Array.isArray(errors) && errors.length > 0) {
     classes.push("field-error has-error has-danger");
   }
-  classes.push(uiSchema.classNames);
+  classes.push(uiSchema?.classNames);
 
   const SchemaField = registry.fields.SchemaField! as unknown as Field;
   const DescriptionField = registry.fields
@@ -108,8 +97,6 @@ export function HigherOrderField(props: FieldProps<Claim>) {
     ...props,
     title: props.title ?? "",
     description,
-    DescriptionField,
-    TitleField,
     onAddClick: () => () => {},
     disabled,
     readonly,
@@ -117,10 +104,10 @@ export function HigherOrderField(props: FieldProps<Claim>) {
     properties: [propertyName].map((name) => {
       const addedByAdditionalProperties = schema.properties?.[
         name
-      ]?.hasOwnProperty(utils.ADDITIONAL_PROPERTY_FLAG);
+      ]?.hasOwnProperty(ADDITIONAL_PROPERTY_FLAG);
       const fieldUiSchema = addedByAdditionalProperties
-        ? uiSchema.additionalProperties
-        : uiSchema[name];
+        ? uiSchema?.additionalProperties
+        : uiSchema?.[name];
       const hidden = fieldUiSchema && fieldUiSchema["ui:widget"] === "hidden";
 
       const schemaSnippet = schema.properties![name]!;
@@ -132,7 +119,7 @@ export function HigherOrderField(props: FieldProps<Claim>) {
         required: props.required,
         schema: schemaSnippet,
         uiSchema: uiSchemaSnippet,
-        errorSchema: errorSchema[name]!,
+        errorSchema: errorSchema?.[name]!,
         idSchema: props.idSchema[name]!,
         formData: formDataSnippet,
         onKeyChange: noop,

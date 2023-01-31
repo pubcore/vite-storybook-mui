@@ -18,6 +18,8 @@ import { useTranslation } from "react-i18next";
 import { selectPagesByIndex } from "../source/selectPageByIndex";
 import { reducer } from "./reducer";
 import { init } from "./init";
+import { DatatableColumn } from "src/components/Datatable";
+import { RowRenderer } from "src/components/Datatable/RowRenderer";
 
 export interface MapperProps {
   source: Source;
@@ -41,7 +43,7 @@ export default function Mapper({
   const { t } = useTranslation();
   const [pivot, setPivot] = useState<{
     anchorEl: Element;
-    row: typeof rows[number];
+    row: (typeof rows)[number];
   } | null>(null);
 
   const { anchorEl, row } = pivot ?? {};
@@ -66,7 +68,7 @@ export default function Mapper({
   );
   const modeIsChangeIdColumns = targetColumns.length === keyIds.length;
 
-  const columns = useMemo<DatatableProps["columns"]>(
+  const columns = useMemo<DatatableColumn[]>(
     () => [
       {
         name: "selectSource",
@@ -107,7 +109,7 @@ export default function Mapper({
       {
         name: "pipe",
         width: 300,
-        cellRenderer: ({ rowData }: { rowData: typeof rows[number] }) => (
+        cellRenderer: ({ rowData }: { rowData: (typeof rows)[number] }) => (
           <InputCode
             id={rowData.targetColumnId}
             name="pipe"

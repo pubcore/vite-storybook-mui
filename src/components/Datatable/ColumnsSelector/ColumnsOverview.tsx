@@ -1,13 +1,15 @@
 import { Slider } from "@mui/material";
 import { Box } from "@mui/system";
 import { debounce } from "lodash-es";
-import { useMemo } from "react";
+import { SetStateAction, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { ColumnsSelectorProps } from ".";
+import { DatatableRow } from "../DatatableTypes";
 
 interface ColumnsOverviewProps {
-  columnsSequence: string[];
+  columnsSequence: ColumnsSelectorProps["columnsSequence"];
   currentCol: string;
-  setSequence: React.Dispatch<React.SetStateAction<string[]>>;
+  setSequence: (arg: SetStateAction<string[]>) => void;
 }
 
 /** Moves an item in `array`, `from` one index `to` another (returns the array, doesn't mutate) */
@@ -34,7 +36,7 @@ export default function ColumnsOverview({
     () =>
       debounce((_, val) => {
         setSequence &&
-          setSequence((oldSequence: string[]) =>
+          setSequence((oldSequence) =>
             moveInArray(oldSequence, oldSequence.indexOf(currentCol), val)
           );
       }, 150),

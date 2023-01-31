@@ -3,9 +3,11 @@ import { TextField } from "@mui/material";
 import testRows from "./testRows.json";
 import { action } from "@storybook/addon-actions";
 import { useEffect, useState } from "react";
+import { DatatableRow } from "./DatatableTypes";
 const simulateRequestTime = 150; //ms
-const loadRows = (count: number, offset = 0) =>
-  (({ startIndex, stopIndex, filter, sorting }) => {
+const loadRows =
+  (count: number, offset = 0): DatatableProps["loadRows"] =>
+  ({ startIndex, stopIndex, filter, sorting }) => {
     return new Promise((res) =>
       setTimeout(() => {
         let rows = testRows.filter((row) =>
@@ -28,12 +30,12 @@ const loadRows = (count: number, offset = 0) =>
         });
       }, simulateRequestTime)
     );
-  }) as DatatableProps["loadRows"];
+  };
 
-type Args = DatatableProps;
+type Args<T extends DatatableRow = DatatableRow> = DatatableProps<T>;
 
 const textCompare = (a: string, b: string) =>
-  ("" + a ?? "").localeCompare(b ?? "", undefined, { numeric: true });
+  String(a ?? "").localeCompare(String(b ?? ""), undefined, { numeric: true });
 
 const FilterText = ({ name, changeFilter }: DatatableHeaderRowFilterProps) => (
   <TextField
@@ -256,3 +258,66 @@ export const DownloadCsv = (args: Args) => (
     }}
   />
 );
+
+export const FullHeightAndLongHeader = (args: Args) => {
+  return (
+    <div style={{ position: "absolute", height: "100%", width: "100%" }}>
+      <Datatable
+        {...{
+          ...args,
+          columns: [
+            { name: "verylongcolumnname", width: 50 },
+            { name: "name", width: 1000 },
+            ...args.columns!.slice(2),
+          ],
+          loadRows: async ({ startIndex, stopIndex }) => {
+            const n = stopIndex - startIndex + 1;
+            return {
+              rows: testRows
+                .slice(
+                  startIndex % 10000,
+                  (startIndex % 10000) + Math.min(n, 500)
+                )
+                .map((r) => ({
+                  ...r,
+                  name: r.name === "id" ? "verylongcolumnname" : r.name,
+                })),
+              count: testRows.length,
+            };
+          },
+          rowFilter: undefined,
+          rowSort: undefined,
+          selectedRows: new Set<string>(),
+          toggleRowSelection: action("toggleRowSelection"),
+          toggleAllRowsSelection: action("toggleAllRowsSelection"),
+        }}
+      />
+    </div>
+  );
+};
+
+export const StaticRowsAndFilter = () => {
+  const data = new Array(5).fill(null).map((_, i) => i.toString());
+  return (
+    <Datatable
+      {...{
+        columns: data.map((n) => ({ name: "col" + n, width: 150 })),
+        rows: data.map((n) => ({
+          col0: "col" + n,
+          foo: "foo" + n,
+        })),
+        rowFilter: {
+          col0: (props) => FilterText(props),
+        },
+        rowFilterHideUpTo: 2,
+        rowFilterMatch(props) {
+          console.log(props);
+          return true;
+        },
+        rowSort: {
+          name: textCompare,
+        },
+      }}
+    />
+  );
+};

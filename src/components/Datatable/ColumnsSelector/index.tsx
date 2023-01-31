@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { SetStateAction, useCallback, useMemo, useRef, useState } from "react";
 import {
   IconButton,
   Tooltip,
@@ -18,16 +18,20 @@ import { useTranslation } from "react-i18next";
 import { ActionButton, Dialog } from "../..";
 import ColumnsOverview from "./ColumnsOverview";
 import RenderIfVisible from "react-render-if-visible";
-import { DatatableProps } from "../DatatableTypes";
+import {
+  DatatableColumn,
+  DatatableProps,
+  DatatableRow,
+} from "../DatatableTypes";
 import { Commit } from "@mui/icons-material";
 import { Box } from "@mui/system";
 
-export interface ColumnsSelectorProps {
-  columns: DatatableProps["columns"];
-  columnsSequence: string[];
-  setSequence: React.Dispatch<React.SetStateAction<string[]>>;
-  selected: string[];
-  setSelected: (cols: string[]) => void;
+export interface ColumnsSelectorProps<C extends string[] = string[]> {
+  columns?: Pick<DatatableColumn, "name" | "label">[];
+  columnsSequence: C;
+  setSequence: (arg: SetStateAction<C>) => void;
+  selected: C;
+  setSelected: (arg: SetStateAction<C>) => void;
   resetSequence?: () => void;
 }
 
@@ -43,10 +47,13 @@ export default function ColumnSelector({
   const closeColSelector = useCallback(() => setIsOpen(false), [setIsOpen]);
   const showColSelector = useCallback(() => setIsOpen(true), [setIsOpen]);
   const { t } = useTranslation();
-  const columnNames = useRef<string[]>(columnsSequence);
+  const columnNames = useRef<typeof columnsSequence>(columnsSequence);
 
   const switchColumn = useCallback(
-    ({ currentTarget: { name } }, checked) =>
+    (
+      { currentTarget: { name } }: { currentTarget: { name: string } },
+      checked: boolean
+    ) =>
       setSelected(
         checked
           ? selected.includes(name)
@@ -58,12 +65,13 @@ export default function ColumnSelector({
   );
   const [filter, setFilter] = useState("");
   const onFilterChange = useCallback(
-    ({ currentTarget: { value } }) => setFilter(value),
+    ({ currentTarget: { value } }: { currentTarget: { value: string } }) =>
+      setFilter(value),
     []
   );
 
   const stepRight = useCallback(
-    ({ currentTarget: { name } }) => {
+    ({ currentTarget: { name } }: { currentTarget: { name: string } }) => {
       const current = columnsSequence.indexOf(name);
       if (current >= columnsSequence.length - 1) {
         return columnsSequence;
@@ -75,7 +83,7 @@ export default function ColumnSelector({
     [columnsSequence, setSequence]
   );
   const stepLeft = useCallback(
-    ({ currentTarget: { name } }) => {
+    ({ currentTarget: { name } }: { currentTarget: { name: string } }) => {
       const current = columnsSequence.indexOf(name);
       if (current <= 0) {
         return columnsSequence;
@@ -95,17 +103,17 @@ export default function ColumnSelector({
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
   const labels: Map<string, string> = useMemo(() => {
-    const lookup = new Map<string, string>();
+    const lookup = new Map<string | number, string>();
     return (
       columnNames.current.reduce((acc, col) => {
         const label = String(
           columns?.find((c) => c.name === col)?.label ??
-            t(col.replaceAll(".", "_"))
+            t(String(col).replaceAll(".", "_"))
         );
-        acc.set(col, lookup.get(label) ? `${label} (${col})` : label);
-        lookup.set(label, col);
+        acc.set(col, lookup.get(label) ? `${label} (${String(col)})` : label);
+        lookup.set(label, String(col));
         return acc;
-      }, new Map<string, string>()) ?? new Map<string, string>()
+      }, new Map()) ?? new Map<string, string>()
     );
   }, [columns, t]);
 

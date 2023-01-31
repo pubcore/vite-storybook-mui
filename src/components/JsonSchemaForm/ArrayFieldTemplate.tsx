@@ -1,12 +1,9 @@
-import { ArrayFieldTemplateProps, IdSchema, utils } from "@rjsf/core";
-import { Box, Grid, Paper } from "@mui/material";
-
-const { isMultiSelect, getDefaultRegistry } = utils;
+import { ArrayFieldTemplateProps, IdSchema, getTemplate } from "@rjsf/utils";
+import { Box, Grid } from "@mui/material";
 
 const ArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
-  const { schema, registry = getDefaultRegistry() } = props;
-
-  if (isMultiSelect(schema, registry.rootSchema)) {
+  const { schema, registry } = props;
+  if (registry.schemaUtils.isMultiSelect(schema)) {
     return <DefaultFixedArrayFieldTemplate {...props} />;
   } else {
     return <DefaultNormalArrayFieldTemplate {...props} />;
@@ -69,22 +66,23 @@ const DefaultArrayItem = (props: any) => {
 };
 
 const DefaultFixedArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
-  const { idSchema, uiSchema, schema } = props;
+  const { idSchema, uiSchema, schema, registry } = props;
+  const TitleField = getTemplate("TitleFieldTemplate", registry);
   return (
     <fieldset className={props.className}>
       <ArrayFieldTitle
         key={`array-field-title-${idSchema.$id}`}
-        TitleField={props.TitleField}
+        TitleField={TitleField}
         idSchema={idSchema}
-        title={props.uiSchema["ui:title"] || props.title}
-        required={props.required}
+        title={props.uiSchema?.["ui:title"] || props.title}
+        required={!!props.required}
       />
-      {(props.uiSchema["ui:description"] || schema.description) && (
+      {(props.uiSchema?.["ui:description"] || schema.description) && (
         <div
           className="field-description"
           key={`field-description-${idSchema.$id}`}
         >
-          {uiSchema["ui:description"] || schema.description}
+          {uiSchema?.["ui:description"] || schema.description}
         </div>
       )}
       <div
@@ -98,9 +96,11 @@ const DefaultFixedArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
 };
 
 const DefaultNormalArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
-  const { TitleField, idSchema, uiSchema, required, schema } = props;
-  const title = schema.title || uiSchema["ui:title"];
-  const description = uiSchema["ui:description"] || schema.description;
+  const { idSchema, uiSchema, required = false, schema, registry } = props;
+  const TitleField = getTemplate("TitleFieldTemplate", registry);
+  const DescriptionField = getTemplate("DescriptionFieldTemplate", registry);
+  const title = schema.title || uiSchema?.["ui:title"];
+  const description = uiSchema?.["ui:description"] || schema.description;
 
   return (
     <>
@@ -114,7 +114,7 @@ const DefaultNormalArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
       {description && (
         <ArrayFieldDescription
           key={`array-field-description-${idSchema.$id}`}
-          DescriptionField={props.DescriptionField}
+          DescriptionField={DescriptionField}
           {...{ idSchema, description }}
         />
       )}
