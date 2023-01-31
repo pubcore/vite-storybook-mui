@@ -3,9 +3,7 @@ import {
   FieldProps,
   ObjectFieldTemplateProps,
   ADDITIONAL_PROPERTY_FLAG,
-  getTemplate,
 } from "@rjsf/utils";
-import { FunctionComponent, JSXElementConstructor, ReactElement } from "react";
 import { noop } from "lodash-es";
 import { ObjectFieldTemplate } from "../ObjectFieldTemplate";
 
@@ -62,19 +60,6 @@ export function HigherOrderField(props: FieldProps) {
   classes.push(uiSchema?.classNames);
 
   const SchemaField = registry.fields.SchemaField! as unknown as Field;
-  const DescriptionField = registry.fields
-    .DescriptionField! as unknown as FunctionComponent<{
-    id: string;
-    description:
-      | string
-      | ReactElement<any, string | JSXElementConstructor<any>>;
-  }>;
-  const TitleField = registry.fields
-    .TitleField! as unknown as FunctionComponent<{
-    id: string;
-    title: string;
-    required: boolean;
-  }>;
 
   let propertyName,
     uiSchemaSnippet = {};

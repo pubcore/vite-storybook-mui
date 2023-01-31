@@ -1,6 +1,5 @@
 import { UiSchema } from "@rjsf/utils";
-import type { JSONSchema7 } from "json-schema";
-import validator from "@rjsf/validator-ajv8";
+import type { RJSFSchema } from "@rjsf/utils";
 import { HigherOrderField as HOField } from ".";
 import { JsonSchemaForm } from "..";
 import { MultiSelectField } from "../fields";
@@ -11,7 +10,7 @@ export default {
 
 const onSubmit = ({ formData }: any) => console.log("## SUBMIT ##", formData);
 export const OnlyRadio = () => {
-  const schema: JSONSchema7 = {
+  const schema: RJSFSchema = {
     $schema: "http://json-schema.org/draft-07/schema",
     type: "object",
     properties: {
@@ -124,7 +123,6 @@ export const OnlyRadio = () => {
     <JsonSchemaForm
       {...{
         schema,
-        validator,
         fields,
         uiSchema,
         onSubmit,
@@ -148,7 +146,7 @@ export const OnlyRadio = () => {
 };
 
 export const RadioAndMultiselect = () => {
-  const schema: JSONSchema7 = {
+  const schema: RJSFSchema = {
     $schema: "http://json-schema.org/draft-07/schema",
     type: "object",
     properties: {
@@ -298,7 +296,5 @@ export const RadioAndMultiselect = () => {
     CustomMultiSelect: MultiSelectField,
   };
 
-  return (
-    <JsonSchemaForm {...{ schema, fields, uiSchema, onSubmit, validator }} />
-  );
+  return <JsonSchemaForm {...{ schema, fields, uiSchema, onSubmit }} />;
 };

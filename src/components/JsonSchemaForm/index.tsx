@@ -1,4 +1,5 @@
 import Form from "@rjsf/mui";
+import validator from "@rjsf/validator-ajv8";
 import type { FormProps } from "@rjsf/core";
 import { MultiSelectField } from "./fields";
 import { ArrayFieldTemplate } from "./ArrayFieldTemplate";
@@ -6,12 +7,23 @@ import { ObjectFieldTemplate } from "./ObjectFieldTemplate";
 import { useTranslation } from "react-i18next";
 import { useCallback, useMemo } from "react";
 import { FieldTemplate } from "./FieldTemplate";
+import { TemplatesType } from "@rjsf/utils";
 
 const defaultFields: FormProps<unknown>["fields"] = {
   CustomMultiSelect: MultiSelectField,
 };
 
-export function JsonSchemaForm<T = any>(props: FormProps<T>) {
+const templates: Partial<TemplatesType> = {
+  FieldTemplate,
+  ArrayFieldTemplate,
+  ObjectFieldTemplate,
+};
+
+export type JsonSchemaFormProps<T = any> = Omit<FormProps<T>, "validator"> & {
+  validator?: FormProps<T>["validator"];
+};
+
+export function JsonSchemaForm<T = any>(props: JsonSchemaFormProps<T>) {
   const { t } = useTranslation();
   const transformErrors = useCallback<
     NonNullable<FormProps["transformErrors"]>
@@ -37,11 +49,10 @@ export function JsonSchemaForm<T = any>(props: FormProps<T>) {
       {...{
         idPrefix: "rjsf",
         transformErrors,
-        FieldTemplate,
-        ArrayFieldTemplate,
-        ObjectFieldTemplate,
+        templates,
         showErrorList: false,
         fields,
+        validator,
         ...rest,
       }}
     />

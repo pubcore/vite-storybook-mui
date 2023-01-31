@@ -1,16 +1,15 @@
 import { JsonSchemaForm } from "./";
-import type { JSONSchema7 } from "json-schema";
+import type { RJSFSchema } from "@rjsf/utils";
 import { UiSchema } from "@rjsf/utils";
 import schemaJson from "./exampleSchema.json";
 import uiSchemaJson from "./exampleUiSchema.json";
-import validator from "@rjsf/validator-ajv8";
 
 export default {
   title: "JSON Schema Form/Full Form",
 };
 
 export const PredefinedValues = () => {
-  const schema = schemaJson as JSONSchema7;
+  const schema = schemaJson as RJSFSchema;
   const uiSchema = uiSchemaJson as UiSchema;
 
   type PredefFormData = {
@@ -67,14 +66,13 @@ export const PredefinedValues = () => {
         schema,
         uiSchema,
         formData,
-        validator,
       }}
     />
   );
 };
 
 export const SomeDefaultFields = () => {
-  const schema: JSONSchema7 = {
+  const schema: RJSFSchema = {
     type: "object",
     properties: {
       pArray: {
@@ -102,5 +100,5 @@ export const SomeDefaultFields = () => {
     },
   };
 
-  return <JsonSchemaForm {...{ schema, validator }} />;
+  return <JsonSchemaForm {...{ schema }} />;
 };
