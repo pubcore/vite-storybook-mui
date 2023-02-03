@@ -64,6 +64,16 @@ export function RowRenderer<T extends DatatableRow = DatatableRow>({
 
     if (!col) return;
 
+    const renderedVal = val
+      ? renderer({
+          columnName: columnName,
+          columnIndex: colIndex,
+          cellData: String(val),
+          rowIndex,
+          rowData: row,
+        })
+      : undefined;
+
     rowElements.push(
       <StyledCell
         key={`datatable_row_${rowIndex}_column_${columnName}`}
@@ -72,16 +82,14 @@ export function RowRenderer<T extends DatatableRow = DatatableRow>({
           marginLeft: colIndex === 0 ? marginWidth : "initial",
           flex: `0 1 ${col.width}px`,
         }}
-        title={val ? String(val) : undefined}
+        title={
+          renderedVal && typeof renderedVal !== "object"
+            ? renderedVal.toString()
+            : undefined
+        }
       >
-        {val ? (
-          renderer({
-            columnName: columnName,
-            columnIndex: colIndex,
-            cellData: String(val),
-            rowIndex,
-            rowData: row,
-          })
+        {val && renderedVal ? (
+          renderedVal
         ) : (
           <div
             style={{
