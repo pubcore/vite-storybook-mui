@@ -153,13 +153,14 @@ export const SortOrFilterIsStillAppliedIfRowsHasChanged = (args: Args) => (
 );
 
 export const SomeRowsLoadedNoServerSideFilterAvailable = (args: Args) => (
-  <Datatable {...{ ...args, loadRows: loadRows(1000000) }} />
+  // scrolling breaks after more than ~600,000 rows
+  <Datatable {...{ ...args, loadRows: loadRows(500_000) }} />
 );
 export const SomeRowsLoadedWithServerSideFilterAndSort = (args: Args) => (
   <Datatable
     {...{
       ...args,
-      loadRows: loadRows(1000000),
+      loadRows: loadRows(500_000),
       rowFilterServer: ["name"],
       rowSortServer: ["name"],
     }}
