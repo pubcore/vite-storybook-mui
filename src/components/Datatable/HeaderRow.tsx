@@ -1,5 +1,5 @@
 import { Box, TableSortLabel } from "@mui/material";
-import { ReactNode, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { DatatableRow, HeaderRowProps } from "./DatatableTypes";
 import { FilterRow } from "./FilterRow";
@@ -9,7 +9,6 @@ import { SelectAllCheckbox } from "./SelectAllCheckbox";
 export function HeaderRow<T extends DatatableRow>({
   columns,
   visibleColumns,
-  tableWidth: width,
   showFilter = false,
   rowFilter,
   changeFilter,
@@ -19,7 +18,6 @@ export function HeaderRow<T extends DatatableRow>({
   disableSort,
   selectedRows,
   toggleAllRowsSelection,
-  toggleRowSelection,
   rows,
 }: HeaderRowProps<T>) {
   const { t } = useTranslation();
@@ -85,6 +83,7 @@ export function HeaderRow<T extends DatatableRow>({
                     textOverflow: "ellipsis",
                     overflow: "hidden",
                   }}
+                  title={t(col.name as "_")}
                 >
                   {t(col.name as "_")}
                 </div>

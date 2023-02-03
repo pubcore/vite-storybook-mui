@@ -556,7 +556,7 @@ export function Main({
             >
               <InfiniteLoader
                 minimumBatchSize={minimumBatchSize}
-                threshold={40}
+                threshold={20}
                 isItemLoaded={isRowLoaded}
                 loadMoreItems={loadMoreRows}
                 itemCount={count}
