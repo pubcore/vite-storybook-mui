@@ -1,9 +1,9 @@
 import { Datatable, DatatableProps, DatatableHeaderRowFilterProps } from "../";
-import { TextField } from "@mui/material";
+import { TextField, Tooltip, tooltipClasses } from "@mui/material";
 import testRows from "./testRows.json";
 import { action } from "@storybook/addon-actions";
-import { useEffect, useState } from "react";
-import { DatatableRow } from "./DatatableTypes";
+import { useCallback, useEffect, useState } from "react";
+import { DatatableRow, DatatableCellRenderer } from "./DatatableTypes";
 const simulateRequestTime = 150; //ms
 const loadRows =
   (count: number, offset = 0): DatatableProps["loadRows"] =>
@@ -318,6 +318,64 @@ export const StaticRowsAndFilter = () => {
         rowSort: {
           name: textCompare,
         },
+      }}
+    />
+  );
+};
+
+export const CellRenderer = () => {
+  const data = new Array(5).fill(null).map((_, i) => i.toString());
+  const tooltipRenderer = useCallback(
+    ({
+      columnName,
+      rowIndex,
+      cellData,
+    }: Parameters<DatatableCellRenderer>[0]) => {
+      return (
+        <Tooltip
+          placement={"right"}
+          style={{ display: "inline-block" }}
+          title={
+            <>
+              {`Column: ${columnName} - Row: ${rowIndex}`}
+              <br />
+              {`Data: ${cellData}`}
+            </>
+          }
+        >
+          <div>{cellData}</div>
+        </Tooltip>
+      );
+    },
+    []
+  );
+
+  const stringRenderer = useCallback(
+    ({ cellData }: Parameters<DatatableCellRenderer>[0]) => {
+      return cellData ? String(cellData) : undefined;
+    },
+    []
+  );
+
+  return (
+    <Datatable
+      {...{
+        columns: [
+          {
+            name: "MUI Tooltip",
+            width: 300,
+            cellRenderer: tooltipRenderer,
+          },
+          {
+            name: "String (title attrib)",
+            width: 300,
+            cellRenderer: stringRenderer,
+          },
+        ],
+        rows: data.map((n) => ({
+          "MUI Tooltip": "row" + n,
+          "String (title attrib)": "row" + n,
+        })),
       }}
     />
   );
