@@ -2,11 +2,14 @@ import { useDarkMode } from "storybook-dark-mode";
 import { createTheme } from "../src/theme";
 import { AppDecorator } from "../src/components";
 import "../i18n/config";
+import React from "react";
 
 export const decorators = [
   (Story) => (
     <AppDecorator {...{ useDarkMode, createTheme }}>
-      <Story />
+      <React.StrictMode>
+        <Story />
+      </React.StrictMode>
     </AppDecorator>
   ),
 ];
