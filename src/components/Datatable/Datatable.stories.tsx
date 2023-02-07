@@ -142,16 +142,12 @@ function LoadRows_Prop_Changes(args: Args) {
     <Datatable
       {...{
         ...args,
-        loadRows: loadRows(1000, counter * 10),
+        loadRows: loadRows(1000, counter % 10),
         title: `Rows changed ${counter} times`,
       }}
     />
   );
 }
-export const SortOrFilterIsStillAppliedIfRowsHasChanged = (args: Args) => (
-  <LoadRows_Prop_Changes {...{ ...args }} />
-);
-
 export const SomeRowsLoadedNoServerSideFilterAvailable = (args: Args) => (
   // scrolling breaks after more than ~600,000 rows
   <Datatable {...{ ...args, loadRows: loadRows(500_000) }} />
@@ -165,6 +161,9 @@ export const SomeRowsLoadedWithServerSideFilterAndSort = (args: Args) => (
       rowSortServer: ["name"],
     }}
   />
+);
+export const SortOrFilterIsStillAppliedIfRowsHasChanged = (args: Args) => (
+  <LoadRows_Prop_Changes {...{ ...args }} />
 );
 export const BoundOnRowClick = (args: Args) => (
   <Datatable
@@ -312,7 +311,6 @@ export const StaticRowsAndFilter = () => {
         },
         rowFilterHideUpTo: 2,
         rowFilterMatch(props) {
-          console.log(props);
           return true;
         },
         rowSort: {

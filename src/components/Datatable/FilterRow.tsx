@@ -1,14 +1,18 @@
 import { Box } from "@mui/material";
 import { ReactNode } from "react";
-import { DatatableColumn, DatatableProps } from "./DatatableTypes";
-import { marginWidth, StyledCell } from "./RowRenderer";
+import {
+  DatatableColumn,
+  DatatableProps,
+  DatatableRow,
+} from "./DatatableTypes";
+import { marginWidth, StyledCell } from "./Row";
 
-export function FilterRow({
+export function FilterRow<T extends DatatableRow>({
   visibleColumns,
   filterInputByName,
   columnsByName,
   isRowSelectionColEnabled,
-}: FilterRowProps) {
+}: FilterRowProps<T>) {
   return (
     <Box width={1} display="flex" alignItems="center" height={40}>
       {isRowSelectionColEnabled && (
@@ -33,9 +37,9 @@ export function FilterRow({
   );
 }
 
-type FilterRowProps = {
+type FilterRowProps<T extends DatatableRow> = {
   visibleColumns: string[];
   columnsByName: Map<string, DatatableColumn>;
   filterInputByName: Map<string, ReactNode>;
   isRowSelectionColEnabled: boolean;
-} & Pick<DatatableProps, "rowFilter">;
+} & Pick<DatatableProps<T>, "rowFilter">;

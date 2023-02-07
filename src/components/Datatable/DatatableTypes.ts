@@ -1,12 +1,10 @@
 import { ReactNode } from "react";
-import { ListChildComponentProps } from "react-window";
 import { SelectAllCheckboxProps } from "./SelectAllCheckbox";
 import { SelectRowProps } from "./SelectRowCheckbox";
 
 export type SortDirection = "ASC" | "DESC";
 
-export type RowsState<T extends DatatableRow = DatatableRow> = {
-  rows: T[] | null;
+export type RowsState = {
   sorting: { sortBy?: string; sortDirection?: SortDirection };
   filter: Record<string, unknown>;
   serverMode: boolean;
@@ -100,9 +98,6 @@ export type DatatableProps<T extends DatatableRow = DatatableRow> = {
   minimumBatchSize?: number;
 };
 
-export type GridCellComponentProps<T extends DatatableRow> =
-  ListChildComponentProps<T[]>;
-
 export type ChangeFilter = ({
   name,
   value,
@@ -127,19 +122,21 @@ export type HeaderRowFilterProps = {
 };
 
 export type HeaderRowProps<T extends DatatableRow> = {
-  columns: DatatableColumn[];
+  columnsByName: Map<string, DatatableColumn>;
   visibleColumns: string[];
   tableWidth: number;
-  showFilter?: boolean;
   selectedRows?: DatatableProps<T>["selectedRows"];
   rows?: T[] | null;
+  showFilter?: boolean;
   rowFilter?: Record<
     string,
     (({ name, changeFilter }: HeaderRowFilterProps) => ReactNode) | null
   >;
+  rowFilterServer: DatatableProps<T>["rowFilterServer"];
   changeFilter: ChangeFilter;
-  sorting?: RowsState<T>["sorting"];
+  sorting?: RowsState["sorting"];
   rowSort: DatatableProps<T>["rowSort"];
+  rowSortServer: DatatableProps<T>["rowSortServer"];
   sort?: ({
     sortBy,
     sortDirection,
@@ -147,9 +144,9 @@ export type HeaderRowProps<T extends DatatableRow> = {
     sortBy: string;
     sortDirection: SortDirection;
   }) => void;
-  disableSort?: boolean;
   toggleAllRowsSelection: DatatableProps<T>["toggleAllRowsSelection"];
   toggleRowSelection: DatatableProps<T>["toggleRowSelection"];
+  serverMode: boolean;
 };
 
 export type DatatableCellRenderer<T = any> = (props: {

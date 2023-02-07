@@ -9,7 +9,9 @@ export default function ActionBar({
 }: ActionBarProps) {
   return (
     <AppBar position="static" color="transparent" {...{ elevation, ...rest }}>
-      <Toolbar sx={{ justifyContent: "space-between" }}>{children}</Toolbar>
+      <Toolbar sx={sx}>{children}</Toolbar>
     </AppBar>
   );
 }
+
+const sx = { justifyContent: "space-between" };

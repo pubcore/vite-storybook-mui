@@ -8,19 +8,12 @@ import {
   ReactNode,
   useContext,
 } from "react";
-import {
-  FixedSizeList,
-  ListChildComponentProps,
-  ListOnScrollProps,
-} from "react-window";
-import InfiniteLoader from "react-window-infinite-loader";
 import { Pagination, Box } from "@mui/material";
 import ColumnSelector from "./ColumnsSelector";
 import { HeaderRow } from "./HeaderRow";
 import { useTranslation } from "react-i18next";
 import { debounce } from "lodash-es";
 import initThroat from "throat";
-import { useVisibleColumns } from "./useVisibleColumns";
 import { useColumnsStorage } from "./useColumnsStorage";
 import type {
   DatatableProps,
@@ -36,13 +29,14 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { Parser } from "@json2csv/plainjs";
 import { saveAs } from "file-saver";
 import { LoadingButton } from "@mui/lab";
-import { RowRenderer } from "./RowRenderer";
+import { Row } from "./Row";
 import { ContainerContext } from "./ContainerContext";
 import { TopBar } from "./TopBar";
+import { ViewportList } from "react-viewport-list";
+import { styled } from "@mui/system";
+import { useLoadRows } from "./useLoadRows";
 
 const throat = initThroat(10);
-
-const emptyArray: unknown[] = [];
 
 /**
  * Infinitely scrolling and paginated table that is filterable, sortable and supports async and static data loading
@@ -51,9 +45,8 @@ const emptyArray: unknown[] = [];
 export function Main({
   title,
   columns,
-  rows: rowsProp, //ignored, if loadRows is defined
-  loadRows: loadRowsProp,
-  pageSize: propPageSize,
+  rows: rowsProp,
+  loadRows: loadRowsProp, //ignored, if rows is defined
   rowHeight = 30,
   noRowsRenderer = noRowsRendererDefault,
   loadAllUpTo = 100,
@@ -76,32 +69,30 @@ export function Main({
   toggleAllRowsSelection,
   minimumBatchSize = 30,
   storageId,
-  ...rest
 }: DatatableProps) {
   const { t } = useTranslation();
   const [rowdata, setRowdata] = useState<RowsState>({
-    rows: null,
     sorting: {},
     filter: {},
-    serverMode: true,
+    serverMode: false,
   });
-  const { rows: rowsState, filter, sorting, serverMode } = rowdata;
+  const { filter, sorting, serverMode } = rowdata;
+  const rrows = useRef<DatatableRow[] | null>(null);
 
   const filteredRows = useMemo(
     () =>
-      serverMode
+      serverMode && loadRowsProp
         ? null
-        : rowsState
-        ? rowsState.filter((row) =>
+        : rrows.current
+        ? rrows.current.filter((row) =>
             rowFilterMatch ? rowFilterMatch({ row, filter, cellVal }) : true
           )
         : null,
-    [cellVal, filter, rowFilterMatch, rowsState, serverMode]
+    [cellVal, filter, loadRowsProp, rowFilterMatch, serverMode]
   );
 
   const [pagination, setPagination] = useState<{
     page: number;
-    scrollToIndex?: number;
   }>({ page: 1 });
 
   const { pageSize: pageSizeContainer, bottomBarHeight } =
@@ -111,6 +102,7 @@ export function Main({
     const { sortBy, sortDirection } = sorting;
     const compare = (key: string) => (a: DatatableRow, b: DatatableRow) =>
       rowSort?.[key]?.(cellVal(a, key), cellVal(b, key)) as number;
+
     return !filteredRows
       ? null
       : !sortBy
@@ -120,7 +112,8 @@ export function Main({
           (filteredRows ?? []).slice().sort(compare(sortBy))
         );
   }, [cellVal, filteredRows, rowSort, sorting]);
-  const rows = sortedRows || rowsState;
+
+  const rows = sortedRows || rrows.current;
   const count = rows?.length ?? 0;
 
   const showFilter =
@@ -136,14 +129,14 @@ export function Main({
   const [initialSequence, setInitialSequence] = useState<string[] | null>(null);
 
   const loadRows = useMemo<LoadRows>(() => {
-    //if "'loadRows' and 'rows' are undefined, default to empty array"
     return rowsProp
       ? ({ startIndex, stopIndex }: Parameters<LoadRows>[0]) =>
           Promise.resolve({
             rows: rowsProp.slice(startIndex, stopIndex + 1),
             count: rowsProp.length,
           })
-      : loadRowsProp ?? (() => Promise.resolve({ rows: [], count: 0 }));
+      : //if "'loadRows' and 'rows' are undefined, default to empty array"
+        loadRowsProp ?? (() => Promise.resolve({ rows: [], count: 0 }));
   }, [loadRowsProp, rowsProp]);
 
   const loadAll = useCallback(
@@ -156,7 +149,12 @@ export function Main({
             throat(() =>
               loadRows({
                 startIndex: index * maxResourceLimit,
-                stopIndex: (index + 1) * maxResourceLimit - 1,
+                stopIndex: Math.min(
+                  (index + 1) * maxResourceLimit - 1,
+                  count - 1
+                ),
+                filter,
+                sorting,
               })
             )
           )
@@ -173,18 +171,33 @@ export function Main({
         []
       );
     },
-    [loadRows, maxResourceLimit]
+    [filter, loadRows, maxResourceLimit, sorting]
   );
 
   //initial load first rows ...
   useEffect(() => {
     let mounted = true;
-
     async function load() {
       const firstPage = await loadRows({
         startIndex: 0,
         stopIndex: minimumBatchSize - 1,
+        sorting,
+        filter,
+      }).then((result) => {
+        return result;
       });
+
+      let countWithoutFilter = 0;
+      if (Object.entries(filter).length > 0) {
+        await loadRows({
+          startIndex: 0,
+          stopIndex: 1,
+        }).then((result) => {
+          countWithoutFilter = result?.count ?? 0;
+        });
+      } else {
+        countWithoutFilter = firstPage?.count ?? 0;
+      }
 
       let all: { rows: DatatableRow[] | null; count: number } | undefined;
 
@@ -192,13 +205,13 @@ export function Main({
         all = { rows: null, count: 0 };
       } else if (
         rowsProp ||
-        (firstPage.count <= loadAllUpTo && firstPage.count > pageSize)
+        (countWithoutFilter <= loadAllUpTo && countWithoutFilter > pageSize)
       ) {
         all = {
-          rows: await loadAll(firstPage.count),
-          count: firstPage.count,
+          rows: await loadAll(countWithoutFilter),
+          count: countWithoutFilter,
         };
-      } else if (firstPage.count <= pageSize) {
+      } else if (countWithoutFilter <= pageSize) {
         all = firstPage;
       }
 
@@ -208,8 +221,11 @@ export function Main({
         setRowdata((s) => ({
           ...s,
           serverMode: !all,
-          rows: rows && [...rows, ...new Array(count - rows.length).fill(null)],
         }));
+        rrows.current = rows && [
+          ...rows,
+          ...new Array(count - rows.length).fill(null),
+        ];
         rows?.[0] &&
           setColumnsSequence((sequence) => {
             const newSequence = [
@@ -236,41 +252,53 @@ export function Main({
     return () => {
       mounted = false;
     };
-  }, [loadRows, pageSize, loadAllUpTo, minimumBatchSize, rowsProp, loadAll]);
+  }, [
+    loadRows,
+    pageSize,
+    loadAllUpTo,
+    minimumBatchSize,
+    rowsProp,
+    loadAll,
+    sorting,
+    filter,
+  ]);
 
   const isRowLoaded = useCallback(
     (index: number) => Boolean((rows ?? [])[index]),
     [rows]
   );
 
-  //loadMoreRows is only called, if "isRowLoaded" is falsy for given row
-  const loadMoreRows = useCallback(
-    async (startIndex: number, stopIndex: number) => {
-      if (!loadRows) {
-        throw TypeError("loadRows is falsy");
+  const overscan =
+    //to ensure if pageSize is low, only one request happens (initially)
+    3 * pageSize < minimumBatchSize
+      ? minimumBatchSize - pageSize
+      : 2 * minimumBatchSize - pageSize;
+
+  useLoadRows({
+    loadRows,
+    rowState: rowdata,
+    rowsRef: rrows,
+    minimumBatchSize,
+    pageSize,
+    page: pagination.page,
+    overscan,
+  });
+
+  const handleRowsScroll = useCallback(
+    ([startIndex]: [number, number]) => {
+      if (startIndex === 0) {
+        setInitialIndexOfFirstRow(-1);
       }
-
-      const { rows: newRows } = (await loadRows({
-        startIndex,
-        stopIndex,
-        filter,
-        sorting,
-      })) ?? { rows: null };
-
-      setRowdata(({ rows, ...rest }) =>
-        rows
+      setPagination((s) =>
+        s.page != Math.ceil((startIndex + 1) / pageSize)
           ? {
-              ...rest,
-              rows: [
-                ...rows.slice(0, startIndex),
-                ...newRows!,
-                ...rows.slice(startIndex + newRows!.length),
-              ],
+              ...s,
+              page: Math.ceil((startIndex + 1) / pageSize),
             }
-          : { rows, ...rest }
+          : s
       );
     },
-    [loadRows, filter, sorting]
+    [pageSize]
   );
 
   const rowGetter = useCallback<({ index }: { index: number }) => DatatableRow>(
@@ -278,53 +306,17 @@ export function Main({
     [rows, sortedRows]
   );
 
-  const handleRowsScroll = useCallback(
-    ({ scrollOffset }: ListOnScrollProps) => {
-      const startIndex = Math.floor(scrollOffset / Math.max(rowHeight, 1));
-      const stopIndex = startIndex + pageSize;
-      setPagination((s) => ({
-        ...s,
-        page: Math.ceil(stopIndex / pageSize),
-        scrollToIndex: undefined,
-      }));
-    },
-    [pageSize, rowHeight]
-  );
-
-  const listRef = useRef<FixedSizeList | null>(null);
+  const listRef = useRef<HTMLDivElement | null>(null);
 
   const handlePageChange = useCallback(
     (_e: ChangeEvent<unknown>, page: number) => {
-      const scrollToIndex = (page - 1) * pageSize;
-      setPagination((s) => ({ ...s, page, scrollToIndex }));
-      listRef.current?.scrollToItem(scrollToIndex, "start");
+      setInitialIndexOfFirstRow((page - 1) * pageSize);
+      setPagination((s) => ({ ...s, page }));
     },
     [pageSize]
   );
 
-  //request sorted and filtered data from server (serverMode == true)
-  const request = useMemo(
-    () =>
-      debounce(async ({ filter, sorting }) => {
-        if (!loadRowsProp) {
-          return;
-        }
-        const { rows, count } = (await loadRowsProp({
-          startIndex: 0,
-          stopIndex: pageSize - 1,
-          filter,
-          sorting,
-        })) ?? { rows: null, count: 0 };
-        setRowdata((s) => ({
-          ...s,
-          rows: rows && [...rows, ...new Array(count - rows.length).fill(null)],
-        }));
-        setPagination((s) => ({ ...s, page: 1, scrollToIndex: 0 }));
-      }, 300),
-    [loadRowsProp, pageSize]
-  );
-
-  const sort = useCallback(
+  const changeSort = useCallback(
     ({
       sortBy,
       sortDirection,
@@ -335,71 +327,55 @@ export function Main({
       if (serverMode ? !rowSortServer?.includes(sortBy) : !rowSort?.[sortBy]) {
         return;
       }
-
-      const compare = (key: string) => (a: DatatableRow, b: DatatableRow) =>
-        rowSort?.[key]?.(cellVal(a, key), cellVal(b, key)) as number;
-
-      setRowdata(({ rows, filter, serverMode, ...rest }) => {
-        if (serverMode) {
-          request({ filter, sorting: { sortBy, sortDirection } });
-        }
+      setInitialIndexOfFirstRow(0);
+      setPagination((s) => (s.page === 1 ? s : { ...s, page: 1 }));
+      setRowdata(({ filter, serverMode, ...rest }) => {
         return {
           ...rest,
-          rows,
           filter,
           serverMode,
           sorting: { sortBy, sortDirection },
         };
       });
     },
-    [rowSort, serverMode, rowSortServer, request, cellVal]
+    [serverMode, rowSortServer, rowSort]
   );
 
   const changeFilter = useCallback(
     async ({ name, value }: { name: string; value: unknown }) => {
-      setRowdata(({ filter = {}, rows, serverMode, sorting, ...rest }) => {
+      setInitialIndexOfFirstRow(0);
+      setPagination((s) => (s.page === 1 ? s : { ...s, page: 1 }));
+      setRowdata(({ filter = {}, serverMode, ...rest }) => {
         const newFilter = {
           ...filter,
           [name]: value === "" ? undefined : value,
         };
-        if (serverMode) {
-          request({ filter: newFilter, sorting });
-        }
         if (!rowFilterMatch && !serverMode) {
           console.warn("'rowFilterMatch' is required for client-site filter");
         }
         return {
           ...rest,
-          rows,
-          sorting,
           serverMode,
           filter: newFilter,
         };
       });
     },
-    [rowFilterMatch, request]
+    [rowFilterMatch]
   );
 
-  const finalColumns = (
-    columns
-      ? [{ name: "_select_row_checkbox", width: 42 }].concat(columns)
-      : emptyArray
-  ) as DatatableColumn[];
-
-  const listHeight = rowHeight * pageSize;
   const pageCount = Math.ceil(count / pageSize);
-
   const [isLoadingDownloadCsv, setIsLoadingDownloadCsv] = useState(false);
   const handleDownloadCsv = useCallback(async () => {
     try {
       setIsLoadingDownloadCsv(true);
       let rows: DatatableRow[] = [];
+      console.log(count);
       for (let i = 0; i < count; i++) {
-        if (!isRowLoaded(i)) {
+        if (isRowLoaded(i)) {
+          rows.push(rowGetter({ index: i }));
+        } else {
           rows = await loadAll(count);
           break;
-        } else {
-          rows.push(rowGetter({ index: i }));
         }
       }
       const parser = new Parser({
@@ -426,12 +402,15 @@ export function Main({
     rowGetter,
   ]);
 
-  const defaultSelected = columns?.map((c) => c.name);
+  const defaultSelected = useMemo(() => columns?.map((c) => c.name), [columns]);
+
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
     columns?.map(({ name }) => name) ?? []
   );
+
   const [columnsSequence, setColumnsSequence] =
     useState<string[]>(selectedColumns);
+
   const resetSequence = useCallback(() => {
     if (defaultSelected && initialSequence) {
       setSelectedColumns(defaultSelected);
@@ -439,61 +418,92 @@ export function Main({
     }
   }, [defaultSelected, initialSequence]);
 
-  const { visibleColumns } = useVisibleColumns({
-    columns,
-    columnsSequence,
-    serverMode,
-    rowSortServer,
-    rowSort,
-    selectedColumns,
-  });
+  const visibleColumns = useMemo(() => {
+    const columnsMap = (columns ?? []).reduce(
+      (acc, { name, ...rest }) => acc.set(name, rest),
+      new Map()
+    );
+
+    return columnsSequence.reduce<DatatableColumn[]>(
+      (acc, name) =>
+        selectedColumns.includes(name)
+          ? acc.concat({
+              name,
+              width: 150,
+              cellRenderer: defaultCellRenderer,
+              ...columnsMap.get(name),
+            })
+          : acc,
+      []
+    );
+  }, [columns, columnsSequence, selectedColumns]);
+
+  const visibleColumnNames = useMemo(
+    () => visibleColumns.map((vc) => vc.name),
+    [visibleColumns]
+  );
+
+  const columnsByName = useMemo(
+    () =>
+      (visibleColumns ?? []).reduce(
+        (acc, col) => acc.set(col.name, col),
+        new Map()
+      ),
+    [visibleColumns]
+  );
 
   // with margins
-  const fullTableWidth = columns
-    ? getFullTableWidth({
-        columns: finalColumns,
-        visibleColumns: visibleColumns.map((vc) => vc.name),
-        toggleAllRowsSelection,
-        toggleRowSelection,
-      })
-    : 0;
+  const fullTableWidth = useMemo(
+    () =>
+      visibleColumns.reduce(
+        (acc, { width }, i) => acc + width + (i === 0 ? 2 : 1) * 10,
+        0
+      ) + (toggleRowSelection || toggleAllRowsSelection ? 42 : 0),
+    [toggleAllRowsSelection, toggleRowSelection, visibleColumns]
+  );
 
   const headerRow = useMemo<ReactNode>(
     () =>
-      columns ? (
+      columnsByName.size > 0 ? (
         <HeaderRow
           {...{
             rows,
             selectedRows,
             rowSort,
+            rowSortServer,
             disableSort: rowSort === undefined,
             rowFilter,
+            rowFilterServer,
             changeFilter,
-            columns,
-            visibleColumns: visibleColumns.map((c) => c.name),
+            columnsByName,
+            visibleColumns: visibleColumnNames,
             tableWidth: fullTableWidth,
             toggleRowSelection,
             toggleAllRowsSelection,
             showFilter,
             sorting,
-            sort,
+            sort: changeSort,
+            serverMode,
           }}
         />
       ) : null,
     [
-      changeFilter,
-      columns,
-      fullTableWidth,
-      rowFilter,
-      rowSort,
+      columnsByName,
       rows,
       selectedRows,
+      rowSort,
+      rowSortServer,
+      rowFilter,
+      rowFilterServer,
+      changeFilter,
+      visibleColumnNames,
+      fullTableWidth,
+      toggleRowSelection,
+      toggleAllRowsSelection,
       showFilter,
       sorting,
-      toggleAllRowsSelection,
-      toggleRowSelection,
-      visibleColumns,
-      sort,
+      changeSort,
+      serverMode,
     ]
   );
 
@@ -509,123 +519,132 @@ export function Main({
     setColumnsSequence,
   });
 
+  const columnsSelector = useMemo(
+    () =>
+      manageColumns &&
+      count > 0 &&
+      initialSequence && (
+        <ColumnSelector
+          {...{
+            columns,
+            columnsSequence,
+            setSequence: setColumnsSequence,
+            resetSequence,
+            selected: selectedColumns,
+            setSelected: setSelectedColumns,
+          }}
+        />
+      ),
+    [
+      columns,
+      columnsSequence,
+      count,
+      initialSequence,
+      manageColumns,
+      resetSequence,
+      selectedColumns,
+    ]
+  );
+
+  const downloadCsvButton = useMemo(
+    () =>
+      downloadCsv &&
+      count > 0 && (
+        <LoadingButton
+          onClick={handleDownloadCsv}
+          variant="text"
+          startIcon={<FileDownloadIcon />}
+          loading={isLoadingDownloadCsv}
+        >
+          {t("download_csv")}
+        </LoadingButton>
+      ),
+    [count, downloadCsv, handleDownloadCsv, isLoadingDownloadCsv, t]
+  );
+  const tools = useMemo(
+    () => (
+      <>
+        {downloadCsvButton}
+        {columnsSelector}
+      </>
+    ),
+    [columnsSelector, downloadCsvButton]
+  );
+
+  const rowStyle = useMemo(() => ({ height: rowHeight }), [rowHeight]);
+  const [initialIndexOfFirstRow, setInitialIndexOfFirstRow] = useState(0);
+
+  //fill last page with rows, if applicable
+  const items = useMemo(
+    () =>
+      ((residue) =>
+        residue > 0
+          ? (rows ?? [])?.concat(new Array(pageSize - residue).fill({}))
+          : rows ?? [])(count % pageSize),
+    [count, pageSize, rows]
+  );
+
   return (
     <>
-      <TopBar {...{ title, isLoading: !rows }}>
-        {downloadCsv && count > 0 && (
-          <LoadingButton
-            onClick={handleDownloadCsv}
-            variant="text"
-            startIcon={<FileDownloadIcon />}
-            loading={isLoadingDownloadCsv}
-          >
-            {t("download_csv")}
-          </LoadingButton>
-        )}
-        {manageColumns && count > 0 && initialSequence && (
-          <ColumnSelector
-            {...{
-              columns,
-              columnsSequence,
-              setSequence: setColumnsSequence,
-              resetSequence,
-              selected: selectedColumns,
-              setSelected: setSelectedColumns,
-            }}
-          />
-        )}
-      </TopBar>
-      <div
-        style={{
-          width: "100%",
-          overflowX: "auto",
-          overflowY: "hidden",
-          flexGrow: 1,
-          display: "block",
-        }}
-      >
-        {rows !== null && (!!rowsState?.length || serverMode) && columns ? (
+      <TopBar {...{ title, isLoading: !rows, tools }} />
+      <Box width={1} overflow="auto" flexGrow={1}>
+        {rows !== null && (!!rrows.current?.length || serverMode) && columns ? (
           <>
             {headerRow}
-            <div
-              style={{
-                position: "relative",
-                width: fullTableWidth,
-                minWidth: "100%",
-              }}
+            <RowsContainer
+              pageSize={pageSize}
+              rowHeight={rowHeight}
+              tableWidth={fullTableWidth}
+              ref={listRef}
             >
-              <InfiniteLoader
-                minimumBatchSize={minimumBatchSize}
-                threshold={20}
-                isItemLoaded={isRowLoaded}
-                loadMoreItems={loadMoreRows}
-                itemCount={count}
+              <ViewportList
+                key={initialIndexOfFirstRow}
+                itemMinSize={rowHeight}
+                viewportRef={listRef}
+                items={items}
+                margin={0}
+                overscan={overscan}
+                scrollThreshold={5000}
+                onViewportIndexesChange={handleRowsScroll}
+                initialIndex={initialIndexOfFirstRow}
               >
-                {({ onItemsRendered, ref }) => {
-                  const width = fullTableWidth;
-                  const horizontalScroll =
-                    width > 0 && fullTableWidth / width > 1.1 ? true : false;
-                  const table = (
-                    <FixedSizeList
+                {(item, index) => {
+                  return (
+                    <Row
+                      key={rowKey(item, index)}
                       {...{
-                        ref: (instance) => {
-                          ref(instance);
-                          listRef.current = instance;
-                        },
-                        height: listHeight,
-                        width: "100%",
-                        style: {
-                          overflowX: "hidden",
-                          overflowY: "auto",
-                        },
-                        onItemsRendered,
-                        onScroll: handleRowsScroll,
-                        itemCount: count,
-                        itemSize: rowHeight,
-                        ...rest,
+                        index,
+                        rows,
+                        style: rowStyle,
+                        columns,
+                        visibleColumns: visibleColumnNames,
+                        selectedRows,
+                        toggleRowSelection,
+                        toggleAllRowsSelection,
+                        getRowId,
+                        onRowClick,
                       }}
-                    >
-                      {(props: ListChildComponentProps) =>
-                        RowRenderer({
-                          ...props,
-                          rows,
-                          rowHeight,
-                          columns,
-                          visibleColumns: visibleColumns.map((c) => c.name),
-                          selectedRows,
-                          toggleRowSelection,
-                          toggleAllRowsSelection,
-                          getRowId,
-                          onRowClick,
-                        })
-                      }
-                    </FixedSizeList>
-                  );
-                  return horizontalScroll ? (
-                    <div style={{ width, overflowX: "scroll" }}>{table}</div>
-                  ) : (
-                    table
+                    />
                   );
                 }}
-              </InfiniteLoader>
-            </div>
+              </ViewportList>
+            </RowsContainer>
           </>
         ) : (
           noRowsRenderer()
         )}
-      </div>
+      </Box>
       <Box
-        sx={{
-          height: bottomBarHeight,
-          padding: 1,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
+        height={bottomBarHeight}
+        padding={1}
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
       >
         {t("total_count_of_rows", "Total count of rows: {{count}}", {
           count,
         })}
+
         <Pagination
           count={pageCount}
           page={pagination.page}
@@ -636,38 +655,13 @@ export function Main({
   );
 }
 
-/** Returns the full width of all visible columns, including their margins */
-function getFullTableWidth<T extends DatatableRow = DatatableRow>({
-  columns,
-  visibleColumns,
-  toggleRowSelection,
-  toggleAllRowsSelection,
-}: {
-  columns: DatatableColumn[];
-  visibleColumns: string[];
-  toggleRowSelection: DatatableProps<T>["toggleRowSelection"];
-  toggleAllRowsSelection: DatatableProps<T>["toggleAllRowsSelection"];
-}) {
-  return (
-    visibleColumns.reduce(
-      (a, c, i) =>
-        a +
-        columns.find((col) => col.name === c)!.width +
-        (i === 0 ? 2 : 1) * 10,
-      0
-    ) + (toggleRowSelection || toggleAllRowsSelection ? 42 : 0)
-  );
-}
-
 const noRowsRendererDefault = () => (
   <Box
-    sx={{
-      height: 1,
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      alignItems: "center",
-    }}
+    height={1}
+    display="flex"
+    flexDirection="column"
+    justifyContent="center"
+    alignItems="center"
   >
     <h1>{"∅"}</h1>
   </Box>
@@ -677,3 +671,31 @@ const cellValDefault: CellValDefault = (row, key) => row[key];
 
 //Trivial row identity is the row object itself as default ...
 const getRowIdDefault: GetRowId = ({ row }) => row;
+
+function defaultCellRenderer({ cellData }: { cellData: DatatableRow }) {
+  try {
+    if (typeof cellData === "undefined") return "";
+    return typeof cellData === "object"
+      ? JSON.stringify(cellData)
+      : String(cellData);
+  } catch (err) {
+    console.warn(err);
+    return String(cellData);
+  }
+}
+
+const rowKey = (r: DatatableRow, index: number) =>
+  typeof r === "object" || r === undefined ? index : String(r);
+
+const RowsContainer = styled("div")<{
+  tableWidth: number;
+  pageSize: number;
+  rowHeight: number;
+  children: ReactNode;
+}>(({ tableWidth, pageSize, rowHeight }) => ({
+  position: "relative",
+  width: tableWidth,
+  minWidth: "100%",
+  height: pageSize * rowHeight,
+  overflowY: "auto",
+}));

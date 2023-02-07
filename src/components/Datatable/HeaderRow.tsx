@@ -3,38 +3,41 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { DatatableRow, HeaderRowProps } from "./DatatableTypes";
 import { FilterRow } from "./FilterRow";
-import { marginWidth, StyledCell } from "./RowRenderer";
+import { marginWidth, StyledCell } from "./Row";
 import { SelectAllCheckbox } from "./SelectAllCheckbox";
 
 export function HeaderRow<T extends DatatableRow>({
-  columns,
+  columnsByName,
   visibleColumns,
   showFilter = false,
   rowFilter,
+  rowFilterServer,
   changeFilter,
   sorting,
   rowSort,
+  rowSortServer,
   sort,
-  disableSort,
   selectedRows,
   toggleAllRowsSelection,
   rows,
+  serverMode,
 }: HeaderRowProps<T>) {
   const { t } = useTranslation();
-  const columnsByName = useMemo(
-    () => columns.reduce((acc, col) => acc.set(col.name, col), new Map()),
-    [columns]
-  );
 
   const [lastSortedCol, setLastSortedCol] = useState<string | undefined>();
 
   const filterInputByName = useMemo(() => {
     return Object.entries(rowFilter ?? {}).reduce(
       (acc, [name, render]) =>
-        acc.set(name, render ? render({ name, changeFilter }) : null),
+        acc.set(
+          name,
+          render && (!serverMode || rowFilterServer?.includes(name))
+            ? render({ name, changeFilter })
+            : null
+        ),
       new Map()
     );
-  }, [changeFilter, rowFilter]);
+  }, [changeFilter, rowFilter, rowFilterServer, serverMode]);
 
   const isRowSelectionColEnabled = useMemo(
     () => Boolean(selectedRows && rows),
@@ -62,6 +65,7 @@ export function HeaderRow<T extends DatatableRow>({
         {visibleColumns.map((colName, colIndex) => {
           const col = columnsByName.get(colName);
           if (!col) return null;
+
           const dataKey = col.dataKey ?? col.name;
           return (
             <StyledCell
@@ -76,7 +80,11 @@ export function HeaderRow<T extends DatatableRow>({
                 flex: `0 1 ${col.width}px`,
               }}
             >
-              {disableSort === true ? (
+              {(
+                serverMode
+                  ? !rowSortServer?.includes(colName)
+                  : !rowSort?.[colName]
+              ) ? (
                 <div
                   style={{
                     maxWidth: col.width,
@@ -131,7 +139,7 @@ export function HeaderRow<T extends DatatableRow>({
         })}
       </Box>
       {showFilter && (
-        <FilterRow
+        <FilterRow<T>
           {...{
             columnsByName,
             filterInputByName,

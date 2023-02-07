@@ -19,7 +19,6 @@ import { selectPagesByIndex } from "../source/selectPageByIndex";
 import { reducer } from "./reducer";
 import { init } from "./init";
 import { DatatableColumn } from "src/components/Datatable";
-import { RowRenderer } from "src/components/Datatable/RowRenderer";
 
 export interface MapperProps {
   source: Source;

@@ -2,24 +2,7 @@ import { useCallback } from "react";
 import { Checkbox } from "@mui/material";
 import type { GetRowId } from "./DatatableTypes";
 
-type Row = Record<string, unknown>;
-
-export interface SelectRowProps {
-  rowIndex: number;
-  toggleRowSelection?: ({
-    row,
-    checked,
-  }: {
-    row: Row;
-    checked: boolean;
-  }) => void;
-  selectedRows: Set<ReturnType<GetRowId>>;
-  rowData: Row;
-  getRowId: GetRowId;
-}
-
 export function SelectRowCheckbox({
-  rowIndex,
   toggleRowSelection,
   selectedRows,
   rowData,
@@ -31,13 +14,30 @@ export function SelectRowCheckbox({
     },
     [toggleRowSelection, rowData]
   );
+  const id = getRowId({ row: rowData });
   return (
     <Checkbox
       {...{
-        id: "olmekd#" + rowIndex,
-        checked: selectedRows.has(getRowId({ row: rowData })),
+        "data-test": "olmekd#" + id,
+        key: "olmekd#" + id,
+        checked: selectedRows.has(id),
         onChange,
       }}
     />
   );
+}
+
+type Row = Record<string, unknown>;
+
+export interface SelectRowProps {
+  toggleRowSelection?: ({
+    row,
+    checked,
+  }: {
+    row: Row;
+    checked: boolean;
+  }) => void;
+  selectedRows: Set<ReturnType<GetRowId>>;
+  rowData: Row;
+  getRowId: GetRowId;
 }
