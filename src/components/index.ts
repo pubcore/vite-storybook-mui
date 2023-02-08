@@ -67,8 +67,6 @@ export type { WorkflowProps } from "./Workflow/Workflow";
 export { default as i18nextTextEditPlugin } from "./TextEdit/i18nextPlugin";
 export { JsonSchemaForm } from "./JsonSchemaForm";
 export * as Fields from "./JsonSchemaForm/fields";
-export type { JSONSchema7 } from "json-schema";
-export type { Field, UiSchema, WidgetProps, FieldProps } from "@rjsf/utils";
 
 declare module "i18next" {
   interface CustomTypeOptions {

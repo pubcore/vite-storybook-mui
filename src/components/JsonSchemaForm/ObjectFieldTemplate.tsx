@@ -8,10 +8,10 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { ObjectFieldTemplateProps, getTemplate } from "@rjsf/utils";
+import { ObjectFieldTemplateProps, getTemplate, RJSFSchema } from "@rjsf/utils";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { A, ActionButton, JSONSchema7 } from "..";
+import { A, ActionButton } from "..";
 
 export function ObjectFieldTemplate({
   description,
@@ -51,7 +51,7 @@ export function ObjectFieldTemplate({
   const elements = properties.map((element) => element.content);
   const nameProperty = properties.find((prop) => prop.name === "name");
   const helpUri = nameProperty
-    ? (schema?.properties?.[nameProperty.name] as JSONSchema7).description
+    ? (schema?.properties?.[nameProperty.name] as RJSFSchema).description
     : null;
 
   return headers.length ? (

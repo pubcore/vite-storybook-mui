@@ -369,7 +369,6 @@ export function Main({
     try {
       setIsLoadingDownloadCsv(true);
       let rows: DatatableRow[] = [];
-      console.log(count);
       for (let i = 0; i < count; i++) {
         if (isRowLoaded(i)) {
           rows.push(rowGetter({ index: i }));

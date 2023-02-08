@@ -67,7 +67,6 @@ export function useLoadRows({
           batchIsLoading.current.set(batchOfRowindex, true);
           const startIndex = (batchOfRowindex - 1) * minimumBatchSize;
           const stopIndex = startIndex + minimumBatchSize - 1;
-          console.log("loadMoreRows", startIndex, stopIndex);
           return loadMoreRows(startIndex, stopIndex);
         }
       }
@@ -87,7 +86,7 @@ export function useLoadRows({
           isMounted &&
             setBatchStatus((s) => (s[batchN] ? s : { ...s, [batchN]: true }));
         })
-        .finally(() => {
+        .catch(() => {
           batchIsLoading.current.set(batchN, false);
         });
     }
